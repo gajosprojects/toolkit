@@ -1,0 +1,140 @@
+{
+	"name": "pascal",
+	"displayName": "Pascal",
+	"description": "Pascal language support for Visual Studio Code",
+	"version": "8.0.1",
+	"publisher": "alefragnani",
+	"galleryBanner": {
+		"color": "#4682B4",
+		"theme": "dark"
+	},
+	"engines": {
+		"vscode": "^1.31.0"
+	},
+	"categories": [
+		"Programming Languages",
+		"Snippets",
+		"Other"
+	],
+	"keywords": [
+		"pascal",
+		"delphi",
+		"freepascal",
+		"lazarus",
+		"multi-root ready"
+	],
+	"activationEvents": [
+		"onLanguage:pascal",
+		"onCommand:pascal.generateTags",
+		"onCommand:pascal.updateTags",
+		"onCommand:pascal.whatsNew",
+		"*"
+	],
+	"main": "./dist/extension",
+	"icon": "images/icon.png",
+	"license": "SEE LICENSE IN LICENSE.md",
+	"homepage": "https://github.com/alefragnani/vscode-language-pascal/blob/master/README.md",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/alefragnani/vscode-language-pascal.git"
+	},
+	"bugs": {
+		"url": "https://github.com/alefragnani/vscode-language-pascal/issues"
+	},
+	"contributes": {
+		"languages": [
+			{
+				"id": "pascal",
+				"aliases": [
+					"Pascal",
+					"pascal"
+				],
+				"extensions": [
+					".pas",
+					".p",
+					".dfm",
+					".dpr",
+					".dpk",
+					".lfm",
+					".dpr",
+					".lpr"
+				],
+				"configuration": "./pascal.configuration.json"
+			}
+		],
+		"grammars": [
+			{
+				"language": "pascal",
+				"scopeName": "source.pascal",
+				"path": "./syntaxes/pascal.tmLanguage"
+			}
+		],
+		"snippets": [
+			{
+				"language": "pascal",
+				"path": "./snippets/pascal.json"
+			}
+		],
+		"commands": [
+			{
+				"command": "pascal.generateTags",
+				"title": "Pascal: Generate Tags"
+			},
+			{
+				"command": "pascal.updateTags",
+				"title": "Pascal: Update Tags"
+			},
+			{
+				"command": "pascal.whatsNew",
+				"title": "Pascal: What's New"
+			}
+		],
+		"configuration": {
+			"type": "object",
+			"title": "Pascal",
+			"properties": {
+				"pascal.tags.autoGenerate": {
+					"type": "boolean",
+					"default": true,
+					"description": "Controls if the extension should automatically generate tags in projects opened for the first time"
+				},
+				"pascal.codeNavigation": {
+					"type": "string",
+					"default": "workspace",
+					"scope": "resource",
+					"description": "Select how the code navigation should work",
+					"enum": [
+						"workspace",
+						"file"
+					]
+				}
+			}
+		}
+	},
+	"scripts": {
+		"build": "webpack --mode development",
+		"watch": "webpack --watch --mode development --info-verbosity verbose",
+		"vscode:prepublish": "webpack --mode production",
+		"webpack": "webpack --mode development",
+		"webpack-dev": "webpack --mode development --watch",
+		"compile": "tsc -watch -p ./",
+		"postinstall": "node ./node_modules/vscode/bin/install"
+	},
+	"extensionDependencies": [
+		"alefragnani.pascal-formatter"
+	],
+	"devDependencies": {
+		"@types/node": "^6.0.40",
+		"typescript": "^3.1.6",
+		"vscode": "^1.1.28",
+		"webpack": "^4.19.1",
+		"webpack-cli": "^3.1.0",
+		"ts-loader": "^4.4.2",
+		"terser-webpack-plugin": "^1.2.1"
+	},
+	"__metadata": {
+		"id": "30557e54-0390-4524-bd96-457b7ee35fc7",
+		"publisherId": "3fbdef65-bdf5-4723-aeaf-9e12a50546ef",
+		"publisherDisplayName": "Alessandro Fragnani"
+	}
+}

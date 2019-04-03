@@ -1,0 +1,62 @@
+[2019-04-02 21:37:24.687] [exthost] [info] extension host started
+[2019-04-02 21:37:24.745] [exthost] [info] ExtensionService#_doActivateExtension vscode.debug-auto-launch {"startup":true,"activationEvent":"*"}
+[2019-04-02 21:37:24.745] [exthost] [info] ExtensionService#loadCommonJSModule c:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\resources\app\extensions\debug-auto-launch\dist\extension
+[2019-04-02 21:37:24.781] [exthost] [info] ExtensionService#_doActivateExtension vscode.emmet {"startup":true,"activationEvent":"*"}
+[2019-04-02 21:37:24.781] [exthost] [info] ExtensionService#loadCommonJSModule c:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\resources\app\extensions\emmet\dist\extension
+[2019-04-02 21:37:24.836] [exthost] [info] ExtensionService#_doActivateExtension vscode.git {"startup":true,"activationEvent":"*"}
+[2019-04-02 21:37:24.836] [exthost] [info] ExtensionService#loadCommonJSModule c:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\resources\app\extensions\git\dist\main
+[2019-04-02 21:37:25.070] [exthost] [info] ExtensionService#_doActivateExtension vscode.merge-conflict {"startup":true,"activationEvent":"*"}
+[2019-04-02 21:37:25.070] [exthost] [info] ExtensionService#loadCommonJSModule c:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\resources\app\extensions\merge-conflict\dist\extension
+[2019-04-02 21:37:25.110] [exthost] [info] ExtensionService#_doActivateExtension alefragnani.pascal-formatter {"startup":true,"activationEvent":"*"}
+[2019-04-02 21:37:25.110] [exthost] [info] ExtensionService#loadCommonJSModule C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\alefragnani.pascal-formatter-2.1.0\out\src\extension
+[2019-04-02 21:37:26.012] [exthost] [info] ExtensionService#_doActivateExtension axosoft.gitkraken-glo {"startup":true,"activationEvent":"*"}
+[2019-04-02 21:37:26.012] [exthost] [info] ExtensionService#loadCommonJSModule C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\axosoft.gitkraken-glo-1.1.0\out\src\extension
+[2019-04-02 21:37:26.119] [exthost] [info] ExtensionService#_doActivateExtension fernandoescolar.vscode-solution-explorer {"startup":true,"activationEvent":"*"}
+[2019-04-02 21:37:26.120] [exthost] [info] ExtensionService#loadCommonJSModule C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\fernandoescolar.vscode-solution-explorer-0.3.1\out\extension
+[2019-04-02 21:37:39.165] [exthost] [info] ExtensionService#_doActivateExtension gencer.html-slim-scss-css-class-completion {"startup":true,"activationEvent":"*"}
+[2019-04-02 21:37:39.165] [exthost] [info] ExtensionService#loadCommonJSModule C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\gencer.html-slim-scss-css-class-completion-1.5.12\out\src\extension
+[2019-04-02 21:38:10.661] [exthost] [info] ExtensionService#_doActivateExtension KnisterPeter.vscode-github {"startup":true,"activationEvent":"*"}
+[2019-04-02 21:38:10.661] [exthost] [info] ExtensionService#loadCommonJSModule C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\knisterpeter.vscode-github-0.30.1\out\src\main
+[2019-04-02 21:38:51.794] [exthost] [info] ExtensionService#_doActivateExtension robertohuertasm.vscode-icons {"startup":true,"activationEvent":"*"}
+[2019-04-02 21:38:51.794] [exthost] [info] ExtensionService#loadCommonJSModule C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\robertohuertasm.vscode-icons-8.2.0\out\src\
+[2019-04-02 21:38:54.066] [exthost] [info] ExtensionService#_doActivateExtension Shan.code-settings-sync {"startup":true,"activationEvent":"*"}
+[2019-04-02 21:38:54.066] [exthost] [info] ExtensionService#loadCommonJSModule C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\shan.code-settings-sync-3.2.7\out\extension.js
+[2019-04-02 21:38:55.975] [exthost] [info] ExtensionService#_doActivateExtension wayou.vscode-todo-highlight {"startup":true,"activationEvent":"*"}
+[2019-04-02 21:38:55.975] [exthost] [info] ExtensionService#loadCommonJSModule C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\wayou.vscode-todo-highlight-1.0.4\src\extension
+[2019-04-02 21:38:56.023] [exthost] [info] ExtensionService#_doActivateExtension Zignd.html-css-class-completion {"startup":true,"activationEvent":"*"}
+[2019-04-02 21:38:56.023] [exthost] [info] ExtensionService#loadCommonJSModule C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\zignd.html-css-class-completion-1.18.0\out\src\extension
+[2019-04-02 21:39:02.283] [exthost] [info] eager extensions activated
+[2019-04-02 21:39:03.203] [exthost] [info] ExtensionService#_doActivateExtension vscode-icons-team.vscode-icons {"startup":false,"activationEvent":"*"}
+[2019-04-02 21:39:03.204] [exthost] [info] ExtensionService#loadCommonJSModule c:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\vscode-icons-team.vscode-icons-8.4.0\out\src\
+[2019-04-02 21:39:06.130] [exthost] [info] ExtensionService#_doActivateExtension alefragnani.pascal {"startup":true,"activationEvent":"*"}
+[2019-04-02 21:39:06.130] [exthost] [info] ExtensionService#loadCommonJSModule C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\alefragnani.pascal-8.0.0\dist\extension
+[2019-04-02 21:46:31.919] [exthost] [info] extension host started
+[2019-04-02 21:46:31.948] [exthost] [info] ExtensionService#_doActivateExtension vscode.debug-auto-launch {"startup":true,"activationEvent":"*"}
+[2019-04-02 21:46:31.948] [exthost] [info] ExtensionService#loadCommonJSModule c:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\resources\app\extensions\debug-auto-launch\dist\extension
+[2019-04-02 21:46:31.951] [exthost] [info] ExtensionService#_doActivateExtension vscode.emmet {"startup":true,"activationEvent":"*"}
+[2019-04-02 21:46:31.951] [exthost] [info] ExtensionService#loadCommonJSModule c:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\resources\app\extensions\emmet\dist\extension
+[2019-04-02 21:46:31.955] [exthost] [info] ExtensionService#_doActivateExtension vscode.git {"startup":true,"activationEvent":"*"}
+[2019-04-02 21:46:31.955] [exthost] [info] ExtensionService#loadCommonJSModule c:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\resources\app\extensions\git\dist\main
+[2019-04-02 21:46:31.984] [exthost] [info] ExtensionService#_doActivateExtension vscode.merge-conflict {"startup":true,"activationEvent":"*"}
+[2019-04-02 21:46:31.984] [exthost] [info] ExtensionService#loadCommonJSModule c:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\resources\app\extensions\merge-conflict\dist\extension
+[2019-04-02 21:46:31.987] [exthost] [info] ExtensionService#_doActivateExtension alefragnani.pascal-formatter {"startup":true,"activationEvent":"*"}
+[2019-04-02 21:46:31.987] [exthost] [info] ExtensionService#loadCommonJSModule C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\alefragnani.pascal-formatter-2.2.0\dist\extension
+[2019-04-02 21:46:31.996] [exthost] [info] ExtensionService#_doActivateExtension axosoft.gitkraken-glo {"startup":true,"activationEvent":"*"}
+[2019-04-02 21:46:31.996] [exthost] [info] ExtensionService#loadCommonJSModule C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\axosoft.gitkraken-glo-1.1.0\out\src\extension
+[2019-04-02 21:46:31.999] [exthost] [info] ExtensionService#_doActivateExtension fernandoescolar.vscode-solution-explorer {"startup":true,"activationEvent":"*"}
+[2019-04-02 21:46:31.999] [exthost] [info] ExtensionService#loadCommonJSModule C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\fernandoescolar.vscode-solution-explorer-0.3.1\out\extension
+[2019-04-02 21:46:32.271] [exthost] [info] ExtensionService#_doActivateExtension gencer.html-slim-scss-css-class-completion {"startup":true,"activationEvent":"*"}
+[2019-04-02 21:46:32.271] [exthost] [info] ExtensionService#loadCommonJSModule C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\gencer.html-slim-scss-css-class-completion-1.5.14\out\src\extension
+[2019-04-02 21:46:32.997] [exthost] [info] ExtensionService#_doActivateExtension KnisterPeter.vscode-github {"startup":true,"activationEvent":"*"}
+[2019-04-02 21:46:32.997] [exthost] [info] ExtensionService#loadCommonJSModule C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\knisterpeter.vscode-github-0.30.2\out\src\main
+[2019-04-02 21:46:33.389] [exthost] [info] ExtensionService#_doActivateExtension Shan.code-settings-sync {"startup":true,"activationEvent":"*"}
+[2019-04-02 21:46:33.389] [exthost] [info] ExtensionService#loadCommonJSModule C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\shan.code-settings-sync-3.2.7\out\extension.js
+[2019-04-02 21:46:34.341] [exthost] [info] ExtensionService#_doActivateExtension vscode-icons-team.vscode-icons {"startup":true,"activationEvent":"*"}
+[2019-04-02 21:46:34.341] [exthost] [info] ExtensionService#loadCommonJSModule C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\vscode-icons-team.vscode-icons-8.4.0\out\src\
+[2019-04-02 21:46:34.939] [exthost] [info] ExtensionService#_doActivateExtension wayou.vscode-todo-highlight {"startup":true,"activationEvent":"*"}
+[2019-04-02 21:46:34.939] [exthost] [info] ExtensionService#loadCommonJSModule C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\wayou.vscode-todo-highlight-1.0.4\src\extension
+[2019-04-02 21:46:34.941] [exthost] [info] ExtensionService#_doActivateExtension Zignd.html-css-class-completion {"startup":true,"activationEvent":"*"}
+[2019-04-02 21:46:34.941] [exthost] [info] ExtensionService#loadCommonJSModule C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\zignd.html-css-class-completion-1.18.0\out\src\extension
+[2019-04-02 21:46:35.359] [exthost] [info] eager extensions activated
+[2019-04-02 21:46:35.686] [exthost] [info] ExtensionService#_doActivateExtension alefragnani.pascal {"startup":true,"activationEvent":"*"}
+[2019-04-02 21:46:35.686] [exthost] [info] ExtensionService#loadCommonJSModule C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\alefragnani.pascal-8.0.1\dist\extension

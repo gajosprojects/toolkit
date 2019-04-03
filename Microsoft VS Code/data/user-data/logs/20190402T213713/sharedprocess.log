@@ -1,0 +1,82 @@
+[2019-04-02 21:37:20.579] [sharedprocess] [info] main {"machineId":"01bf793f002cb1fe427f5adea4f6fb065eaf8e117d4843039b7d7abb01878159"}
+[2019-04-02 21:37:21.545] [sharedprocess] [info] Scanned user extensions: 17
+[2019-04-02 21:37:21.630] [sharedprocess] [info] Scanned system extensions: 72
+[2019-04-02 21:37:22.447] [sharedprocess] [info] Scanned user extensions: 17
+[2019-04-02 21:37:22.460] [sharedprocess] [info] Scanned user extensions: 17
+[2019-04-02 21:37:22.526] [sharedprocess] [info] Scanned system extensions: 72
+[2019-04-02 21:37:22.537] [sharedprocess] [info] Scanned system extensions: 72
+[2019-04-02 21:37:27.442] [sharedprocess] [info] Installing extension: alefragnani.pascal
+[2019-04-02 21:37:27.443] [sharedprocess] [info] Installing extension: alefragnani.pascal-formatter
+[2019-04-02 21:37:27.444] [sharedprocess] [info] Installing extension: gencer.html-slim-scss-css-class-completion
+[2019-04-02 21:37:27.444] [sharedprocess] [info] Installing extension: knisterpeter.vscode-github
+[2019-04-02 21:37:27.444] [sharedprocess] [info] Installing extension: mikael.angular-beastcode
+[2019-04-02 21:37:27.445] [sharedprocess] [info] Installing extension: ms-vscode.csharp
+[2019-04-02 21:37:27.445] [sharedprocess] [info] Installing extension: vscode-icons-team.vscode-icons
+[2019-04-02 21:37:27.445] [sharedprocess] [info] Installing extension: yzhang.markdown-all-in-one
+[2019-04-02 21:37:27.609] [sharedprocess] [info] Scanned user extensions: 17
+[2019-04-02 21:37:27.624] [sharedprocess] [info] Scanned user extensions: 17
+[2019-04-02 21:37:27.629] [sharedprocess] [info] Scanned user extensions: 17
+[2019-04-02 21:37:27.636] [sharedprocess] [info] Scanned user extensions: 17
+[2019-04-02 21:37:27.641] [sharedprocess] [info] Scanned user extensions: 17
+[2019-04-02 21:37:27.646] [sharedprocess] [info] Scanned user extensions: 17
+[2019-04-02 21:37:27.651] [sharedprocess] [info] Scanned user extensions: 17
+[2019-04-02 21:37:27.658] [sharedprocess] [info] Scanned user extensions: 17
+[2019-04-02 21:37:28.473] [sharedprocess] [info] Downloaded extension: alefragnani.pascal C:\Users\carlo\AppData\Local\Temp\5eb4cc97-9daf-46ae-a25d-704226f11f9e
+[2019-04-02 21:37:28.537] [sharedprocess] [info] Downloaded extension: alefragnani.pascal-formatter C:\Users\carlo\AppData\Local\Temp\5a84c385-c5b6-4ece-aea4-380044762aa5
+[2019-04-02 21:37:28.773] [sharedprocess] [info] Downloaded extension: ms-vscode.csharp C:\Users\carlo\AppData\Local\Temp\29a2a144-6553-4de3-a969-a7a3184f3de1
+[2019-04-02 21:37:28.921] [sharedprocess] [info] Extracted extension to C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\.alefragnani.pascal-formatter-2.2.0: alefragnani.pascal-formatter
+[2019-04-02 21:37:28.923] [sharedprocess] [info] Renamed to C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\alefragnani.pascal-formatter-2.2.0
+[2019-04-02 21:37:28.925] [sharedprocess] [info] Installation completed. alefragnani.pascal-formatter
+[2019-04-02 21:37:28.991] [sharedprocess] [info] Extensions installed successfully: alefragnani.pascal-formatter
+[2019-04-02 21:37:28.996] [sharedprocess] [info] Extracted extension to C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\.alefragnani.pascal-8.0.1: alefragnani.pascal
+[2019-04-02 21:37:29.046] [sharedprocess] [info] Renamed to C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\alefragnani.pascal-8.0.1
+[2019-04-02 21:37:29.048] [sharedprocess] [info] Installation completed. alefragnani.pascal
+[2019-04-02 21:37:29.235] [sharedprocess] [info] Scanned user extensions: 17
+[2019-04-02 21:37:29.266] [sharedprocess] [info] Scanned system extensions: 72
+[2019-04-02 21:37:29.266] [sharedprocess] [info] Extensions installed successfully: alefragnani.pascal
+[2019-04-02 21:37:29.280] [sharedprocess] [info] Extracted extension to C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\.ms-vscode.csharp-1.18.0: ms-vscode.csharp
+[2019-04-02 21:37:29.291] [sharedprocess] [info] Downloaded extension: yzhang.markdown-all-in-one C:\Users\carlo\AppData\Local\Temp\73212411-5856-4c90-b42d-d4158df7618f
+[2019-04-02 21:37:29.301] [sharedprocess] [info] Renamed to C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\ms-vscode.csharp-1.18.0
+[2019-04-02 21:37:29.309] [sharedprocess] [info] Installation completed. ms-vscode.csharp
+[2019-04-02 21:37:29.396] [sharedprocess] [info] Extensions installed successfully: ms-vscode.csharp
+[2019-04-02 21:37:35.958] [sharedprocess] [info] Downloaded extension: knisterpeter.vscode-github C:\Users\carlo\AppData\Local\Temp\afecada2-246c-463c-998d-c723d345fbe4
+[2019-04-02 21:37:36.010] [sharedprocess] [info] Downloaded extension: mikael.angular-beastcode C:\Users\carlo\AppData\Local\Temp\7d45b975-8608-4fdf-b672-148587875040
+[2019-04-02 21:37:36.127] [sharedprocess] [info] Downloaded extension: vscode-icons-team.vscode-icons C:\Users\carlo\AppData\Local\Temp\4e5417fc-2db7-4df4-9993-98c0504adf56
+[2019-04-02 21:37:36.250] [sharedprocess] [info] Downloaded extension: gencer.html-slim-scss-css-class-completion C:\Users\carlo\AppData\Local\Temp\42067fe5-6198-41a9-ac07-949521f621a9
+[2019-04-02 21:37:37.334] [sharedprocess] [info] Extracted extension to C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\.mikael.angular-beastcode-7.2.6: mikael.angular-beastcode
+[2019-04-02 21:37:37.424] [sharedprocess] [info] Renamed to C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\mikael.angular-beastcode-7.2.6
+[2019-04-02 21:37:37.427] [sharedprocess] [info] Installation completed. mikael.angular-beastcode
+[2019-04-02 21:37:37.911] [sharedprocess] [info] Extensions installed successfully: mikael.angular-beastcode
+[2019-04-02 21:37:38.338] [sharedprocess] [info] Extracted extension to C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\.yzhang.markdown-all-in-one-2.2.0: yzhang.markdown-all-in-one
+[2019-04-02 21:37:38.356] [sharedprocess] [info] Renamed to C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\yzhang.markdown-all-in-one-2.2.0
+[2019-04-02 21:37:38.361] [sharedprocess] [info] Installation completed. yzhang.markdown-all-in-one
+[2019-04-02 21:37:38.449] [sharedprocess] [info] Extensions installed successfully: yzhang.markdown-all-in-one
+[2019-04-02 21:37:40.807] [sharedprocess] [info] Scanned user extensions: 17
+[2019-04-02 21:37:58.006] [sharedprocess] [info] Extracted extension to C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\.knisterpeter.vscode-github-0.30.2: knisterpeter.vscode-github
+[2019-04-02 21:37:58.045] [sharedprocess] [info] Renamed to C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\knisterpeter.vscode-github-0.30.2
+[2019-04-02 21:37:58.047] [sharedprocess] [info] Installation completed. knisterpeter.vscode-github
+[2019-04-02 21:37:58.164] [sharedprocess] [info] Extensions installed successfully: knisterpeter.vscode-github
+[2019-04-02 21:38:00.721] [sharedprocess] [info] Starting to clean up unused language packs.
+[2019-04-02 21:38:19.270] [sharedprocess] [info] Extracted extension to C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\.vscode-icons-team.vscode-icons-8.4.0: vscode-icons-team.vscode-icons
+[2019-04-02 21:38:20.545] [sharedprocess] [info] Renamed to C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\vscode-icons-team.vscode-icons-8.4.0
+[2019-04-02 21:38:20.550] [sharedprocess] [info] Installation completed. vscode-icons-team.vscode-icons
+[2019-04-02 21:38:21.293] [sharedprocess] [info] Extensions installed successfully: vscode-icons-team.vscode-icons
+[2019-04-02 21:38:29.212] [sharedprocess] [info] Extracted extension to C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\.gencer.html-slim-scss-css-class-completion-1.5.14: gencer.html-slim-scss-css-class-completion
+[2019-04-02 21:38:29.599] [sharedprocess] [info] Renamed to C:\Users\carlo\Downloads\VSCode-win32-ia32-1.32.3\data\extensions\gencer.html-slim-scss-css-class-completion-1.5.14
+[2019-04-02 21:38:29.606] [sharedprocess] [info] Installation completed. gencer.html-slim-scss-css-class-completion
+[2019-04-02 21:38:30.102] [sharedprocess] [info] Extensions installed successfully: gencer.html-slim-scss-css-class-completion
+[2019-04-02 21:42:41.341] [sharedprocess] [info] Scanned user extensions: 17
+[2019-04-02 21:46:31.303] [sharedprocess] [info] Scanned user extensions: 17
+[2019-04-02 21:46:31.310] [sharedprocess] [info] Scanned user extensions: 17
+[2019-04-02 21:46:31.324] [sharedprocess] [info] Scanned user extensions: 17
+[2019-04-02 21:46:31.575] [sharedprocess] [info] Scanned system extensions: 72
+[2019-04-02 21:46:31.579] [sharedprocess] [info] Scanned system extensions: 72
+[2019-04-02 21:46:31.584] [sharedprocess] [info] Scanned system extensions: 72
+[2019-04-02 21:46:32.910] [sharedprocess] [info] Scanned user extensions: 17
+[2019-04-02 21:46:56.443] [sharedprocess] [info] Scanned user extensions: 17
+[2019-04-02 21:46:56.454] [sharedprocess] [info] Scanned user extensions: 17
+[2019-04-02 21:46:56.462] [sharedprocess] [info] Scanned user extensions: 17
+[2019-04-02 21:46:56.466] [sharedprocess] [info] Scanned user extensions: 17
+[2019-04-02 21:46:56.512] [sharedprocess] [info] Scanned system extensions: 72
+[2019-04-02 21:46:56.521] [sharedprocess] [info] Scanned system extensions: 72
+[2019-04-02 21:46:56.529] [sharedprocess] [info] Scanned system extensions: 72

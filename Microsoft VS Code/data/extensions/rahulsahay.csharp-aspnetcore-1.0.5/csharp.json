@@ -1,0 +1,254 @@
+{
+/*
+	Handy Csharp snippets for ASP.NET Core. Like you can type HomeController, Startup, ProgramFile and many more and hit tab.
+	Author:- Rahul Sahay
+	Blog:- http://myview.rahulnivi.net
+	Follow me @:- https://twitter.com/rahulsahay19
+*/
+
+/*
+	 Startup Code Snippet.
+*/
+ "Startup Code": {
+		"prefix": "startup",
+		"body": [
+	"public class Startup",
+	"{",
+
+    "\tpublic void ConfigureServices(IServiceCollection services)",
+    "\t{",
+		"\t\t//Service added for MVC",
+       "\t\tservices.AddMvc();",
+    "\t}",
+  "\tpublic void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory)",
+    "\t{",
+		"\t\t//Logger",
+       "\t\tloggerFactory.AddConsole();",
+
+       "\t\t//Use Static Files",
+        "\t\tapp.UseStaticFiles();",
+
+		  "\t\tapp.Run(async context =>",
+            "\t\t{",
+              "\t\t\tawait context.Response.WriteAsync();",
+            "\t\t});",
+                     
+    "\t}",
+"}"
+		],
+		"description": "Startup File Skeleton"
+	},
+
+/*
+	 Home Controller Snippet
+*/	 
+	 "Home Controller": {
+		"prefix": "HomeController",
+		"body": [
+			 "public class HomeController : Controller",
+    "{",
+        "\tpublic IActionResult Index()",
+        "\t{",
+            "\t\treturn View();",
+        "\t}",
+
+        "\tpublic IActionResult About()",
+        "\t{",
+            "\t\treturn View();",
+        "\t}",
+
+        "\tpublic IActionResult Contact()",
+        "\t{",
+            "\t\treturn View();",
+        "\t}",
+
+        "\tpublic IActionResult Error()",
+        "\t{",
+            "\t\treturn View();",
+        "\t}",
+    "}"
+		],
+		"description": "Home Controller Skeleton"
+	},
+
+	/*
+	 Program File Snippet
+	*/	 
+	 "Program": {
+		"prefix": "ProgramFile",
+		"body": [
+			 "public class Program",
+    "{",
+        "\tpublic static void Main(string[] args)",
+        "\t{",
+            "\t\tvar host = new WebHostBuilder()",
+                "\t\t.UseKestrel()",
+                "\t\t.UseContentRoot(Directory.GetCurrentDirectory())",
+                "\t\t.UseIISIntegration()",
+                "\t\t.UseStartup<Startup>()",
+                "\t\t.Build();",
+
+            "\t\thost.Run();",
+        "\t}",
+    "}"
+		],
+		"description": "Program File Skeleton"
+	},
+  "asp-net-core-action": {
+		"prefix": "mvc-core-action",
+		"body": [
+      "public IActionResult ${1:methodName}()",
+      "{",
+      "  //TODO: Implement Realistic Implementation",
+      "  return View();",
+      "}"
+    ],
+		"description": "Creates an ASP.NET MVC Core Action that returns a view."
+},
+    "asp-net-core-get": {
+		"prefix": "mvc-core-get",
+		"body": [
+      "[HttpGet]",
+      "public IActionResult Get()",
+      "{",
+      "    //TODO: Implement Realistic Implementation",
+      "    return Ok();",
+      "}"
+           
+    ],
+		"description": "Creates an ASP.NET MVC Core Action to implement normal GET."
+},
+  /*
+	 Web API Post action
+	*/	 
+    "asp-net-core-post": {
+		"prefix": "mvc-core-post",
+		"body": [
+      "[HttpPost]",
+      "public IActionResult Post([FromBody] ${1:modelType} model)",
+      "{",
+      "    //TODO: Implement Realistic Implementation",
+      "    return Created(\"\", null);",
+      "}"
+           
+    ],
+		"description": "Creates an ASP.NET MVC Core Action to implement normal Post."
+},
+"asp-net-core-put": {
+		"prefix": "mvc-core-put",
+		"body": [
+      "[HttpPut]",
+      "public IActionResult Put([FromBody] ${1:modelType} model)",
+      "{",
+      "    //TODO: Implement Realistic Implementation",
+      "    return Ok();",
+      "}"
+    ],
+		"description": "Creates an ASP.NET MVC Core Action that Implements a normal PUT."
+},
+"asp-net-core-delete": {
+		"prefix": "mvc-core-delete",
+		"body": [
+      "[HttpDelete]",
+      "public IActionResult Delete(${1:inputType} id)",
+      "{",
+      "    //TODO: Implement Realistic Implementation",
+      "    return Ok();",
+      "}"
+    ],
+		"description": "Creates an ASP.NET MVC Core that Implements a normal DELETE."
+},
+"asp-net-core-action-async": {
+		"prefix": "mvc-core-async-action",
+		"body": [
+      "public async Task<IActionResult> ${1:methodName}()",
+      "{",
+      "    //TODO: Implement Realistic Implementation",
+      "  await Task.Yield();",
+      "  return View();",
+      "}"
+    ],
+		"description": "Creates an async ASP.NET MVC Core Action that returns a view."
+},
+"asp-net-core-get-async": {
+		"prefix": "mvc-core-get-async",
+		"body": [
+      "[HttpGet]",
+      "public async Task<IActionResult> Get()",
+      "{",
+     "    //TODO: Implement Realistic Implementation",
+     "    await Task.Yield();",
+     "    return Ok();",
+     "}"
+    ],
+		"description": "Creates an async ASP.NET MVC Core Action that Implements a normal GET."
+},
+"asp-net-core-post-async": {
+		"prefix": "mvc-core-post-async",
+		"body": [
+      "[HttpPost]",
+      "public async Task<IActionResult> Post([FromBody] ${1:modelType} model)",
+      "{",
+      "    //TODO: Implement Realistic Implementation",
+      "    await Task.Yield();",
+      "    return Created(\"\", null);",
+     "}"
+    ],
+		"description": "Creates an async ASP.NET MVC Core Action that Implements a normal POST."
+},
+"asp-net-core-put-async": {
+		"prefix": "mvc-core-put-async",
+		"body": [
+      "[HttpPut]",
+      "public async Task<IActionResult> Put([FromBody] ${1:modelType} model)",
+      "{",
+      "    //TODO: Implement Realistic Implementation",
+      "    await Task.Yield();",
+      "    return Ok();",
+      "}"
+    ],
+		"description": "Creates an async ASP.NET MVC Core Action that Implements a normal PUT."
+},
+"asp-net-core-delete-async": {
+		"prefix": "mvc-core-delete-async",
+		"body": [
+      "[HttpDelete]",
+      "public async Task<IActionResult> Delete(${1:inputType} id)",
+      "{",
+      "    //TODO: Implement Realistic Implementation",
+      "    await Task.Yield();",
+      "    return Ok();",
+      "}"
+    ],
+		"description": "Creates an async ASP.NET MVC Core Action that Implements a normal DELETE."
+},
+"asp-net-core-custom-middleware": {
+		"prefix": "mvc-core-custom-middleware",
+		"body": [
+      "public static class MyCustomExtension",
+      "{",
+      "\tpublic static IApplicationBuilder UseMyCustomMiddleware(this IApplicationBuilder builder)",
+      "\t{",
+      "\t\treturn builder.UseMiddleware<MyCustomMiddleware>();",
+      "\t}",
+      "}",
+      "public class MyCustomMiddleware",
+      "{",
+      "\tRequestDelegate _next;",
+      "\tpublic MyCustomMiddleware(RequestDelegate next)",
+      "\t{",
+      "\t\t_next = next;",
+      "\t}",
+      "",
+      "public async Task Invoke(HttpContext ctx)",
+      "{",
+      "\tawait ctx.Response.WriteAsync(\"Hello from My Custom Middleware!!!<br/>\");",
+      "\tawait _next.Invoke(ctx);",
+      "\tawait ctx.Response.WriteAsync(\"Bye from My Custom Middleware!!!<br/>\");",
+      "}",
+      "",
+      "}"
+    ],
+		"description": "Creates an async ASP.NET MVC Core Action that creates a custom Middleware."
+}
+}

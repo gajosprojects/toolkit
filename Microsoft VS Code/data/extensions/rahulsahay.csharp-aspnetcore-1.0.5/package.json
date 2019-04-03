@@ -1,0 +1,37 @@
+{
+	"name": "Csharp-ASPNETCore",
+	"publisher": "rahulsahay",
+	"displayName": "ASP.NET Core Snippets",
+	"description": "Handy Csharp snippets for ASP.NET Core. Like you can type HomeController, Startup, ProgramFile and many more starts with mvc- and then hit tab.",
+	"version": "1.0.5",
+	"engines": {
+		"vscode": "^1.5.1"
+	},
+	"categories": [
+		"Languages",
+		"Snippets"
+	],
+	"tags": [
+		"C#",
+		"csharp"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/rahulsahay19/asp-net-core-snippets"
+	},
+	"homepage": "http://myview.rahulnivi.net",
+	"icon": "images/logo.png",
+	"contributes": {
+		"snippets": [
+			{
+				"language": "csharp",
+				"path": "/csharp.json"
+			}
+		]
+	},
+	"__metadata": {
+		"id": "94d85ac4-dbcb-42be-9d6a-2e10bb1abdd9",
+		"publisherId": "d8e2f52e-94e0-45d0-a848-28cc035d0b15",
+		"publisherDisplayName": "rahulsahay"
+	}
+}
