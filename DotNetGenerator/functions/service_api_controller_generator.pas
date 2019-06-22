@@ -42,17 +42,17 @@ begin
     t_arquivo.Add('using System;');
     t_arquivo.Add('using System.Collections.Generic;');
     t_arquivo.Add('using AutoMapper;');
-    t_arquivo.Add(Format('using ERP.Admin.Domain.%s.%s.Commands;', [pEntidade.NomeModulo, t_nome_singular_classe]));
-    t_arquivo.Add(Format('using ERP.Admin.Domain.%s.%s.Repositories;', [pEntidade.NomeModulo, t_nome_singular_classe]));
+    t_arquivo.Add(Format('using ERP.%s.Domain.%s.Commands;', [pEntidade.NomeModulo, t_nome_plural_classe]));
+    t_arquivo.Add(Format('using ERP.%s.Domain.%s.Repositories;', [pEntidade.NomeModulo, t_nome_plural_classe]));
     t_arquivo.Add('using ERP.Domain.Core.Bus;');
     t_arquivo.Add('using ERP.Domain.Core.Notifications;');
     t_arquivo.Add('using ERP.Services.API.ViewModels;');
     t_arquivo.Add('using MediatR;');
     t_arquivo.Add('using Microsoft.AspNetCore.Mvc;');
     t_arquivo.Add('');
-    t_arquivo.Add(Format('namespace ERP.Services.API.Controllers.%s', [pEntidade.nomeModulo]));
+    t_arquivo.Add(Format('namespace ERP.Services.API.Controllers', [pEntidade.nomeModulo]));
     t_arquivo.Add('{');
-    t_arquivo.Add(Format('    public class %sController: BaseController', [t_nome_singular_classe]));
+    t_arquivo.Add(Format('    public class %sController: BaseController', [t_nome_plural_classe]));
     t_arquivo.Add('    {');
     t_arquivo.Add(Format('        private readonly I%sRepository _%sRepository;', [t_nome_plural_classe, t_nome_plural_snk_classe]));
     t_arquivo.Add('        private readonly IMapper _mapper;');
@@ -86,7 +86,7 @@ begin
     t_arquivo.Add('        }');
     t_arquivo.Add('');
     t_arquivo.Add('        [HttpDelete]');
-    t_arquivo.Add(Format('        [Route("%s"/{id:guid})]', [LowerCase(t_nome_plural_classe)]));
+    t_arquivo.Add(Format('        [Route("%s/{id:guid}")]', [LowerCase(t_nome_plural_classe)]));
     t_arquivo.Add('        public IActionResult Delete(Guid id)');
     t_arquivo.Add('        {');
     t_arquivo.Add(Format('            var %sViewModel = new %sViewModel { Id = id };', [t_nome_singular_snk_classe, t_nome_singular_classe]));
@@ -103,7 +103,7 @@ begin
     t_arquivo.Add('        }');
     t_arquivo.Add('');
     t_arquivo.Add('        [HttpGet]');
-    t_arquivo.Add(Format('        [Route("%s"/{id:guid})]', [LowerCase(t_nome_plural_classe)]));
+    t_arquivo.Add(Format('        [Route("%s/{id:guid}")]', [LowerCase(t_nome_plural_classe)]));
     t_arquivo.Add(Format('        public %sViewModel Get(Guid id)', [t_nome_singular_classe]));
     t_arquivo.Add('        {');
     t_arquivo.Add(Format('            return _mapper.Map<%sViewModel>(_%sRepository.GetById(id));', [t_nome_singular_classe, t_nome_plural_snk_classe]));
@@ -125,7 +125,7 @@ begin
       ForceDirectories(t_diretorio);
     end;
 
-    t_arquivo.SaveToFile(Format('%s\%sController.cs', [t_diretorio, t_nome_singular_classe]));
+    t_arquivo.SaveToFile(Format('%s\%sController.cs', [t_diretorio, t_nome_plural_classe]));
   finally
     FreeAndNil(t_arquivo);
   end;

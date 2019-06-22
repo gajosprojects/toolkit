@@ -63,7 +63,7 @@ begin
       ForceDirectories(t_diretorio);
     end;
 
-    t_diretorio := Format('%s\%s', [t_diretorio, pEntidade.NomeClasseSingular]);
+    t_diretorio := Format('%s\%s', [t_diretorio, pEntidade.NomeClassePlural]);
 
     if (not DirectoryExists(t_diretorio)) then
     begin
@@ -170,7 +170,7 @@ begin
       end;
     end;
 
-    t_arquivo.Add(Format('            var %s = %s.%sFactory.New%s();', [t_nome_singular_snk_classe, t_nome_singular_classe, t_nome_singular_classe, t_nome_singular_classe, t_parametros_new_entidade]));
+    t_arquivo.Add(Format('            var %s = %s.%sFactory.New%s(%s);', [t_nome_singular_snk_classe, t_nome_singular_classe, t_nome_singular_classe, t_nome_singular_classe, t_parametros_new_entidade, t_parametros_saved_updated_entidade_event]));
     t_arquivo.Add('');
     t_arquivo.Add(Format('            if (IsValid(%s))', [t_nome_singular_snk_classe]));
     t_arquivo.Add('            {');
@@ -231,7 +231,7 @@ begin
     t_arquivo.Add('            }');
     t_arquivo.Add('            else');
     t_arquivo.Add('            {');
-    t_arquivo.Add(Format('                %s.Desativar();', [t_nome_singular_snk_classe]));
+    t_arquivo.Add(Format('                %sExistente.Desativar();', [t_nome_singular_snk_classe]));
     t_arquivo.Add(Format('                _%sRepository.Update(%sExistente);', [t_nome_singular_snk_classe, t_nome_singular_snk_classe]));
     t_arquivo.Add('');
     t_arquivo.Add('                if (Commit())');
@@ -252,7 +252,7 @@ begin
       ForceDirectories(t_diretorio);
     end;
 
-    t_diretorio := Format('%s\%s', [t_diretorio, pEntidade.NomeClasseSingular]);
+    t_diretorio := Format('%s\%s', [t_diretorio, pEntidade.NomeClassePlural]);
 
     if (not DirectoryExists(t_diretorio)) then
     begin
@@ -319,7 +319,7 @@ begin
         end;
       end;
 
-      t_corpo_update_delete_command.Add(Format('            Aggregate%s = %s;', [t_nome_atributo, t_nome_snk_atributo]));
+      t_corpo_update_delete_command.Add(Format('            Aggregate%s = %s;', [t_nome_atributo, t_nome_atributo]));
 
       t_arquivo.Add(Format('        public Delete%sCommand(%s)', [pEntidade.NomeClasseSingular, t_parametros_delete_entidade_command]));
       t_arquivo.Add('        {');
@@ -340,7 +340,7 @@ begin
       ForceDirectories(t_diretorio);
     end;
 
-    t_diretorio := Format('%s\%s', [t_diretorio, pEntidade.NomeClasseSingular]);
+    t_diretorio := Format('%s\%s', [t_diretorio, pEntidade.NomeClassePlural]);
 
     if (not DirectoryExists(t_diretorio)) then
     begin
@@ -425,7 +425,7 @@ begin
       ForceDirectories(t_diretorio);
     end;
 
-    t_diretorio := Format('%s\%s', [t_diretorio, pEntidade.NomeClasseSingular]);
+    t_diretorio := Format('%s\%s', [t_diretorio, pEntidade.NomeClassePlural]);
 
     if (not DirectoryExists(t_diretorio)) then
     begin
@@ -507,7 +507,7 @@ begin
       ForceDirectories(t_diretorio);
     end;
 
-    t_diretorio := Format('%s\%s', [t_diretorio, pEntidade.NomeClasseSingular]);
+    t_diretorio := Format('%s\%s', [t_diretorio, pEntidade.NomeClassePlural]);
 
     if (not DirectoryExists(t_diretorio)) then
     begin

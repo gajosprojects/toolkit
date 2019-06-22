@@ -39,8 +39,8 @@ begin
 
     t_arquivo := TStringList.Create();
 
-    t_arquivo.Add(Format('using ERP.Admin.Domain.%s.%s;', [pEntidade.NomeModulo, t_nome_plural_classe]));
-    t_arquivo.Add(Format('using ERP.Admin.Domain.%s.%s.Repositories;', [pEntidade.NomeModulo, t_nome_plural_classe]));
+    t_arquivo.Add(Format('using ERP.%s.Domain.%s;', [pEntidade.NomeModulo, t_nome_plural_classe]));
+    t_arquivo.Add(Format('using ERP.%s.Domain.%s.Repositories;', [pEntidade.NomeModulo, t_nome_plural_classe]));
     t_arquivo.Add('using ERP.Infra.Data.Context;');
     t_arquivo.Add('');
     t_arquivo.Add(Format('namespace ERP.Infra.Data.Repositories.%s', [pEntidade.NomeModulo]));
@@ -60,7 +60,7 @@ begin
 
         t_arquivo.Add(Format('        public override void Delete(GrupoEmpresarial obj)', [t_nome_singular_classe]));
         t_arquivo.Add('        {');
-        t_arquivo.Add(Format('            var %s = GetBy%sd(obj.%s);', [t_nome_singular_snk_classe, t_nome_atributo_pk, t_nome_atributo_pk]));
+        t_arquivo.Add(Format('            var %s = GetBy%s(obj.%s);', [t_nome_singular_snk_classe, t_nome_atributo_pk, t_nome_atributo_pk]));
         t_arquivo.Add(Format('            %s.Desativar();', [t_nome_singular_snk_classe]));
         t_arquivo.Add(Format('            Update(%s);', [t_nome_singular_snk_classe]));
         t_arquivo.Add('        }');
@@ -79,14 +79,7 @@ begin
       ForceDirectories(t_diretorio);
     end;
 
-    t_diretorio := Format('%s\%s', [t_diretorio, pEntidade.NomeModulo]);
-
-    if (not DirectoryExists(t_diretorio)) then
-    begin
-      ForceDirectories(t_diretorio);
-    end;
-
-    t_arquivo.SaveToFile(Format('%s\%sRepository.cs', [t_diretorio, t_nome_singular_classe]));
+    t_arquivo.SaveToFile(Format('%s\%sRepository.cs', [t_diretorio, t_nome_plural_classe]));
   finally
     FreeAndNil(t_arquivo);
   end;

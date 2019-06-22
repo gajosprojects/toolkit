@@ -36,7 +36,7 @@ begin
     t_arquivo.Add('using System;');
     t_arquivo.Add('using System.ComponentModel.DataAnnotations;');
     t_arquivo.Add('');
-    t_arquivo.Add(Format('namespace ERP.Services.API.ViewModels.%s', [pEntidade.nomeModulo]));
+    t_arquivo.Add(Format('namespace ERP.Services.API.ViewModels', [pEntidade.nomeModulo]));
     t_arquivo.Add('{');
     t_arquivo.Add(Format('    public class %sViewModel', [pEntidade.nomeClasseSingular]));
     t_arquivo.Add('    {');
@@ -77,8 +77,6 @@ begin
 
         t_arquivo.Add(Format('        public %s %s { get; set; }', [pEntidade.Atributos.Items[t_aux].Tipo, pEntidade.Atributos.Items[t_aux].Nome]));
         t_arquivo.Add('');
-
-        Break;
       end;
     end;
 
@@ -88,16 +86,8 @@ begin
     t_arquivo.Add('        }');
     t_arquivo.Add('    }');
     t_arquivo.Add('}');
-    t_arquivo.Add('}');
 
     t_diretorio := GetCurrentDir() + '\ERP.Services.API\ViewModels';
-
-    if (not DirectoryExists(t_diretorio)) then
-    begin
-      ForceDirectories(t_diretorio);
-    end;
-
-    t_diretorio := Format('%s\%s', [t_diretorio, pEntidade.NomeModulo]);
 
     if (not DirectoryExists(t_diretorio)) then
     begin

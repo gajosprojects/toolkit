@@ -63,7 +63,7 @@ begin
       ForceDirectories(t_diretorio);
     end;
 
-    t_diretorio := Format('%s\%s', [t_diretorio, pEntidade.NomeClasseSingular]);
+    t_diretorio := Format('%s\%s', [t_diretorio, pEntidade.NomeClassePlural]);
 
     if (not DirectoryExists(t_diretorio)) then
     begin
@@ -119,6 +119,7 @@ begin
     t_arquivo.Add(Format('        public Task Handle(Deleted%sEvent notification, CancellationToken cancellationToken)', [t_nome_singular_classe]));
     t_arquivo.Add('        {');
     t_arquivo.Add('            return Task.CompletedTask;');
+    t_arquivo.Add('        }');
     t_arquivo.Add('    }');
     t_arquivo.Add('}');
 
@@ -129,7 +130,7 @@ begin
       ForceDirectories(t_diretorio);
     end;
 
-    t_diretorio := Format('%s\%s', [t_diretorio, pEntidade.NomeClasseSingular]);
+    t_diretorio := Format('%s\%s', [t_diretorio, pEntidade.NomeClassePlural]);
 
     if (not DirectoryExists(t_diretorio)) then
     begin
@@ -196,7 +197,7 @@ begin
         end;
       end;
 
-      t_corpo_update_deleted_event.Add(Format('            Aggregate%s = %s;', [t_nome_atributo, t_nome_snk_atributo]));
+      t_corpo_update_deleted_event.Add(Format('            Aggregate%s = %s;', [t_nome_atributo, t_nome_atributo]));
 
       t_arquivo.Add(Format('        public Deleted%sEvent(%s)', [pEntidade.NomeClasseSingular, t_parametros_deleted_entidade_event]));
       t_arquivo.Add('        {');
@@ -216,7 +217,7 @@ begin
       ForceDirectories(t_diretorio);
     end;
 
-    t_diretorio := Format('%s\%s', [t_diretorio, pEntidade.NomeClasseSingular]);
+    t_diretorio := Format('%s\%s', [t_diretorio, pEntidade.NomeClassePlural]);
 
     if (not DirectoryExists(t_diretorio)) then
     begin
@@ -288,9 +289,9 @@ begin
         t_corpo_saved_entidade_event.Add(Format('            %s = %s;', [t_nome_atributo, t_nome_snk_atributo]));
       end;
 
-      t_corpo_saved_entidade_event.Add(Format('            Agregatte%s = %s;', [t_nome_atributo_pk, t_nome_snk_atributo_pk]));
+      t_corpo_saved_entidade_event.Add(Format('            Aggregate%s = %s;', [t_nome_atributo_pk, t_nome_atributo_pk]));
 
-      t_arquivo.Add(Format('        public Saved%sCommand(%s)', [pEntidade.NomeClasseSingular, t_parametros_saved_entidade_event]));
+      t_arquivo.Add(Format('        public Saved%sEvent(%s)', [pEntidade.NomeClasseSingular, t_parametros_saved_entidade_event]));
       t_arquivo.Add('        {');
       t_arquivo.Add(Format('%s', [t_corpo_saved_entidade_event.Text]));
       t_arquivo.Add('        }');
@@ -308,7 +309,7 @@ begin
       ForceDirectories(t_diretorio);
     end;
 
-    t_diretorio := Format('%s\%s', [t_diretorio, pEntidade.NomeClasseSingular]);
+    t_diretorio := Format('%s\%s', [t_diretorio, pEntidade.NomeClassePlural]);
 
     if (not DirectoryExists(t_diretorio)) then
     begin
@@ -380,9 +381,9 @@ begin
         t_corpo_updated_entidade_event.Add(Format('            %s = %s;', [t_nome_atributo, t_nome_snk_atributo]));
       end;
 
-      t_corpo_updated_entidade_event.Add(Format('            Agregatte%s = %s;', [t_nome_atributo_pk, t_nome_snk_atributo_pk]));
+      t_corpo_updated_entidade_event.Add(Format('            Aggregate%s = %s;', [t_nome_atributo_pk, t_nome_atributo_pk]));
 
-      t_arquivo.Add(Format('        public Updated%sCommand(%s)', [pEntidade.NomeClasseSingular, t_parametros_updated_entidade_event]));
+      t_arquivo.Add(Format('        public Updated%sEvent(%s)', [pEntidade.NomeClasseSingular, t_parametros_updated_entidade_event]));
       t_arquivo.Add('        {');
       t_arquivo.Add(Format('%s', [t_corpo_updated_entidade_event.Text]));
       t_arquivo.Add('        }');
@@ -400,7 +401,7 @@ begin
       ForceDirectories(t_diretorio);
     end;
 
-    t_diretorio := Format('%s\%s', [t_diretorio, pEntidade.NomeClasseSingular]);
+    t_diretorio := Format('%s\%s', [t_diretorio, pEntidade.NomeClassePlural]);
 
     if (not DirectoryExists(t_diretorio)) then
     begin

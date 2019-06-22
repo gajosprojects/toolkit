@@ -34,7 +34,7 @@ begin
 
     t_arquivo.Add('');
 
-    t_arquivo.Add(Format('using ERP.Admin.Domain.%s.%s;', [pEntidade.NomeModulo, pEntidade.NomeClassePlural]));
+    t_arquivo.Add(Format('using ERP.%s.Domain.%s;', [pEntidade.NomeModulo, pEntidade.NomeClassePlural]));
     t_arquivo.Add('using Microsoft.EntityFrameworkCore;');
     t_arquivo.Add('using Microsoft.EntityFrameworkCore.Metadata.Builders;');
     t_arquivo.Add('');
@@ -93,8 +93,6 @@ begin
   //      end;
 
         t_arquivo.Add('');
-
-        Break;
       end;
     end;
 

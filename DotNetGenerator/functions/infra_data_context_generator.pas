@@ -74,14 +74,7 @@ begin
       ForceDirectories(t_diretorio);
     end;
 
-    t_diretorio := Format('%s\%s', [t_diretorio, pEntidade.NomeModulo]);
-
-    if (not DirectoryExists(t_diretorio)) then
-    begin
-      ForceDirectories(t_diretorio);
-    end;
-
-    t_arquivo.SaveToFile(Format('%s\%sContext.cs', [t_diretorio, pEntidade.NomeClasseSingular]));
+    t_arquivo.SaveToFile(Format('%s\%sContext.cs', [t_diretorio, pEntidade.NomeClassePlural]));
   finally
     FreeAndNil(t_arquivo);
   end;

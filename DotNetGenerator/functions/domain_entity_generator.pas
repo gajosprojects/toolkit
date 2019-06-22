@@ -32,6 +32,7 @@ var
   t_parametros_construtor: string;
   t_corpo_construtor: TStringList;
   t_diretorio: string;
+  t_nome_snk_entidade: string;
 begin
   try
     t_diretorio := EmptyStr;
@@ -43,7 +44,7 @@ begin
     t_arquivo.Add('using ERP.Domain.Core.Models;');
     t_arquivo.Add('using FluentValidation;');
     t_arquivo.Add('');
-    t_arquivo.Add(Format('namespace ERP.Admin.Domain.%s.%s', [pEntidade.NomeModulo, pEntidade.NomeClassePlural]));
+    t_arquivo.Add(Format('namespace ERP.%s.Domain.%s', [pEntidade.NomeModulo, pEntidade.NomeClassePlural]));
     t_arquivo.Add('{');
     t_arquivo.Add(Format('    public class %s : Entity<%s>', [pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular]));
     t_arquivo.Add('    {');
@@ -130,14 +131,16 @@ begin
         end;
       end;
 
+      t_nome_snk_entidade := LowerCase(Copy(pEntidade.NomeClasseSingular, 1, 1)) + Copy(pEntidade.NomeClasseSingular, 2, Length(pEntidade.NomeClasseSingular));
+
       t_arquivo.Add(Format('            public static %s New%s(%s)', [pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular, t_parametros_construtor]));
       t_arquivo.Add('            {');
-      t_arquivo.Add(Format('                var %s = new %s()', [LowerCase(pEntidade.NomeClasseSingular), pEntidade.NomeClasseSingular]));
+      t_arquivo.Add(Format('                var %s = new %s()', [t_nome_snk_entidade, pEntidade.NomeClasseSingular]));
       t_arquivo.Add('                {');
       t_arquivo.Add(Format('%s', [t_corpo_construtor.Text]));
       t_arquivo.Add('                };');
       t_arquivo.Add('');
-      t_arquivo.Add(Format('                return cnae;', [LowerCase(pEntidade.NomeClasseSingular)]));
+      t_arquivo.Add(Format('                return %s;', [t_nome_snk_entidade]));
       t_arquivo.Add('            }');
     finally
       FreeAndNil(t_corpo_construtor);
@@ -154,7 +157,7 @@ begin
       ForceDirectories(t_diretorio);
     end;
 
-    t_diretorio := Format('%s\%s', [t_diretorio, pEntidade.NomeClasseSingular]);
+    t_diretorio := Format('%s\%s', [t_diretorio, pEntidade.NomeClassePlural]);
 
     if (not DirectoryExists(t_diretorio)) then
     begin
