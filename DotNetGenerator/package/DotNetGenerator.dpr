@@ -5,7 +5,6 @@ uses
   uMain in '..\uMain.pas' {Main},
   uEntidadeDTO in '..\dtos\uEntidadeDTO.pas',
   uAtributoDTO in '..\dtos\uAtributoDTO.pas',
-  admin_domain_class_commands in '..\functions\admin_domain_class_commands.pas',
   service_api_view_model_generator in '..\functions\service_api_view_model_generator.pas',
   service_api_controller_generator in '..\functions\service_api_controller_generator.pas',
   infra_data_repository_generator in '..\functions\infra_data_repository_generator.pas',
