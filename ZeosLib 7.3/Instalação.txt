@@ -1,0 +1,14 @@
+1 - Abrir o projeto ZeosLib 7.3\packages\DelphiXE10.2\ZeosDbo.groupproj
+
+2 - Build All no project group (build em todos os projetos do grupo)
+
+3 - Clicar com botão direito no projeto ZComponentDesign.dproj e clicar em Install
+
+4 - Acessar menu Tools > Options > Language > Delphi Options > Library
+
+5 - No campo Library path incluir os seguintes endereços:
+	..\..\ZeosLib 7.3\src\component
+	..\..\ZeosLib 7.3\src\core
+	..\..\ZeosLib 7.3\src\dbc
+	..\..\ZeosLib 7.3\src\parsesql
+	..\..\ZeosLib 7.3\src\plain

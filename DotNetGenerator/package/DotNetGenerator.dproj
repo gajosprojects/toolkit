@@ -60,7 +60,6 @@
         <SanitizedProjectName>DotNetGenerator</SanitizedProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
-        <DCC_UsePackage>$(DCC_UsePackage)</DCC_UsePackage>
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
@@ -105,7 +104,6 @@
         </DCCReference>
         <DCCReference Include="..\dtos\uEntidadeDTO.pas"/>
         <DCCReference Include="..\dtos\uAtributoDTO.pas"/>
-        <DCCReference Include="..\functions\admin_domain_class_commands.pas"/>
         <DCCReference Include="..\functions\service_api_view_model_generator.pas"/>
         <DCCReference Include="..\functions\service_api_controller_generator.pas"/>
         <DCCReference Include="..\functions\infra_data_repository_generator.pas"/>
