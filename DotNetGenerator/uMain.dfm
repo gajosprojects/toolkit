@@ -56,24 +56,18 @@ object Main: TMain
     Height = 519
     Align = alClient
     TabOrder = 1
-    ExplicitTop = 40
-    ExplicitHeight = 531
     object pgcGenerator: TPageControl
       AlignWithMargins = True
       Left = 5
       Top = 18
       Width = 784
       Height = 496
-      ActivePage = tsConexao
+      ActivePage = tsDadosClasse
       Align = alClient
       TabOrder = 0
-      ExplicitLeft = 10
-      ExplicitTop = 23
-      ExplicitHeight = 23
       object tsConexao: TTabSheet
         Caption = 'Conex'#227'o'
         ImageIndex = 1
-        ExplicitHeight = 0
         object gbxDadosConexaoSQLServer: TGroupBox
           Left = 0
           Top = 0
@@ -201,11 +195,9 @@ object Main: TMain
       object tsInstrucaoSQL: TTabSheet
         Caption = 'Instru'#231#227'o SQL'
         ImageIndex = 2
-        ExplicitHeight = 474
       end
       object tsDadosClasse: TTabSheet
         Caption = 'Dados da classe a ser gerada'
-        ExplicitHeight = 0
         object pnlEntidade: TPanel
           AlignWithMargins = True
           Left = 3
@@ -283,7 +275,6 @@ object Main: TMain
           Align = alClient
           Caption = 'Atributos'
           TabOrder = 1
-          ExplicitHeight = 361
           object dbgrdAtributos: TDBGrid
             AlignWithMargins = True
             Left = 5
@@ -326,8 +317,26 @@ object Main: TMain
                 Visible = True
               end
               item
+                DropDownRows = 15
                 Expanded = False
                 FieldName = 'Tipo'
+                PickList.Strings = (
+                  ' Boolean'
+                  ' Byte'
+                  ' Byte[]'
+                  ' DateTime'
+                  ' DateTimeOffset'
+                  ' Decimal'
+                  ' Double'
+                  ' Guid'
+                  ' Int16'
+                  ' Int32'
+                  ' Int64'
+                  ' Object'
+                  ' Single'
+                  ' String'
+                  ' TimeSpan'
+                  ' Xml')
                 Title.Alignment = taCenter
                 Width = 142
                 Visible = True
@@ -503,9 +512,6 @@ object Main: TMain
     object cdsAuxNome: TWideStringField
       FieldName = 'nome'
       Size = 128
-    end
-    object cdsAuxTipoId: TSmallintField
-      FieldName = 'tipoid'
     end
     object cdsAuxTipo: TWideStringField
       FieldName = 'tipo'

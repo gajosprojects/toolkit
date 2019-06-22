@@ -28,7 +28,6 @@ type
     cdsAuxNome: TWideStringField;
     cdsAuxRequerido: TWideStringField;
     cdsAuxTipo: TWideStringField;
-    cdsAuxTipoId: TSmallintField;
     cdsBaseDados: TClientDataSet;
     cdsBaseDadosNome: TWideStringField;
     cdsTabelas: TClientDataSet;
@@ -111,6 +110,7 @@ type
     procedure PopularGridAtributos();
     procedure PopularNomeClasse();
 
+    //HABILITAR COMPONENTES
     procedure HabilitarComboBaseDados();
     procedure HabilitarComboSchemas();
     procedure HabilitarComboTabelas();
@@ -119,10 +119,10 @@ type
     procedure HabilitarBotaoCarregar();
 
     //CONVERSAO
-    function GetTipoAtributoDotNet(pTipoId: Integer; pTipo: string): string;
+    function GetTipoAtributoDotNetFromSQLServer(pNomeTipo: string): string;
     function GetViewToEntidade(): TEntidadeDTO;
 
-    //
+    //VALIDACOES
     function IsColunaBoolean(pNomeColuna: string): Boolean;
     function IsValidacaoOk(): Boolean;
 
@@ -227,45 +227,31 @@ begin
     cdsAux.Close();
 
   qryAux.SQL.Clear();
-  qryAux.SQL.Add('declare @Colunas table(table_qualifier sysname,');
-  qryAux.SQL.Add('                       table_owner sysname,');
-  qryAux.SQL.Add('                       table_name sysname,');
+
+  qryAux.SQL.Add('declare @Colunas table(column_id int,');
   qryAux.SQL.Add('                       column_name sysname,');
-  qryAux.SQL.Add('                       data_type smallint,');
   qryAux.SQL.Add('                       type_name sysname,');
   qryAux.SQL.Add('                       precision int,');
-  qryAux.SQL.Add('                       length int,');
-  qryAux.SQL.Add('                       escala smallint,');
-  qryAux.SQL.Add('                       radix smallint,');
-  qryAux.SQL.Add('                       nullable smallint,');
-  qryAux.SQL.Add('                       remarks varchar(254),');
-  qryAux.SQL.Add('                       column_def nvarchar(4000),');
-  qryAux.SQL.Add('                       sql_data_type smallint,');
-  qryAux.SQL.Add('                       sql_datetime_sub smallint,');
-  qryAux.SQL.Add('                       char_octet_length	int,');
-  qryAux.SQL.Add('                       ordinal_position int,');
-  qryAux.SQL.Add('                       is_nullable varchar(254),');
-  qryAux.SQL.Add('                       ss_data_type tinyint)');
-  qryAux.SQL.Add('insert into @Colunas(table_qualifier,');
-  qryAux.SQL.Add('					 table_owner,');
-  qryAux.SQL.Add('					 table_name,');
-  qryAux.SQL.Add('					 column_name,');
-  qryAux.SQL.Add('					 data_type,');
-  qryAux.SQL.Add('					 type_name,');
-  qryAux.SQL.Add('					 precision,');
-  qryAux.SQL.Add('					 length,');
-  qryAux.SQL.Add('					 escala,');
-  qryAux.SQL.Add('					 radix,');
-  qryAux.SQL.Add('					 nullable,');
-  qryAux.SQL.Add('					 remarks,');
-  qryAux.SQL.Add('					 column_def,');
-  qryAux.SQL.Add('					 sql_data_type,');
-  qryAux.SQL.Add('					 sql_datetime_sub,');
-  qryAux.SQL.Add('					 char_octet_length,');
-  qryAux.SQL.Add('					 ordinal_position,');
-  qryAux.SQL.Add('					 is_nullable,');
-  qryAux.SQL.Add('					 ss_data_type)');
-  qryAux.SQL.Add(Format('exec sp_columns %s;', [QuotedStr(cmbTabelas.Text)]));
+  qryAux.SQL.Add('                       max_length int,');
+  qryAux.SQL.Add('                       is_nullable smallint)');
+  qryAux.SQL.Add('insert into @Colunas(column_id,');
+  qryAux.SQL.Add('                     column_name,');
+  qryAux.SQL.Add('                     type_name,');
+  qryAux.SQL.Add('                     precision,');
+  qryAux.SQL.Add('                     max_length,');
+  qryAux.SQL.Add('                     is_nullable)');
+  qryAux.SQL.Add('select');
+  qryAux.SQL.Add('	  col.column_id,');
+  qryAux.SQL.Add('    col.name as column_name,');
+  qryAux.SQL.Add('    t.name as type_name,');
+  qryAux.SQL.Add('    col.precision,');
+  qryAux.SQL.Add('  	col.max_length,');
+  qryAux.SQL.Add('  	col.is_nullable');
+  qryAux.SQL.Add('from sys.tables as tab');
+  qryAux.SQL.Add('inner join sys.columns as col on tab.object_id = col.object_id');
+  qryAux.SQL.Add('left join sys.types as t on col.user_type_id = t.user_type_id');
+  qryAux.SQL.Add(Format('where tab.name = %s', [QuotedStr(cmbTabelas.Text)]));
+  qryAux.SQL.Add('  order by column_id;');
   qryAux.SQL.Add('');
   qryAux.SQL.Add('declare @ColunasPk table(column_name sysname)');
   qryAux.SQL.Add('insert into @ColunasPk (column_name)');
@@ -285,11 +271,10 @@ begin
   qryAux.SQL.Add('');
   qryAux.SQL.Add('select');
   qryAux.SQL.Add('	col.column_name as nome,');
-  qryAux.SQL.Add('	col.data_type as tipoid,');
   qryAux.SQL.Add('	col.type_name as tipo,');
   qryAux.SQL.Add(Format('	 (case len(coalesce(colpk.column_name, %s)) when 0 then cast(%s as char(1)) else cast(%s as char(1)) end) as chaveprimaria,', [QuotedStr(EmptyStr), QuotedStr(cNao), QuotedStr(cSim)]));
   qryAux.SQL.Add(Format('  (case len(coalesce(coluk.column_name, %s)) when 0 then cast(%s as char(1)) else cast(%s as char(1)) end) as chaveunica,', [QuotedStr(EmptyStr), QuotedStr(cNao), QuotedStr(cSim)]));
-  qryAux.SQL.Add(Format('	 (case col.is_nullable when %s then (case len(coalesce(colpk.column_name, %s)) when 0 then cast(%s as char(1)) else cast(%s as char(1)) end) else cast(%s as char(1)) end) as requerido', [QuotedStr('NO'), QuotedStr(EmptyStr), QuotedStr(cSim), QuotedStr(cNao), QuotedStr(cNao)]));
+  qryAux.SQL.Add(Format('	 (case col.is_nullable when 0 then cast(%s as char(1)) else cast(%s as char(1)) end) as requerido', [QuotedStr(cSim), QuotedStr(cNao)]));
   qryAux.SQL.Add('from @Colunas col');
   qryAux.SQL.Add('left join @ColunasPK colpk on colpk.column_name = col.column_name');
   qryAux.SQL.Add('left join @ColunasUK coluk on coluk.column_name = col.column_name');
@@ -369,6 +354,8 @@ begin
   cmbSchema.Enabled    := False;
   cmbTabelas.Enabled   := False;
 
+  dbgrdAtributos.EditorMode := False;
+
   HabilitarBotaoConectar();
   HabilitarBotaoCarregar();
 
@@ -406,6 +393,8 @@ begin
         cdsAtributos.CreateDataSet();
         cdsAtributos.Open();
       end;
+
+      //TransformarColunaTipoAtributoEmComboBox();
     end;
 
     cOrigemTabela:
@@ -522,6 +511,9 @@ begin
     cdsAtributos.FieldByName(sNomeColuna).AsString := sValorColuna;
     cdsAtributos.Post();
   end;
+
+  if SameText(sNomeColuna, 'Tipo') then
+    dbgrdAtributos.EditorMode := True;
 end;
 
 procedure TMain.dbgrdAtributosColEnter(Sender: TObject);
@@ -534,6 +526,9 @@ begin
     dbgrdAtributos.Options := dbgrdAtributos.Options - [dgEditing]
   else
     dbgrdAtributos.Options := dbgrdAtributos.Options + [dgEditing];
+
+  if SameText(sNomeColuna, 'Tipo') then
+    dbgrdAtributos.EditorMode := True;
 end;
 
 procedure TMain.dbgrdAtributosDrawColumnCell(Sender: TObject; const Rect: TRect;
@@ -542,7 +537,20 @@ var
   nMarcar: word;
   oRetangulo: TRect;
   sNomeColuna: string;
+  nLinha: integer;
 begin
+  // obtém o número do registro (linha)
+  nLinha := dbgrdAtributos.DataSource.DataSet.RecNo;
+
+  // verifica se o número da linha é par ou ímpar, aplicando as cores
+  if Odd(nLinha) then
+    dbgrdAtributos.Canvas.Brush.Color := clBtnFace
+  else
+    dbgrdAtributos.Canvas.Brush.Color := clWhite;
+
+  // pinta a linha
+  dbgrdAtributos.DefaultDrawColumnCell(Rect, DataCol, Column, State);
+
   // verifica se o registro está inativo
   if (cdsAtributos.FieldByName('Selecionado').AsString = 'N') then
   begin
@@ -681,68 +689,71 @@ begin
 
 end;
 
-function TMain.GetTipoAtributoDotNet(pTipoId: Integer; pTipo: string): string;
+function TMain.GetTipoAtributoDotNetFromSQLServer(pNomeTipo: string): string;
 begin
-  case pTipoId of
-    //12 - varchar
-    //1  - char
-    //-1 - text
-    //-8 - nchar
-    12, 1, -1, -8: Result := 'String';
-
-    //11 - smalldatetime, datetime
-    11: Result := 'DateTime';
-
-    //7 - real
-    //6 - float,
-    //3 - decimal, money, smallmoney, decimal identity, numeric() identity,
-    //2 - numeric() identity
-    7, 6, 3, 2: Result := 'Double';
-
+  //ref: https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/sql-server-data-type-mappings
+  if SameText(LowerCase(pNomeTipo), 'bigint') then
+    Result := 'Int64'
+  else if SameText(LowerCase(pNomeTipo), 'binary ') then
+    Result := '	Byte[]'
+  else if SameText(LowerCase(pNomeTipo), 'bit') then
+    Result := 'Boolean'
+  else if SameText(LowerCase(pNomeTipo), 'char') then
+    Result := 'String'
+  else if SameText(LowerCase(pNomeTipo), 'date') then
+    Result := 'DateTime'
+  else if SameText(LowerCase(pNomeTipo), 'datetime ') then
+    Result := 'DateTime'
+  else if SameText(LowerCase(pNomeTipo), 'datetime2') then
+    Result := 'DateTime'
+  else if SameText(LowerCase(pNomeTipo), 'datetimeoffset ') then
+    Result := 'DateTimeOffset'
+  else if SameText(LowerCase(pNomeTipo), 'decimal') then
+    Result := 'Decimal'
+  else if SameText(LowerCase(pNomeTipo), 'float') then
+    Result := 'Double'
+  else if SameText(LowerCase(pNomeTipo), 'image') then
+    Result := 'Byte[]'
+  else if SameText(LowerCase(pNomeTipo), 'int') then
+    Result := 'Int32'
+  else if SameText(LowerCase(pNomeTipo), 'money') then
+    Result := 'Decimal'
+  else if SameText(LowerCase(pNomeTipo), 'nchar') then
+    Result := 'String'
+  else if SameText(LowerCase(pNomeTipo), 'ntext') then
+    Result := 'String'
+  else if SameText(LowerCase(pNomeTipo), 'numeric') then
+    Result := 'Decimal'
+  else if SameText(LowerCase(pNomeTipo), 'nvarchar ') then
+    Result := 'String'
+  else if SameText(LowerCase(pNomeTipo), 'real ') then
+    Result := 'Single'
+  else if SameText(LowerCase(pNomeTipo), 'smalldatetime') then
+    Result := 'DateTime'
+  else if SameText(LowerCase(pNomeTipo), 'smallint ') then
+    Result := 'Int16'
+  else if SameText(LowerCase(pNomeTipo), 'smallmoney ') then
+    Result := 'Decimal'
+  else if SameText(LowerCase(pNomeTipo), 'sql_variant') then
+    Result := 'Object'
+  else if SameText(LowerCase(pNomeTipo), 'text ') then
+    Result := 'String'
+  else if SameText(LowerCase(pNomeTipo), 'time ') then
+    Result := 'TimeSpan'
+  else if SameText(LowerCase(pNomeTipo), 'timestamp') then
+    Result := 'Byte[]'
+  else if SameText(LowerCase(pNomeTipo), 'tinyint') then
+    Result := 'Byte'
+  else if SameText(LowerCase(pNomeTipo), 'uniqueidentifier ') then
+    Result := 'Guid'
+  else if SameText(LowerCase(pNomeTipo), 'varbinary') then
+    Result := 'Byte[]'
+  else if SameText(LowerCase(pNomeTipo), 'varchar') then
+    Result := 'String'
+  else if SameText(LowerCase(pNomeTipo), 'xml') then
+    Result := 'Xml'
   else
     Result := EmptyStr;
-  end;
-
-
-{
-sql_variant	-150
-uniqueidentifier	-11
-ntext	-10
-xml	-10
-nvarchar	-9
-sysname	-9
-date	-9
-time	-9
-datetime2	-9
-datetimeoffset	-9
-	-8
-bit	-7
-tinyint	-6
-tinyint identity	-6
-bigint	-5
-bigint identity	-5
-image	-4
-varbinary	-3
-binary	-2
-timestamp	-2
-	-1
-	1
-	2
-	2
-	3
-	3
-	3
-	3
-int	4
-int identity	4
-smallint	5
-smallint identity	5
-	6
-	7
-	11
-	11
-	12
-}
 end;
 
 function TMain.GetViewToEntidade(): TEntidadeDTO;
@@ -1135,7 +1146,7 @@ begin
       cdsAtributos.FieldByName('Selecionado').AsString := cSim;
       cdsAtributos.FieldByName('Nome').AsString := nome_aux;
       cdsAtributos.FieldByName('NomeExibicao').AsString := nome_aux;
-      cdsAtributos.FieldByName('Tipo').AsString := GetTipoAtributoDotNet(cdsAux.FieldByName('TipoId').AsInteger, cdsAux.FieldByName('Tipo').AsString);
+      cdsAtributos.FieldByName('Tipo').AsString := GetTipoAtributoDotNetFromSQLServer(cdsAux.FieldByName('Tipo').AsString);
       cdsAtributos.FieldByName('ChavePrimaria').AsString := cdsAux.FieldByName('ChavePrimaria').AsString;
       cdsAtributos.FieldByName('ChaveUnica').AsString := cdsAux.FieldByName('ChaveUnica').AsString;
       cdsAtributos.FieldByName('Requerido').AsString := cdsAux.FieldByName('Requerido').AsString;
@@ -1159,3 +1170,72 @@ begin
 end;
 
 end.
+
+{
+function TMain.GetTipoAtributoDotNetFromSQLServer(pTipoId: Integer; pNomeTipo: string): string;
+begin
+  //ref: https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/sql-server-data-type-mappings
+  if (Pos('bigint', LowerCase(pNomeTipo)) > 0) then
+    Result := 'Int64'
+  else if (Pos('binary', LowerCase(pNomeTipo)) > 0) then
+    Result := '	Byte[]'
+  else if (Pos('bit', LowerCase(pNomeTipo)) > 0) then
+    Result := 'Boolean'
+  else if (Pos('char', LowerCase(pNomeTipo)) > 0) then
+    Result := 'String'
+  else if (Pos('date', LowerCase(pNomeTipo)) > 0) then
+    Result := 'DateTime'
+  else if (Pos('datetime ', LowerCase(pNomeTipo)) > 0) then
+    Result := 'DateTime'
+  else if (Pos('datetime2', LowerCase(pNomeTipo)) > 0) then
+    Result := 'DateTime'
+  else if (Pos('datetimeoffset ', LowerCase(pNomeTipo)) > 0) then
+    Result := 'DateTimeOffset'
+  else if (Pos('decimal', LowerCase(pNomeTipo)) > 0) then
+    Result := 'Decimal'
+  else if (Pos('float', LowerCase(pNomeTipo)) > 0) then
+    Result := 'Double'
+  else if (Pos('image', LowerCase(pNomeTipo)) > 0) then
+    Result := 'Byte[]'
+  else if (Pos('int', LowerCase(pNomeTipo)) > 0) then
+    Result := 'Int32'
+  else if (Pos('money', LowerCase(pNomeTipo)) > 0) then
+    Result := 'Decimal'
+  else if (Pos('nchar', LowerCase(pNomeTipo)) > 0) then
+    Result := 'String'
+  else if (Pos('ntext', LowerCase(pNomeTipo)) > 0) then
+    Result := 'String'
+  else if (Pos('numeric', LowerCase(pNomeTipo)) > 0) then
+    Result := 'Decimal'
+  else if (Pos('nvarchar ', LowerCase(pNomeTipo)) > 0) then
+    Result := 'String'
+  else if (Pos('real ', LowerCase(pNomeTipo)) > 0) then
+    Result := 'Single'
+  else if (Pos('smalldatetime', LowerCase(pNomeTipo)) > 0) then
+    Result := 'DateTime'
+  else if (Pos('smallint ', LowerCase(pNomeTipo)) > 0) then
+    Result := 'Int16'
+  else if (Pos('smallmoney ', LowerCase(pNomeTipo)) > 0) then
+    Result := 'Decimal'
+  else if (Pos('sql_variant', LowerCase(pNomeTipo)) > 0) then
+    Result := 'Object'
+  else if (Pos('text ', LowerCase(pNomeTipo)) > 0) then
+    Result := 'String'
+  else if (Pos('time ', LowerCase(pNomeTipo)) > 0) then
+    Result := 'TimeSpan'
+  else if (Pos('timestamp', LowerCase(pNomeTipo)) > 0) then
+    Result := 'Byte[]'
+  else if (Pos('tinyint', LowerCase(pNomeTipo)) > 0) then
+    Result := 'Byte'
+  else if (Pos('uniqueidentifier ', LowerCase(pNomeTipo)) > 0) then
+    Result := 'Guid'
+  else if (Pos('varbinary', LowerCase(pNomeTipo)) > 0) then
+    Result := 'Byte[]'
+  else if (Pos('varchar', LowerCase(pNomeTipo)) > 0) then
+    Result := 'String'
+  else if (Pos('xml', LowerCase(pNomeTipo)) > 0) then
+    Result := 'Xml'
+  else
+    Result := EmptyStr;
+end;
+}
