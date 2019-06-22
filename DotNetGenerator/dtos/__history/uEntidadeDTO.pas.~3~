@@ -1,0 +1,47 @@
+unit uEntidadeDTO;
+
+interface
+
+uses
+  System.Generics.Collections,
+  uAtributoDTO;
+
+type
+  TEntidadeDTO = class
+
+  private
+    FNomeModulo: string;
+    FNomeSingular: string;
+    FNomePlural: string;
+    FPropriedades: TObjectList<TAtributoDTO>;
+
+  public
+    constructor Create();
+    destructor Destroy(); override;
+
+    property NomeModulo: string read FNomeModulo write FNomeModulo;
+    property NomeClasseSingular: string read FNomeSingular write FNomeSingular;
+    property NomeClassePlural: string read FNomePlural write FNomePlural;
+    property Propriedades: TObjectList<TPropertiesAttributes> read FPropriedades write FPropriedades;
+
+  end;
+
+implementation
+
+uses
+  System.SysUtils;
+
+{ clMain }
+
+constructor TEntity.Create;
+begin
+  FPropriedades := TObjectlist<TPropertiesAttributes>.Create();
+end;
+
+destructor TEntity.Destroy;
+begin
+  FreeAndNil(FPropriedades);
+  inherited;
+end;
+
+end.
