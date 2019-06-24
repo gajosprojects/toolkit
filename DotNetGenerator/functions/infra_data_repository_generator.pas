@@ -58,7 +58,7 @@ begin
       begin
         t_nome_atributo_pk := pEntidade.Atributos.Items[t_aux].Nome;
 
-        t_arquivo.Add(Format('        public override void Delete(GrupoEmpresarial obj)', [t_nome_singular_classe]));
+        t_arquivo.Add(Format('        public override void Delete(%s obj)', [t_nome_singular_classe]));
         t_arquivo.Add('        {');
         t_arquivo.Add(Format('            var %s = GetBy%s(obj.%s);', [t_nome_singular_snk_classe, t_nome_atributo_pk, t_nome_atributo_pk]));
         t_arquivo.Add(Format('            %s.Desativar();', [t_nome_singular_snk_classe]));
