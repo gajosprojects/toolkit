@@ -29,6 +29,7 @@ var
   t_tipo_atributo: string;
   t_nome_exibicao_atributo: string;
   t_validacao_atributo: TStringList;
+  t_atributo_aux: string;
   t_parametros_construtor: string;
   t_corpo_construtor: TStringList;
   t_diretorio: string;
@@ -75,7 +76,7 @@ begin
 
         if (pEntidade.Atributos.Items[t_aux].Requerido) then
         begin
-          t_validacao_atributo.Add(Format('%s                .NotEmpty().WithMessage("%s obrigatório(a)"))', [sLineBreak, t_nome_exibicao_atributo]));
+          t_validacao_atributo.Add(Format('                .NotEmpty().WithMessage("%s obrigatório(a)"))', [t_nome_exibicao_atributo]));
         end;
 
   //      if (False) then
@@ -86,7 +87,11 @@ begin
 
         if (t_validacao_atributo.Count > 1) then
         begin
-          t_arquivo.Add(t_validacao_atributo.Text + ';');
+          t_atributo_aux := t_validacao_atributo.Text;
+          //remover quebra de linha no final do stringlist
+          Delete(t_atributo_aux, Length(t_atributo_aux) - 1, 2);
+          t_arquivo.Add(t_atributo_aux + ';');
+//          t_arquivo.Add(t_validacao_atributo.Text + ';');
         end;
       finally
         FreeAndNil(t_validacao_atributo);

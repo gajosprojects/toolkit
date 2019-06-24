@@ -951,7 +951,6 @@ end;
 
 function TMain.IsValidacaoOk(): Boolean;
 var
-  indice: Integer;
   selecionados: Integer;
   pks: Integer;
 begin
@@ -988,13 +987,28 @@ begin
   selecionados := 0;
   pks := 0;
 
-  for indice := 0 to cdsAtributos.RecordCount -1 do
-  begin
-    if SameText(cdsAtributos.FieldByName('Selecionado').AsString, cSim) then
-      Inc(selecionados);
+  try
+    cdsAtributos.DisableControls();
+    cdsAtributos.First();
 
-    if SameText(cdsAtributos.FieldByName('ChavePrimaria').AsString, cSim) then
-      Inc(pks);
+    while not cdsAtributos.Eof do
+    begin
+      if SameText(cdsAtributos.FieldByName('Selecionado').AsString, cSim) then
+      begin
+        Inc(selecionados);
+      end;
+
+      if SameText(cdsAtributos.FieldByName('ChavePrimaria').AsString, cSim) then
+      begin
+        Inc(pks);
+      end;
+
+      cdsAtributos.Next();
+    end;
+  finally
+    cdsAtributos.First();
+
+    cdsAtributos.EnableControls();
   end;
 
   if (selecionados = 0) then
@@ -1170,72 +1184,3 @@ begin
 end;
 
 end.
-
-{
-function TMain.GetTipoAtributoDotNetFromSQLServer(pTipoId: Integer; pNomeTipo: string): string;
-begin
-  //ref: https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/sql-server-data-type-mappings
-  if (Pos('bigint', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Int64'
-  else if (Pos('binary', LowerCase(pNomeTipo)) > 0) then
-    Result := '	Byte[]'
-  else if (Pos('bit', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Boolean'
-  else if (Pos('char', LowerCase(pNomeTipo)) > 0) then
-    Result := 'String'
-  else if (Pos('date', LowerCase(pNomeTipo)) > 0) then
-    Result := 'DateTime'
-  else if (Pos('datetime ', LowerCase(pNomeTipo)) > 0) then
-    Result := 'DateTime'
-  else if (Pos('datetime2', LowerCase(pNomeTipo)) > 0) then
-    Result := 'DateTime'
-  else if (Pos('datetimeoffset ', LowerCase(pNomeTipo)) > 0) then
-    Result := 'DateTimeOffset'
-  else if (Pos('decimal', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Decimal'
-  else if (Pos('float', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Double'
-  else if (Pos('image', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Byte[]'
-  else if (Pos('int', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Int32'
-  else if (Pos('money', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Decimal'
-  else if (Pos('nchar', LowerCase(pNomeTipo)) > 0) then
-    Result := 'String'
-  else if (Pos('ntext', LowerCase(pNomeTipo)) > 0) then
-    Result := 'String'
-  else if (Pos('numeric', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Decimal'
-  else if (Pos('nvarchar ', LowerCase(pNomeTipo)) > 0) then
-    Result := 'String'
-  else if (Pos('real ', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Single'
-  else if (Pos('smalldatetime', LowerCase(pNomeTipo)) > 0) then
-    Result := 'DateTime'
-  else if (Pos('smallint ', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Int16'
-  else if (Pos('smallmoney ', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Decimal'
-  else if (Pos('sql_variant', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Object'
-  else if (Pos('text ', LowerCase(pNomeTipo)) > 0) then
-    Result := 'String'
-  else if (Pos('time ', LowerCase(pNomeTipo)) > 0) then
-    Result := 'TimeSpan'
-  else if (Pos('timestamp', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Byte[]'
-  else if (Pos('tinyint', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Byte'
-  else if (Pos('uniqueidentifier ', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Guid'
-  else if (Pos('varbinary', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Byte[]'
-  else if (Pos('varchar', LowerCase(pNomeTipo)) > 0) then
-    Result := 'String'
-  else if (Pos('xml', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Xml'
-  else
-    Result := EmptyStr;
-end;
-}
