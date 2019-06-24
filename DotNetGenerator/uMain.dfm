@@ -62,12 +62,13 @@ object Main: TMain
       Top = 18
       Width = 784
       Height = 496
-      ActivePage = tsConexao
+      ActivePage = tsDadosClasse
       Align = alClient
       TabOrder = 0
       object tsConexao: TTabSheet
         Caption = 'Conex'#227'o'
         ImageIndex = 1
+        ExplicitLeft = 0
         object gbxDadosConexaoSQLServer: TGroupBox
           Left = 0
           Top = 0
@@ -321,6 +322,14 @@ object Main: TMain
                 Expanded = False
                 FieldName = 'Tipo'
                 PickList.Strings = (
+                  'byte[]'
+                  'byte'
+                  'bool'
+                  'decimal'
+                  'int'
+                  'long'
+                  'string'
+                  ''
                   ' Boolean'
                   ' Byte'
                   ' Byte[]'

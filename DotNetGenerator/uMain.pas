@@ -953,6 +953,7 @@ function TMain.IsValidacaoOk(): Boolean;
 var
   selecionados: Integer;
   pks: Integer;
+  tipo_nao_informado: Integer;
 begin
   Result := False;
 
@@ -986,6 +987,7 @@ begin
 
   selecionados := 0;
   pks := 0;
+  tipo_nao_informado := 0;
 
   try
     cdsAtributos.DisableControls();
@@ -1001,6 +1003,11 @@ begin
       if SameText(cdsAtributos.FieldByName('ChavePrimaria').AsString, cSim) then
       begin
         Inc(pks);
+      end;
+
+      if SameText(Trim(cdsAtributos.FieldByName('Tipo').AsString), EmptyStr) then
+      begin
+        Inc(tipo_nao_informado);
       end;
 
       cdsAtributos.Next();
@@ -1021,6 +1028,13 @@ begin
   if (pks = 0) then
   begin
     ShowMessage('Ao menos um atributo deve ser chave primária');
+    dbgrdAtributos.SetFocus();
+    Exit
+  end;
+
+  if (pks = 0) then
+  begin
+    ShowMessage('Existe(m) atributo(s) sem tipo informado');
     dbgrdAtributos.SetFocus();
     Exit
   end;
