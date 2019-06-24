@@ -157,7 +157,7 @@ implementation
 uses
   uAtributoDTO, service_api_view_model_generator, service_api_controller_generator,
   infra_data_repository_generator, infra_data_mapping_generator, infra_data_context_generator,
-  domain_entity_generator, domain_commands_generator, domain_events_generator,
+  domain_entity_generator, domain_commands_generator, domain_events_generator, domain_repositories_generator,
   System.UITypes;
 
 procedure TMain.btnCarregarClick(Sender: TObject);
@@ -636,6 +636,7 @@ var
   DomainEntityGenerator: TDomainEntityGenerator;
   DomainCommandsGenerator: TDomainCommandsGenerator;
   DomainEventsGenerator: TDomainEventsGenerator;
+  DomainRepositoryGenerator: TDomainRepositoriesGenerator;
 begin
   try
     //preenchimento do objeto entidade e seus atributos
@@ -680,6 +681,10 @@ begin
     DomainEventsGenerator.generateSavedEvent(Entidade);
     DomainEventsGenerator.generateUpdatedEvent(Entidade);
     DomainEventsGenerator.generateDeletedEvent(Entidade);
+
+    //domain -> repositories
+    DomainRepositoryGenerator := TDomainRepositoriesGenerator.Create();
+    DomainRepositoryGenerator.generate(Entidade);
 
     ShowMessage('Arquivos gerados com sucesso!');
   except
