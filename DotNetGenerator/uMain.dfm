@@ -321,6 +321,14 @@ object Main: TMain
                 Expanded = False
                 FieldName = 'Tipo'
                 PickList.Strings = (
+                  'long'
+                  'decimal'
+                  'string'
+                  'int'
+                  'bool'
+                  'byte'
+                  'byte[]'
+                  ''
                   'Boolean'
                   'Byte'
                   'Byte[]'
