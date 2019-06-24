@@ -68,10 +68,6 @@ object Main: TMain
       object tsConexao: TTabSheet
         Caption = 'Conex'#227'o'
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object gbxDadosConexaoSQLServer: TGroupBox
           Left = 0
           Top = 0
@@ -199,10 +195,6 @@ object Main: TMain
       object tsInstrucaoSQL: TTabSheet
         Caption = 'Instru'#231#227'o SQL'
         ImageIndex = 2
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
       end
       object tsDadosClasse: TTabSheet
         Caption = 'Dados da classe a ser gerada'
@@ -329,22 +321,22 @@ object Main: TMain
                 Expanded = False
                 FieldName = 'Tipo'
                 PickList.Strings = (
-                  ' Boolean'
-                  ' Byte'
-                  ' Byte[]'
-                  ' DateTime'
-                  ' DateTimeOffset'
-                  ' Decimal'
-                  ' Double'
-                  ' Guid'
-                  ' Int16'
-                  ' Int32'
-                  ' Int64'
-                  ' Object'
-                  ' Single'
-                  ' String'
-                  ' TimeSpan'
-                  ' Xml')
+                  'Boolean'
+                  'Byte'
+                  'Byte[]'
+                  'DateTime'
+                  'DateTimeOffset'
+                  'Decimal'
+                  'Double'
+                  'Guid'
+                  'Int16'
+                  'Int32'
+                  'Int64'
+                  'Object'
+                  'Single'
+                  'String'
+                  'TimeSpan'
+                  'Xml')
                 Title.Alignment = taCenter
                 Width = 142
                 Visible = True
