@@ -1002,7 +1002,7 @@ begin
     if SameText(cdsAtributos.FieldByName('ChavePrimaria').AsString, cSim) then
       Inc(pks);
 
-    if (SameText(Trim(cdsAtributos.FieldByName('ChavePrimaria').AsString), EmptyStr) then
+    if SameText(Trim(cdsAtributos.FieldByName('ChavePrimaria').AsString), EmptyStr) then
       Inc(tipo_nao_informado);
   end;
 
