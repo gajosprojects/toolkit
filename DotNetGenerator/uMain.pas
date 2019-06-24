@@ -959,6 +959,7 @@ var
   indice: Integer;
   selecionados: Integer;
   pks: Integer;
+  tipo_nao_informado: Integer;
 begin
   Result := False;
 
@@ -1000,6 +1001,9 @@ begin
 
     if SameText(cdsAtributos.FieldByName('ChavePrimaria').AsString, cSim) then
       Inc(pks);
+
+    if (SameText(Trim(cdsAtributos.FieldByName('ChavePrimaria').AsString), EmptyStr) then
+      Inc(tipo_nao_informado);
   end;
 
   if (selecionados = 0) then
@@ -1012,6 +1016,13 @@ begin
   if (pks = 0) then
   begin
     ShowMessage('Ao menos um atributo deve ser chave primária');
+    dbgrdAtributos.SetFocus();
+    Exit
+  end;
+
+  if (tipo_nao_informado = 0) then
+  begin
+    ShowMessage('Atributo sem tipo informado');
     dbgrdAtributos.SetFocus();
     Exit
   end;
