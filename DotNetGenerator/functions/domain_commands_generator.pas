@@ -45,6 +45,8 @@ begin
     t_arquivo.Add(Format('    public class Base%sCommand : Command', [pEntidade.NomeClasseSingular]));
     t_arquivo.Add('    {');
 
+    t_arquivo.Add('        public Guid Id { get; protected set; }');
+
     for t_aux := 0 to pEntidade.Atributos.Count - 1 do
     begin
       t_nome_atributo := pEntidade.Atributos.Items[t_aux].Nome;
@@ -94,8 +96,6 @@ var
   t_nome_atributo: string;
   t_parametros_new_entidade: string;
   t_parametros_saved_updated_entidade_event: string;
-  t_parametro_get_by_id: string;
-  t_parametro_deleted_entidade_event: string;
   t_diretorio: string;
 begin
   try
@@ -107,6 +107,7 @@ begin
     t_nome_plural_snk_classe := LowerCase(Copy(t_nome_plural_classe, 1, 1)) + Copy(t_nome_plural_classe, 2, Length(t_nome_plural_classe));
 
     t_arquivo := TStringList.Create();
+    t_parametros_new_entidade := EmptyStr;
 
     t_arquivo.Add('using System.Threading;');
     t_arquivo.Add('using System.Threading.Tasks;');
@@ -141,33 +142,16 @@ begin
     t_arquivo.Add(Format('        public Task<bool> Handle(Save%sCommand request, CancellationToken cancellationToken)', [t_nome_singular_classe]));
     t_arquivo.Add('        {');
 
+    t_parametros_new_entidade := 'request.Id';
+    t_parametros_saved_updated_entidade_event := Format('%s.Id', [t_nome_singular_snk_classe]);
+
     for t_aux := 0 to pEntidade.Atributos.Count - 1 do
     begin
       t_nome_atributo := pEntidade.Atributos.Items[t_aux].Nome;
 
-      if (pEntidade.Atributos.Items[t_aux].ChavePrimaria) then
-      begin
-        t_parametro_get_by_id := Format('request.%s', [t_nome_atributo]);
-        t_parametro_deleted_entidade_event := Format('request.%s', [t_nome_atributo]);
-      end;
+      t_parametros_new_entidade := t_parametros_new_entidade + Format(', request.%s', [t_nome_atributo]);
 
-      if SameText(t_parametros_new_entidade, EmptyStr) then
-      begin
-        t_parametros_new_entidade := Format('request.%s', [t_nome_atributo]);
-      end
-      else
-      begin
-        t_parametros_new_entidade := t_parametros_new_entidade + Format(', request.%s', [t_nome_atributo]);
-      end;
-
-      if SameText(t_parametros_saved_updated_entidade_event, EmptyStr) then
-      begin
-        t_parametros_saved_updated_entidade_event := Format('%s.%s', [t_nome_singular_snk_classe, t_nome_atributo]);
-      end
-      else
-      begin
-        t_parametros_saved_updated_entidade_event := t_parametros_saved_updated_entidade_event + Format(', %s.%s', [t_nome_singular_snk_classe, t_nome_atributo]);
-      end;
+      t_parametros_saved_updated_entidade_event := t_parametros_saved_updated_entidade_event + Format(', %s.%s', [t_nome_singular_snk_classe, t_nome_atributo]);
     end;
 
     t_arquivo.Add(Format('            var %s = %s.%sFactory.New%s(%s);', [t_nome_singular_snk_classe, t_nome_singular_classe, t_nome_singular_classe, t_nome_singular_classe, t_parametros_new_entidade, t_parametros_saved_updated_entidade_event]));
@@ -191,7 +175,7 @@ begin
     t_arquivo.Add('');
     t_arquivo.Add(Format('        public Task<bool> Handle(Update%sCommand request, CancellationToken cancellationToken)', [t_nome_singular_classe]));
     t_arquivo.Add('        {');
-    t_arquivo.Add(Format('            var %sExistente = _%sRepository.GetById(%s);', [t_nome_singular_snk_classe, t_nome_singular_snk_classe, t_parametro_get_by_id]));
+    t_arquivo.Add(Format('            var %sExistente = _%sRepository.GetById(request.Id);', [t_nome_singular_snk_classe, t_nome_singular_snk_classe]));
     t_arquivo.Add('');
     t_arquivo.Add(Format('            if (%sExistente == null)', [t_nome_singular_snk_classe]));
     t_arquivo.Add('            {');
@@ -222,7 +206,7 @@ begin
     t_arquivo.Add('');
     t_arquivo.Add(Format('        public Task<bool> Handle(Delete%sCommand request, CancellationToken cancellationToken)', [t_nome_singular_classe]));
     t_arquivo.Add('        {');
-    t_arquivo.Add(Format('            var %sExistente = _%sRepository.GetById(%s);', [t_nome_singular_snk_classe, t_nome_singular_snk_classe, t_parametro_get_by_id]));
+    t_arquivo.Add(Format('            var %sExistente = _%sRepository.GetById(request.Id);', [t_nome_singular_snk_classe, t_nome_singular_snk_classe]));
     t_arquivo.Add('');
     t_arquivo.Add(Format('            if (%sExistente == null)', [t_nome_singular_snk_classe]));
     t_arquivo.Add('            {');
@@ -236,7 +220,7 @@ begin
     t_arquivo.Add('');
     t_arquivo.Add('                if (Commit())');
     t_arquivo.Add('                {');
-    t_arquivo.Add(Format('                    _mediator.RaiseEvent(new Deleted%sEvent(%s));', [t_nome_singular_classe, t_parametro_deleted_entidade_event]));
+    t_arquivo.Add(Format('                    _mediator.RaiseEvent(new Deleted%sEvent(request.Id));', [t_nome_singular_classe]));
     t_arquivo.Add('                }');
     t_arquivo.Add('');
     t_arquivo.Add('                return Task.FromResult(true);');
@@ -275,12 +259,6 @@ end;
 procedure TDomainCommandsGenerator.generateDeleteCommand(var pEntidade: TEntidadeDTO);
 var
   t_arquivo: TStringList;
-  t_aux: Integer;
-  t_nome_atributo: string;
-  t_nome_snk_atributo: string;
-  t_tipo_atributo: string;
-  t_parametros_delete_entidade_command: string;
-  t_corpo_update_delete_command: TStringList;
   t_diretorio: string;
 begin
   try
@@ -294,44 +272,13 @@ begin
     t_arquivo.Add('{');
     t_arquivo.Add(Format('    public class Delete%sCommand : Base%sCommand', [pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular]));
     t_arquivo.Add('    {');
-
-    try
-      t_corpo_update_delete_command := TStringList.Create();
-
-      for t_aux := 0 to pEntidade.Atributos.Count - 1 do
-      begin
-        if (pEntidade.Atributos.Items[t_aux].ChavePrimaria) then
-        begin
-          t_nome_atributo := pEntidade.Atributos.Items[t_aux].Nome;
-          t_nome_snk_atributo := LowerCase(Copy(t_nome_atributo, 1, 1)) + Copy(t_nome_atributo, 2, Length(t_nome_atributo));
-          t_tipo_atributo := pEntidade.Atributos.Items[t_aux].Tipo;
-
-          if SameText(t_parametros_delete_entidade_command, EmptyStr) then
-          begin
-            t_parametros_delete_entidade_command := Format('%s %s', [t_tipo_atributo, t_nome_snk_atributo])
-          end
-          else
-          begin
-            t_parametros_delete_entidade_command := t_parametros_delete_entidade_command + Format(', %s %s', [t_tipo_atributo, t_nome_snk_atributo])
-          end;
-
-          t_corpo_update_delete_command.Add(Format('            %s = %s;', [t_nome_atributo, t_nome_snk_atributo]));
-        end;
-      end;
-
-      t_corpo_update_delete_command.Add(Format('            Aggregate%s = %s;', [t_nome_atributo, t_nome_atributo]));
-
-      t_arquivo.Add(Format('        public Delete%sCommand(%s)', [pEntidade.NomeClasseSingular, t_parametros_delete_entidade_command]));
-      t_arquivo.Add('        {');
-      t_arquivo.Add(Format('%s', [t_corpo_update_delete_command.Text]));
-      t_arquivo.Add('        }');
-    finally
-      FreeAndNil(t_corpo_update_delete_command);
-    end;
-
+    t_arquivo.Add(Format('        public Delete%sCommand(Guid id)', [pEntidade.NomeClasseSingular]));
+    t_arquivo.Add('        {');
+    t_arquivo.Add('            Id = id;');
+    t_arquivo.Add('            AggregateId = Id;');
+    t_arquivo.Add('        }');
     t_arquivo.Add('    }');
     t_arquivo.Add('}');
-
 
     t_diretorio := GetCurrentDir() + Format('\ERP.%s.Domain', [pEntidade.NomeModulo]);
 
@@ -388,23 +335,20 @@ begin
 
       for t_aux := 0 to pEntidade.Atributos.Count - 1 do
       begin
-        if (not pEntidade.Atributos.Items[t_aux].ChavePrimaria) then
+        t_nome_atributo := pEntidade.Atributos.Items[t_aux].Nome;
+        t_nome_snk_atributo := LowerCase(Copy(t_nome_atributo, 1, 1)) + Copy(t_nome_atributo, 2, Length(t_nome_atributo));
+        t_tipo_atributo := pEntidade.Atributos.Items[t_aux].Tipo;
+
+        if SameText(t_parametros_save_entidade_command, EmptyStr) then
         begin
-          t_nome_atributo := pEntidade.Atributos.Items[t_aux].Nome;
-          t_nome_snk_atributo := LowerCase(Copy(t_nome_atributo, 1, 1)) + Copy(t_nome_atributo, 2, Length(t_nome_atributo));
-          t_tipo_atributo := pEntidade.Atributos.Items[t_aux].Tipo;
-
-          if SameText(t_parametros_save_entidade_command, EmptyStr) then
-          begin
-            t_parametros_save_entidade_command := Format('%s %s', [t_tipo_atributo, t_nome_snk_atributo])
-          end
-          else
-          begin
-            t_parametros_save_entidade_command := t_parametros_save_entidade_command + Format(', %s %s', [t_tipo_atributo, t_nome_snk_atributo])
-          end;
-
-          t_corpo_save_entidade_command.Add(Format('            %s = %s;', [t_nome_atributo, t_nome_snk_atributo]));
+          t_parametros_save_entidade_command := Format('%s %s', [t_tipo_atributo, t_nome_snk_atributo])
+        end
+        else
+        begin
+          t_parametros_save_entidade_command := t_parametros_save_entidade_command + Format(', %s %s', [t_tipo_atributo, t_nome_snk_atributo])
         end;
+
+        t_corpo_save_entidade_command.Add(Format('            %s = %s;', [t_nome_atributo, t_nome_snk_atributo]));
       end;
 
       t_arquivo.Add(Format('        public Save%sCommand(%s)', [pEntidade.NomeClasseSingular, t_parametros_save_entidade_command]));
@@ -469,7 +413,11 @@ begin
     t_arquivo.Add('    {');
 
     try
+      t_parametros_update_entidade_command := EmptyStr;
       t_corpo_update_entidade_command := TStringList.Create();
+
+      t_parametros_update_entidade_command := 'Guid id';
+      t_corpo_update_entidade_command.Add('            Id = id;');
 
       for t_aux := 0 to pEntidade.Atributos.Count - 1 do
       begin
@@ -477,14 +425,7 @@ begin
         t_nome_snk_atributo := LowerCase(Copy(t_nome_atributo, 1, 1)) + Copy(t_nome_atributo, 2, Length(t_nome_atributo));
         t_tipo_atributo := pEntidade.Atributos.Items[t_aux].Tipo;
 
-        if SameText(t_parametros_update_entidade_command, EmptyStr) then
-        begin
-          t_parametros_update_entidade_command := Format('%s %s', [t_tipo_atributo, t_nome_snk_atributo])
-        end
-        else
-        begin
-          t_parametros_update_entidade_command := t_parametros_update_entidade_command + Format(', %s %s', [t_tipo_atributo, t_nome_snk_atributo])
-        end;
+        t_parametros_update_entidade_command := t_parametros_update_entidade_command + Format(', %s %s', [t_tipo_atributo, t_nome_snk_atributo]);
 
         t_corpo_update_entidade_command.Add(Format('            %s = %s;', [t_nome_atributo, t_nome_snk_atributo]));
       end;

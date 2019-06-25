@@ -24,8 +24,6 @@ procedure TServiceApiViewModelGenerator.generate(var pEntidade: TEntidadeDTO);
 var
   t_arquivo: TStringList;
   t_aux: Integer;
-  t_nome_atributo_pk: string;
-  t_tipo_atributo_pk: string;
   t_diretorio: string;
 begin
   try
@@ -41,48 +39,36 @@ begin
     t_arquivo.Add(Format('    public class %sViewModel', [pEntidade.nomeClasseSingular]));
     t_arquivo.Add('    {');
 
+    //atributo identificador
+    t_arquivo.Add('        [Key]');
+    t_arquivo.Add('        public Guid Id { get; set; }');
+    t_arquivo.Add('');
+
+    //demais atributos
     for t_aux := 0 to pEntidade.Atributos.Count - 1 do
     begin
-      if (pEntidade.Atributos.Items[t_aux].ChavePrimaria) then
+      t_arquivo.Add(Format('        [Display(Name = "%s")]', [pEntidade.Atributos.Items[t_aux].NomeExibicao]));
+
+      //requerimento de campo
+      if (pEntidade.Atributos.Items[t_aux].Requerido) then
       begin
-        t_nome_atributo_pk := pEntidade.Atributos.Items[t_aux].Nome;
-        t_tipo_atributo_pk := pEntidade.Atributos.Items[t_aux].Tipo;
-
-        t_arquivo.Add('        [Key]');
-        t_arquivo.Add(Format('        public %s %s { get; set; }', [t_tipo_atributo_pk, t_nome_atributo_pk]));
-        t_arquivo.Add('');
-
-        Break;
+        t_arquivo.Add('        [Required(ErrorMessage = "Campo obrigatório")]');
       end;
-    end;
 
-    for t_aux := 0 to pEntidade.Atributos.Count - 1 do
-    begin
-      if (not pEntidade.Atributos.Items[t_aux].ChavePrimaria) then
-      begin
-        t_arquivo.Add(Format('        [Display(Name = "%s")]', [pEntidade.Atributos.Items[t_aux].NomeExibicao]));
+      //validacao de tamanho de campo
+  //    if (False) then
+  //    begin
+  //      t_arquivo.Add(Format('        [MinLength(1, ErrorMessage = "Tamanho mínimo {%s} caracteres")]', [IntToChar(pEntidade.Atributos.Items[t_aux].TamanhoMinimo)]));
+  //      t_arquivo.Add(Format('        [MaxLength(7, ErrorMessage = "Tamanho máximo {%s} caracteres")]', [IntToChar(pEntidade.Atributos.Items[t_aux].TamanhoMaximo)]));
+  //    end;
 
-        //requerimento de campo
-        if (pEntidade.Atributos.Items[t_aux].Requerido) then
-        begin
-          t_arquivo.Add('        [Required(ErrorMessage = "Campo obrigatório")]');
-        end;
-
-        //validacao de tamanho de campo
-  //      if (False) then
-  //      begin
-  //        t_arquivo.Add(Format('        [MinLength(1, ErrorMessage = "Tamanho mínimo {%s} caracteres")]', [IntToChar(pEntidade.Atributos.Items[t_aux].TamanhoMinimo)]));
-  //        t_arquivo.Add(Format('        [MaxLength(7, ErrorMessage = "Tamanho máximo {%s} caracteres")]', [IntToChar(pEntidade.Atributos.Items[t_aux].TamanhoMaximo)]));
-  //      end;
-
-        t_arquivo.Add(Format('        public %s %s { get; set; }', [pEntidade.Atributos.Items[t_aux].Tipo, pEntidade.Atributos.Items[t_aux].Nome]));
-        t_arquivo.Add('');
-      end;
+      t_arquivo.Add(Format('        public %s %s { get; set; }', [pEntidade.Atributos.Items[t_aux].Tipo, pEntidade.Atributos.Items[t_aux].Nome]));
+      t_arquivo.Add('');
     end;
 
     t_arquivo.Add(Format('    public %sViewModel()', [pEntidade.nomeClasseSingular]));
     t_arquivo.Add('        {');
-    t_arquivo.Add(Format('            %s = new %s();', [t_nome_atributo_pk, t_tipo_atributo_pk]));
+    t_arquivo.Add('            Id = new Guid();');
     t_arquivo.Add('        }');
     t_arquivo.Add('    }');
     t_arquivo.Add('}');

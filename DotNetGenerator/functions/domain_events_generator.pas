@@ -45,6 +45,8 @@ begin
     t_arquivo.Add(Format('    public class Base%sEvent : Event', [pEntidade.NomeClasseSingular]));
     t_arquivo.Add('    {');
 
+    t_arquivo.Add('        public Guid Id { get; protected set; }');
+
     for t_aux := 0 to pEntidade.Atributos.Count - 1 do
     begin
       t_nome_atributo := pEntidade.Atributos.Items[t_aux].Nome;
@@ -153,12 +155,6 @@ end;
 procedure TDomainEventsGenerator.generateDeletedEvent(var pEntidade: TEntidadeDTO);
 var
   t_arquivo: TStringList;
-  t_aux: Integer;
-  t_nome_atributo: string;
-  t_nome_snk_atributo: string;
-  t_tipo_atributo: string;
-  t_parametros_deleted_entidade_event: string;
-  t_corpo_update_deleted_event: TStringList;
   t_diretorio: string;
 begin
   try
@@ -172,41 +168,11 @@ begin
     t_arquivo.Add('{');
     t_arquivo.Add(Format('    public class Deleted%sEvent : Base%sEvent', [pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular]));
     t_arquivo.Add('    {');
-
-    try
-      t_corpo_update_deleted_event := TStringList.Create();
-
-      for t_aux := 0 to pEntidade.Atributos.Count - 1 do
-      begin
-        if (pEntidade.Atributos.Items[t_aux].ChavePrimaria) then
-        begin
-          t_nome_atributo := pEntidade.Atributos.Items[t_aux].Nome;
-          t_nome_snk_atributo := LowerCase(Copy(t_nome_atributo, 1, 1)) + Copy(t_nome_atributo, 2, Length(t_nome_atributo));
-          t_tipo_atributo := pEntidade.Atributos.Items[t_aux].Tipo;
-
-          if SameText(t_parametros_deleted_entidade_event, EmptyStr) then
-          begin
-            t_parametros_deleted_entidade_event := Format('%s %s', [t_tipo_atributo, t_nome_snk_atributo])
-          end
-          else
-          begin
-            t_parametros_deleted_entidade_event := t_parametros_deleted_entidade_event + Format(', %s %s', [t_tipo_atributo, t_nome_snk_atributo])
-          end;
-
-          t_corpo_update_deleted_event.Add(Format('            %s = %s;', [t_nome_atributo, t_nome_snk_atributo]));
-        end;
-      end;
-
-      t_corpo_update_deleted_event.Add(Format('            Aggregate%s = %s;', [t_nome_atributo, t_nome_atributo]));
-
-      t_arquivo.Add(Format('        public Deleted%sEvent(%s)', [pEntidade.NomeClasseSingular, t_parametros_deleted_entidade_event]));
-      t_arquivo.Add('        {');
-      t_arquivo.Add(Format('%s', [t_corpo_update_deleted_event.Text]));
-      t_arquivo.Add('        }');
-    finally
-      FreeAndNil(t_corpo_update_deleted_event);
-    end;
-
+    t_arquivo.Add(Format('        public Deleted%sEvent(Guid id)', [pEntidade.NomeClasseSingular]));
+    t_arquivo.Add('        {');
+    t_arquivo.Add('            Id = id;');
+    t_arquivo.Add('            AggregateId = Id;');
+    t_arquivo.Add('        }');
     t_arquivo.Add('    }');
     t_arquivo.Add('}');
 
@@ -244,8 +210,6 @@ var
   t_nome_atributo: string;
   t_nome_snk_atributo: string;
   t_tipo_atributo: string;
-  t_nome_atributo_pk: string;
-  t_nome_snk_atributo_pk: string;
   t_parametros_saved_entidade_event: string;
   t_corpo_saved_entidade_event: TStringList;
   t_diretorio: string;
@@ -263,7 +227,11 @@ begin
     t_arquivo.Add('    {');
 
     try
+      t_parametros_saved_entidade_event := EmptyStr;
       t_corpo_saved_entidade_event := TStringList.Create();
+
+      t_parametros_saved_entidade_event := 'Guid id';
+      t_corpo_saved_entidade_event.Add('            Id = id;');
 
       for t_aux := 0 to pEntidade.Atributos.Count - 1 do
       begin
@@ -271,25 +239,12 @@ begin
         t_nome_snk_atributo := LowerCase(Copy(t_nome_atributo, 1, 1)) + Copy(t_nome_atributo, 2, Length(t_nome_atributo));
         t_tipo_atributo := pEntidade.Atributos.Items[t_aux].Tipo;
 
-        if (pEntidade.Atributos.Items[t_aux].ChavePrimaria) then
-        begin
-          t_nome_atributo_pk := t_nome_atributo;
-          t_nome_snk_atributo_pk := t_nome_snk_atributo;
-        end;
-
-        if SameText(t_parametros_saved_entidade_event, EmptyStr) then
-        begin
-          t_parametros_saved_entidade_event := Format('%s %s', [t_tipo_atributo, t_nome_snk_atributo])
-        end
-        else
-        begin
-          t_parametros_saved_entidade_event := t_parametros_saved_entidade_event + Format(', %s %s', [t_tipo_atributo, t_nome_snk_atributo])
-        end;
+        t_parametros_saved_entidade_event := t_parametros_saved_entidade_event + Format(', %s %s', [t_tipo_atributo, t_nome_snk_atributo]);
 
         t_corpo_saved_entidade_event.Add(Format('            %s = %s;', [t_nome_atributo, t_nome_snk_atributo]));
       end;
 
-      t_corpo_saved_entidade_event.Add(Format('            Aggregate%s = %s;', [t_nome_atributo_pk, t_nome_atributo_pk]));
+      t_corpo_saved_entidade_event.Add('            AggregateId = Id;');
 
       t_arquivo.Add(Format('        public Saved%sEvent(%s)', [pEntidade.NomeClasseSingular, t_parametros_saved_entidade_event]));
       t_arquivo.Add('        {');
@@ -336,8 +291,6 @@ var
   t_nome_atributo: string;
   t_nome_snk_atributo: string;
   t_tipo_atributo: string;
-  t_nome_atributo_pk: string;
-  t_nome_snk_atributo_pk: string;
   t_parametros_updated_entidade_event: string;
   t_corpo_updated_entidade_event: TStringList;
   t_diretorio: string;
@@ -355,7 +308,11 @@ begin
     t_arquivo.Add('    {');
 
     try
+      t_parametros_updated_entidade_event := EmptyStr;
       t_corpo_updated_entidade_event := TStringList.Create();
+
+      t_parametros_updated_entidade_event := 'Guid id';
+      t_corpo_updated_entidade_event.Add('            Id = id;');
 
       for t_aux := 0 to pEntidade.Atributos.Count - 1 do
       begin
@@ -363,25 +320,12 @@ begin
         t_nome_snk_atributo := LowerCase(Copy(t_nome_atributo, 1, 1)) + Copy(t_nome_atributo, 2, Length(t_nome_atributo));
         t_tipo_atributo := pEntidade.Atributos.Items[t_aux].Tipo;
 
-        if (pEntidade.Atributos.Items[t_aux].ChavePrimaria) then
-        begin
-          t_nome_atributo_pk := t_nome_atributo;
-          t_nome_snk_atributo_pk := t_nome_snk_atributo;
-        end;
-
-        if SameText(t_parametros_updated_entidade_event, EmptyStr) then
-        begin
-          t_parametros_updated_entidade_event := Format('%s %s', [t_tipo_atributo, t_nome_snk_atributo])
-        end
-        else
-        begin
-          t_parametros_updated_entidade_event := t_parametros_updated_entidade_event + Format(', %s %s', [t_tipo_atributo, t_nome_snk_atributo])
-        end;
+        t_parametros_updated_entidade_event := t_parametros_updated_entidade_event + Format(', %s %s', [t_tipo_atributo, t_nome_snk_atributo]);
 
         t_corpo_updated_entidade_event.Add(Format('            %s = %s;', [t_nome_atributo, t_nome_snk_atributo]));
       end;
 
-      t_corpo_updated_entidade_event.Add(Format('            Aggregate%s = %s;', [t_nome_atributo_pk, t_nome_atributo_pk]));
+      t_corpo_updated_entidade_event.Add('            AggregateId = Id;');
 
       t_arquivo.Add(Format('        public Updated%sEvent(%s)', [pEntidade.NomeClasseSingular, t_parametros_updated_entidade_event]));
       t_arquivo.Add('        {');

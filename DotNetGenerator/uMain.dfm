@@ -69,6 +69,9 @@ object Main: TMain
         Caption = 'Conex'#227'o'
         ImageIndex = 1
         ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object gbxDadosConexaoSQLServer: TGroupBox
           Left = 0
           Top = 0
@@ -338,7 +341,6 @@ object Main: TMain
                   'long'
                   'string'
                   ''
-                  
                   'Boolean'
                   'Byte'
                   'Byte[]'
@@ -363,8 +365,7 @@ object Main: TMain
                 Expanded = False
                 FieldName = 'ChavePrimaria'
                 Title.Alignment = taCenter
-                Width = 79
-                Visible = True
+                Visible = False
               end
               item
                 Expanded = False
