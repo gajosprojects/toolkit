@@ -26,6 +26,8 @@ var
   t_aux: Integer;
   t_nome_atributo_pk: string;
   t_diretorio: string;
+  t_builder_atributo: TStringList;
+  t_atributo_aux: string;
 begin
   try
     t_diretorio := EmptyStr;
@@ -53,9 +55,9 @@ begin
       begin
         t_nome_atributo_pk := pEntidade.Atributos.Items[t_aux].Nome;
 
-        t_arquivo.Add(Format('            builder.HasKey(%s => %s.%s);', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular), t_nome_atributo_pk]));
-        t_arquivo.Add(Format('            builder.Property(%s => %s.%s);', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular), t_nome_atributo_pk]));
-        t_arquivo.Add(Format('            builder.HasColumnName("%s");', [LowerCase(t_nome_atributo_pk)]));
+        t_arquivo.Add(Format('            builder.HasKey(%s => %s.%s)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular), t_nome_atributo_pk]));
+        t_arquivo.Add(Format('                   .Property(%s => %s.%s)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular), t_nome_atributo_pk]));
+        t_arquivo.Add(Format('                   .HasColumnName("%s");', [LowerCase(t_nome_atributo_pk)]));
         t_arquivo.Add('');
 
         Break;
@@ -68,29 +70,44 @@ begin
       begin
         t_nome_atributo_pk := pEntidade.Atributos.Items[t_aux].Nome;
 
-        if (pEntidade.Atributos.Items[t_aux].ChaveUnica) then
-        begin
-          t_arquivo.Add(Format('            builder.HasAlternateKey(%s => %s.%s);', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular), t_nome_atributo_pk]));
+        try
+          t_builder_atributo := TStringList.Create();
+
+          t_builder_atributo.Add(Format('            builder.Property(%s => %s.%s)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular), t_nome_atributo_pk]));
+          t_builder_atributo.Add(Format('                   .HasColumnName("%s")', [LowerCase(t_nome_atributo_pk)]));
+
+          if (pEntidade.Atributos.Items[t_aux].ChaveUnica) then
+          begin
+            t_builder_atributo.Add(Format('                   .HasAlternateKey(%s => %s.%s)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular), t_nome_atributo_pk]));
+          end;
+
+          if (pEntidade.Atributos.Items[t_aux].Requerido) then
+          begin
+            t_builder_atributo.Add('                   .IsRequired()');
+          end;
+
+//          if (False) then
+//          begin
+//            t_builder_atributo.Add('            builder.HasDefaultValue(false);');
+//          end;
+
+          //validacao de tamanho de campo
+//          if (False) then
+//          begin
+//            t_builder_atributo.Add('            builder.HasMaxLength(7);');');
+//          end;
+
+          if (t_builder_atributo.Count > 1) then
+          begin
+            t_atributo_aux := t_builder_atributo.Text;
+            //remover quebra de linha no final do stringlist
+            Delete(t_atributo_aux, Length(t_atributo_aux) - 1, 2);
+            t_arquivo.Add(t_atributo_aux + ';');
+//            t_arquivo.Add(t_builder_atributo.Text + ';');
+          end;
+        finally
+          FreeAndNil(t_builder_atributo);
         end;
-
-        t_arquivo.Add(Format('            builder.Property(%s => %s.%s);', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular), t_nome_atributo_pk]));
-        t_arquivo.Add(Format('            builder.HasColumnName("%s");', [LowerCase(t_nome_atributo_pk)]));
-
-        if (pEntidade.Atributos.Items[t_aux].Requerido) then
-        begin
-          t_arquivo.Add('            builder.IsRequired();');
-        end;
-
-  //      if (False) then
-  //      begin
-  //        t_arquivo.Add('            builder.HasDefaultValue(false);');
-  //      end;
-
-        //validacao de tamanho de campo
-  //      if (False) then
-  //      begin
-  //        t_arquivo.Add('            builder.HasMaxLength(7);');');
-  //      end;
 
         t_arquivo.Add('');
       end;

@@ -31,7 +31,7 @@ object Main: TMain
       Top = 22
       Width = 161
       Height = 21
-      TabOrder = 0
+      TabOrder = 1
       TextHint = 'Selecione'
       OnChange = cmbOrigemClasseChange
       Items.Strings = (
@@ -45,7 +45,7 @@ object Main: TMain
       Height = 25
       Cancel = True
       Caption = 'Gerar'
-      TabOrder = 1
+      TabOrder = 0
       OnClick = btnGerarClick
     end
   end
@@ -69,9 +69,6 @@ object Main: TMain
         Caption = 'Conex'#227'o'
         ImageIndex = 1
         ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
         object gbxDadosConexaoSQLServer: TGroupBox
           Left = 0
           Top = 0
@@ -170,7 +167,7 @@ object Main: TMain
             Top = 36
             Width = 161
             Height = 21
-            TabOrder = 1
+            TabOrder = 2
             TextHint = 'Selecione'
             OnSelect = cmbTabelasSelect
           end
@@ -180,7 +177,7 @@ object Main: TMain
             Width = 161
             Height = 21
             Enabled = False
-            TabOrder = 2
+            TabOrder = 1
             TextHint = 'Selecione'
             OnSelect = cmbSchemaSelect
           end
@@ -227,7 +224,7 @@ object Main: TMain
             Height = 66
             Align = alClient
             Caption = 'Nome da Entidade'
-            TabOrder = 0
+            TabOrder = 1
             object lblNomeSingular: TLabel
               Left = 8
               Top = 20
@@ -267,7 +264,7 @@ object Main: TMain
             Height = 66
             Align = alLeft
             Caption = 'Nome do M'#243'dulo'
-            TabOrder = 1
+            TabOrder = 0
             object edtNomeModulo: TEdit
               Left = 8
               Top = 37
@@ -296,7 +293,7 @@ object Main: TMain
             Align = alClient
             DataSource = dsAtributos
             Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
-            TabOrder = 0
+            TabOrder = 1
             TitleFont.Charset = DEFAULT_CHARSET
             TitleFont.Color = clWindowText
             TitleFont.Height = -11
@@ -341,6 +338,7 @@ object Main: TMain
                   'long'
                   'string'
                   ''
+                  
                   'Boolean'
                   'Byte'
                   'Byte[]'
@@ -390,7 +388,7 @@ object Main: TMain
             DataSource = dsAtributos
             VisibleButtons = [nbInsert, nbDelete, nbEdit, nbPost, nbCancel, nbRefresh]
             Align = alTop
-            TabOrder = 1
+            TabOrder = 0
             OnClick = dbnvgrAtributosClick
           end
         end

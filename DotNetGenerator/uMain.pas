@@ -170,7 +170,7 @@ begin
   begin
     if cdsAtributos.RecordCount > 0 then
     begin
-      resposta := (MessageDlg(Format('Os atributos existentes serão perdidos.%sDeseja continuar?', [sLineBreak]),
+      resposta := (MessageDlg(Format('Os atributos existentes serÃ£o perdidos.%sDeseja continuar?', [sLineBreak]),
                               mtWarning, [mbYes,mbNo], 0, mbNo) = mrYes);
     end;
   end;
@@ -378,7 +378,7 @@ begin
 
         if (cdsAtributos.RecordCount > 0) then
         begin
-          resposta := (MessageDlg(Format('Os atributos existentes serão perdidos.%sDeseja continuar?', [sLineBreak]),
+          resposta := (MessageDlg(Format('Os atributos existentes serÃ£o perdidos.%sDeseja continuar?', [sLineBreak]),
                                   mtWarning, [mbYes,mbNo], 0, mbNo) = mrYes);
         end;
 
@@ -409,7 +409,7 @@ begin
 
       if (cdsAtributos.RecordCount > 0) then
       begin
-        resposta := (MessageDlg(Format('Os atributos existentes serão perdidos.%sDeseja continuar?', [sLineBreak]),
+        resposta := (MessageDlg(Format('Os atributos existentes serÃ£o perdidos.%sDeseja continuar?', [sLineBreak]),
                                 mtWarning, [mbYes,mbNo], 0, mbNo) = mrYes);
       end;
 
@@ -422,7 +422,7 @@ begin
 
 //    cOrigemInstrucaoSQL:
 //    begin
-//      btnCarregar.Caption := 'Avançar';
+//      btnCarregar.Caption := 'AvanÃ§ar';
 //
 //      tsConexao.TabVisible      := True;
 //      tsInstrucaoSQL.TabVisible := True;
@@ -434,7 +434,7 @@ begin
 //
 //      if (cdsAtributos.RecordCount > 0) then
 //      begin
-//        resposta := (MessageDlg(Format('Os atributos existentes serão perdidos.%sDeseja continuar?', [sLineBreak]),
+//        resposta := (MessageDlg(Format('Os atributos existentes serÃ£o perdidos.%sDeseja continuar?', [sLineBreak]),
 //                                mtWarning, [mbYes,mbNo], 0, mbNo) = mrYes);
 //      end;
 //
@@ -480,10 +480,10 @@ begin
       AbrirConexao();
 
       if (not conBD.Connected) then
-        ShowMessage(Format('Não foi possível conectar ao banco de dados [%s]', [conBD.Database]));
+        ShowMessage(Format('NÃ£o foi possÃ­vel conectar ao banco de dados [%s]', [conBD.Database]));
     except
       on E: Exception do
-        raise Exception.CreateFmt('Não foi possível conectar ao banco de dados (%s)%s[%s]',
+        raise Exception.CreateFmt('NÃ£o foi possÃ­vel conectar ao banco de dados (%s)%s[%s]',
                                   [conBD.Database, sLineBreak, E.Message]);
     end;
   finally
@@ -521,7 +521,7 @@ var
   sNomeColuna: string;
 begin
   sNomeColuna := dbgrdAtributos.SelectedField.FieldName;
-  // controla a edição da célula
+  // controla a ediÃ§Ã£o da cÃ©lula
   if (IsColunaBoolean(sNomeColuna)) then
     dbgrdAtributos.Options := dbgrdAtributos.Options - [dgEditing]
   else
@@ -539,10 +539,10 @@ var
   sNomeColuna: string;
   nLinha: integer;
 begin
-  // obtém o número do registro (linha)
+  // obtÃ©m o nÃºmero do registro (linha)
   nLinha := dbgrdAtributos.DataSource.DataSet.RecNo;
 
-  // verifica se o número da linha é par ou ímpar, aplicando as cores
+  // verifica se o nÃºmero da linha Ã© par ou Ã­mpar, aplicando as cores
   if Odd(nLinha) then
     dbgrdAtributos.Canvas.Brush.Color := clBtnFace
   else
@@ -551,7 +551,7 @@ begin
   // pinta a linha
   dbgrdAtributos.DefaultDrawColumnCell(Rect, DataCol, Column, State);
 
-  // verifica se o registro está inativo
+  // verifica se o registro estÃ¡ inativo
   if (cdsAtributos.FieldByName('Selecionado').AsString = 'N') then
   begin
     dbgrdAtributos.Canvas.Font.Style := [fsStrikeOut];
@@ -575,7 +575,7 @@ begin
     oRetangulo := Rect;
     InflateRect(oRetangulo, -2, -2);
 
-    // desenha o CheckBox na célula conforme a condição acima
+    // desenha o CheckBox na cÃ©lula conforme a condiÃ§Ã£o acima
     DrawFrameControl(dbgrdAtributos.Canvas.Handle, oRetangulo, DFC_BUTTON, nMarcar);
   end;
 end;
@@ -956,7 +956,6 @@ end;
 
 function TMain.IsValidacaoOk(): Boolean;
 var
-  indice: Integer;
   selecionados: Integer;
   pks: Integer;
   tipo_nao_informado: Integer;
@@ -965,45 +964,63 @@ begin
 
   if SameText(Trim(edtNomeModulo.Text), EmptyStr) then
   begin
-    ShowMessage('Nome do módulo é obrigatório');
+    ShowMessage('Nome do mÃ³dulo Ã© obrigatÃ³rio');
     edtNomeModulo.SetFocus();
     Exit
   end;
 
   if SameText(Trim(edtNomeSingular.Text), EmptyStr) then
   begin
-    ShowMessage('Nome da classe no singular é obrigatório');
+    ShowMessage('Nome da classe no singular Ã© obrigatÃ³rio');
     edtNomeSingular.SetFocus();
     Exit
   end;
 
   if SameText(Trim(edtNomePlural.Text), EmptyStr) then
   begin
-    ShowMessage('Nome da classe no plural é obrigatório');
+    ShowMessage('Nome da classe no plural Ã© obrigatÃ³rio');
     edtNomePlural.SetFocus();
     Exit
   end;
 
   if (cdsAtributos.RecordCount = 0) then
   begin
-    ShowMessage('Ao menos um atributo é obrigatório');
+    ShowMessage('Ao menos um atributo Ã© obrigatÃ³rio');
     dbgrdAtributos.SetFocus();
     Exit
   end;
 
   selecionados := 0;
   pks := 0;
+  tipo_nao_informado := 0;
 
-  for indice := 0 to cdsAtributos.RecordCount -1 do
-  begin
-    if SameText(cdsAtributos.FieldByName('Selecionado').AsString, cSim) then
-      Inc(selecionados);
+  try
+    cdsAtributos.DisableControls();
+    cdsAtributos.First();
 
-    if SameText(cdsAtributos.FieldByName('ChavePrimaria').AsString, cSim) then
-      Inc(pks);
+    while not cdsAtributos.Eof do
+    begin
+      if SameText(cdsAtributos.FieldByName('Selecionado').AsString, cSim) then
+      begin
+        Inc(selecionados);
+      end;
 
-    if SameText(Trim(cdsAtributos.FieldByName('ChavePrimaria').AsString), EmptyStr) then
-      Inc(tipo_nao_informado);
+      if SameText(cdsAtributos.FieldByName('ChavePrimaria').AsString, cSim) then
+      begin
+        Inc(pks);
+      end;
+
+      if SameText(Trim(cdsAtributos.FieldByName('Tipo').AsString), EmptyStr) then
+      begin
+        Inc(tipo_nao_informado);
+      end;
+
+      cdsAtributos.Next();
+    end;
+  finally
+    cdsAtributos.First();
+
+    cdsAtributos.EnableControls();
   end;
 
   if (selecionados = 0) then
@@ -1015,14 +1032,14 @@ begin
 
   if (pks = 0) then
   begin
-    ShowMessage('Ao menos um atributo deve ser chave primária');
+    ShowMessage('Ao menos um atributo deve ser chave primÃ¡ria');
     dbgrdAtributos.SetFocus();
     Exit
   end;
 
-  if (tipo_nao_informado = 0) then
+  if (pks = 0) then
   begin
-    ShowMessage('Atributo sem tipo informado');
+    ShowMessage('Existe(m) atributo(s) sem tipo informado');
     dbgrdAtributos.SetFocus();
     Exit
   end;
@@ -1186,72 +1203,3 @@ begin
 end;
 
 end.
-
-{
-function TMain.GetTipoAtributoDotNetFromSQLServer(pTipoId: Integer; pNomeTipo: string): string;
-begin
-  //ref: https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/sql-server-data-type-mappings
-  if (Pos('bigint', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Int64'
-  else if (Pos('binary', LowerCase(pNomeTipo)) > 0) then
-    Result := '	Byte[]'
-  else if (Pos('bit', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Boolean'
-  else if (Pos('char', LowerCase(pNomeTipo)) > 0) then
-    Result := 'String'
-  else if (Pos('date', LowerCase(pNomeTipo)) > 0) then
-    Result := 'DateTime'
-  else if (Pos('datetime ', LowerCase(pNomeTipo)) > 0) then
-    Result := 'DateTime'
-  else if (Pos('datetime2', LowerCase(pNomeTipo)) > 0) then
-    Result := 'DateTime'
-  else if (Pos('datetimeoffset ', LowerCase(pNomeTipo)) > 0) then
-    Result := 'DateTimeOffset'
-  else if (Pos('decimal', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Decimal'
-  else if (Pos('float', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Double'
-  else if (Pos('image', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Byte[]'
-  else if (Pos('int', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Int32'
-  else if (Pos('money', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Decimal'
-  else if (Pos('nchar', LowerCase(pNomeTipo)) > 0) then
-    Result := 'String'
-  else if (Pos('ntext', LowerCase(pNomeTipo)) > 0) then
-    Result := 'String'
-  else if (Pos('numeric', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Decimal'
-  else if (Pos('nvarchar ', LowerCase(pNomeTipo)) > 0) then
-    Result := 'String'
-  else if (Pos('real ', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Single'
-  else if (Pos('smalldatetime', LowerCase(pNomeTipo)) > 0) then
-    Result := 'DateTime'
-  else if (Pos('smallint ', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Int16'
-  else if (Pos('smallmoney ', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Decimal'
-  else if (Pos('sql_variant', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Object'
-  else if (Pos('text ', LowerCase(pNomeTipo)) > 0) then
-    Result := 'String'
-  else if (Pos('time ', LowerCase(pNomeTipo)) > 0) then
-    Result := 'TimeSpan'
-  else if (Pos('timestamp', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Byte[]'
-  else if (Pos('tinyint', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Byte'
-  else if (Pos('uniqueidentifier ', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Guid'
-  else if (Pos('varbinary', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Byte[]'
-  else if (Pos('varchar', LowerCase(pNomeTipo)) > 0) then
-    Result := 'String'
-  else if (Pos('xml', LowerCase(pNomeTipo)) > 0) then
-    Result := 'Xml'
-  else
-    Result := EmptyStr;
-end;
-}
