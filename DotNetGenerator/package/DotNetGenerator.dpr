@@ -12,7 +12,8 @@ uses
   infra_data_context_generator in '..\functions\infra_data_context_generator.pas',
   domain_entity_generator in '..\functions\domain_entity_generator.pas',
   domain_commands_generator in '..\functions\domain_commands_generator.pas',
-  domain_events_generator in '..\functions\domain_events_generator.pas';
+  domain_events_generator in '..\functions\domain_events_generator.pas',
+  domain_repositories_generator in '..\functions\domain_repositories_generator.pas';
 
 {$R *.res}
 

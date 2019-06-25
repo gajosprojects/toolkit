@@ -157,7 +157,7 @@ implementation
 uses
   uAtributoDTO, service_api_view_model_generator, service_api_controller_generator,
   infra_data_repository_generator, infra_data_mapping_generator, infra_data_context_generator,
-  domain_entity_generator, domain_commands_generator, domain_events_generator,
+  domain_entity_generator, domain_commands_generator, domain_events_generator, domain_repositories_generator,
   System.UITypes;
 
 procedure TMain.btnCarregarClick(Sender: TObject);
@@ -170,7 +170,7 @@ begin
   begin
     if cdsAtributos.RecordCount > 0 then
     begin
-      resposta := (MessageDlg(Format('Os atributos existentes ser„o perdidos.%sDeseja continuar?', [sLineBreak]),
+      resposta := (MessageDlg(Format('Os atributos existentes ser√£o perdidos.%sDeseja continuar?', [sLineBreak]),
                               mtWarning, [mbYes,mbNo], 0, mbNo) = mrYes);
     end;
   end;
@@ -378,7 +378,7 @@ begin
 
         if (cdsAtributos.RecordCount > 0) then
         begin
-          resposta := (MessageDlg(Format('Os atributos existentes ser„o perdidos.%sDeseja continuar?', [sLineBreak]),
+          resposta := (MessageDlg(Format('Os atributos existentes ser√£o perdidos.%sDeseja continuar?', [sLineBreak]),
                                   mtWarning, [mbYes,mbNo], 0, mbNo) = mrYes);
         end;
 
@@ -409,7 +409,7 @@ begin
 
       if (cdsAtributos.RecordCount > 0) then
       begin
-        resposta := (MessageDlg(Format('Os atributos existentes ser„o perdidos.%sDeseja continuar?', [sLineBreak]),
+        resposta := (MessageDlg(Format('Os atributos existentes ser√£o perdidos.%sDeseja continuar?', [sLineBreak]),
                                 mtWarning, [mbYes,mbNo], 0, mbNo) = mrYes);
       end;
 
@@ -422,7 +422,7 @@ begin
 
 //    cOrigemInstrucaoSQL:
 //    begin
-//      btnCarregar.Caption := 'AvanÁar';
+//      btnCarregar.Caption := 'Avan√ßar';
 //
 //      tsConexao.TabVisible      := True;
 //      tsInstrucaoSQL.TabVisible := True;
@@ -434,7 +434,7 @@ begin
 //
 //      if (cdsAtributos.RecordCount > 0) then
 //      begin
-//        resposta := (MessageDlg(Format('Os atributos existentes ser„o perdidos.%sDeseja continuar?', [sLineBreak]),
+//        resposta := (MessageDlg(Format('Os atributos existentes ser√£o perdidos.%sDeseja continuar?', [sLineBreak]),
 //                                mtWarning, [mbYes,mbNo], 0, mbNo) = mrYes);
 //      end;
 //
@@ -480,10 +480,10 @@ begin
       AbrirConexao();
 
       if (not conBD.Connected) then
-        ShowMessage(Format('N„o foi possÌvel conectar ao banco de dados [%s]', [conBD.Database]));
+        ShowMessage(Format('N√£o foi poss√≠vel conectar ao banco de dados [%s]', [conBD.Database]));
     except
       on E: Exception do
-        raise Exception.CreateFmt('N„o foi possÌvel conectar ao banco de dados (%s)%s[%s]',
+        raise Exception.CreateFmt('N√£o foi poss√≠vel conectar ao banco de dados (%s)%s[%s]',
                                   [conBD.Database, sLineBreak, E.Message]);
     end;
   finally
@@ -521,7 +521,7 @@ var
   sNomeColuna: string;
 begin
   sNomeColuna := dbgrdAtributos.SelectedField.FieldName;
-  // controla a ediÁ„o da cÈlula
+  // controla a edi√ß√£o da c√©lula
   if (IsColunaBoolean(sNomeColuna)) then
     dbgrdAtributos.Options := dbgrdAtributos.Options - [dgEditing]
   else
@@ -539,10 +539,10 @@ var
   sNomeColuna: string;
   nLinha: integer;
 begin
-  // obtÈm o n˙mero do registro (linha)
+  // obt√©m o n√∫mero do registro (linha)
   nLinha := dbgrdAtributos.DataSource.DataSet.RecNo;
 
-  // verifica se o n˙mero da linha È par ou Ìmpar, aplicando as cores
+  // verifica se o n√∫mero da linha √© par ou √≠mpar, aplicando as cores
   if Odd(nLinha) then
     dbgrdAtributos.Canvas.Brush.Color := clBtnFace
   else
@@ -551,7 +551,7 @@ begin
   // pinta a linha
   dbgrdAtributos.DefaultDrawColumnCell(Rect, DataCol, Column, State);
 
-  // verifica se o registro est· inativo
+  // verifica se o registro est√° inativo
   if (cdsAtributos.FieldByName('Selecionado').AsString = 'N') then
   begin
     dbgrdAtributos.Canvas.Font.Style := [fsStrikeOut];
@@ -575,7 +575,7 @@ begin
     oRetangulo := Rect;
     InflateRect(oRetangulo, -2, -2);
 
-    // desenha o CheckBox na cÈlula conforme a condiÁ„o acima
+    // desenha o CheckBox na c√©lula conforme a condi√ß√£o acima
     DrawFrameControl(dbgrdAtributos.Canvas.Handle, oRetangulo, DFC_BUTTON, nMarcar);
   end;
 end;
@@ -636,6 +636,7 @@ var
   DomainEntityGenerator: TDomainEntityGenerator;
   DomainCommandsGenerator: TDomainCommandsGenerator;
   DomainEventsGenerator: TDomainEventsGenerator;
+  DomainRepositoryGenerator: TDomainRepositoriesGenerator;
 begin
   try
     //preenchimento do objeto entidade e seus atributos
@@ -680,6 +681,10 @@ begin
     DomainEventsGenerator.generateSavedEvent(Entidade);
     DomainEventsGenerator.generateUpdatedEvent(Entidade);
     DomainEventsGenerator.generateDeletedEvent(Entidade);
+
+    //domain -> repositories
+    DomainRepositoryGenerator := TDomainRepositoriesGenerator.Create();
+    DomainRepositoryGenerator.generate(Entidade);
 
     ShowMessage('Arquivos gerados com sucesso!');
   except
@@ -959,28 +964,28 @@ begin
 
   if SameText(Trim(edtNomeModulo.Text), EmptyStr) then
   begin
-    ShowMessage('Nome do mÛdulo È obrigatÛrio');
+    ShowMessage('Nome do m√≥dulo √© obrigat√≥rio');
     edtNomeModulo.SetFocus();
     Exit
   end;
 
   if SameText(Trim(edtNomeSingular.Text), EmptyStr) then
   begin
-    ShowMessage('Nome da classe no singular È obrigatÛrio');
+    ShowMessage('Nome da classe no singular √© obrigat√≥rio');
     edtNomeSingular.SetFocus();
     Exit
   end;
 
   if SameText(Trim(edtNomePlural.Text), EmptyStr) then
   begin
-    ShowMessage('Nome da classe no plural È obrigatÛrio');
+    ShowMessage('Nome da classe no plural √© obrigat√≥rio');
     edtNomePlural.SetFocus();
     Exit
   end;
 
   if (cdsAtributos.RecordCount = 0) then
   begin
-    ShowMessage('Ao menos um atributo È obrigatÛrio');
+    ShowMessage('Ao menos um atributo √© obrigat√≥rio');
     dbgrdAtributos.SetFocus();
     Exit
   end;
@@ -1027,7 +1032,7 @@ begin
 
   if (pks = 0) then
   begin
-    ShowMessage('Ao menos um atributo deve ser chave prim·ria');
+    ShowMessage('Ao menos um atributo deve ser chave prim√°ria');
     dbgrdAtributos.SetFocus();
     Exit
   end;
