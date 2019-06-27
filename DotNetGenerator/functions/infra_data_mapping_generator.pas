@@ -48,8 +48,8 @@ begin
     t_arquivo.Add('        {');
     t_arquivo.Add(Format('            builder.ToTable("%s");', [LowerCase(pEntidade.NomeClassePlural)]));
     t_arquivo.Add('');
-
     t_arquivo.Add(Format('            builder.HasKey(%s => %s.Id)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular)]));
+    t_arquivo.Add(Format('                   .HasName("pk_%s_id")', [LowerCase(pEntidade.NomeClasseSingular)]));    
     t_arquivo.Add(Format('                   .Property(%s => %s.Id)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular)]));
     t_arquivo.Add('                   .HasColumnName("id");');
     t_arquivo.Add('');
