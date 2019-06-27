@@ -56,6 +56,7 @@ begin
         t_nome_atributo_pk := pEntidade.Atributos.Items[t_aux].Nome;
 
         t_arquivo.Add(Format('            builder.HasKey(%s => %s.%s)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular), t_nome_atributo_pk]));
+        t_arquivo.Add(Format('                   .HasName("pk_%s_%s")', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(t_nome_atributo_pk)]));
         t_arquivo.Add(Format('                   .Property(%s => %s.%s)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular), t_nome_atributo_pk]));
         t_arquivo.Add(Format('                   .HasColumnName("%s");', [LowerCase(t_nome_atributo_pk)]));
         t_arquivo.Add('');
