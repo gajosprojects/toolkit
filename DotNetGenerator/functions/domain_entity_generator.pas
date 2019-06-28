@@ -108,7 +108,11 @@ begin
 
     //construtor
     try
+      t_parametros_construtor := EmptyStr;
       t_corpo_construtor := TStringList.Create();
+
+      t_parametros_construtor := Format('Guid id', [t_tipo_atributo, t_nome_snk_atributo]);
+      t_corpo_construtor.Add(Format('                    Id = id,', [t_nome_atributo, t_nome_snk_atributo]));
 
       for t_aux := 0 to pEntidade.Atributos.Count - 1 do
       begin
@@ -117,14 +121,7 @@ begin
 
         t_tipo_atributo := pEntidade.Atributos.Items[t_aux].Tipo;
 
-        if SameText(t_parametros_construtor, EmptyStr) then
-        begin
-          t_parametros_construtor := Format('%s %s', [t_tipo_atributo, t_nome_snk_atributo])
-        end
-        else
-        begin
-          t_parametros_construtor := t_parametros_construtor + Format(', %s %s', [t_tipo_atributo, t_nome_snk_atributo])
-        end;
+        t_parametros_construtor := t_parametros_construtor + Format(', %s %s', [t_tipo_atributo, t_nome_snk_atributo]);
 
         if (t_aux < pEntidade.Atributos.Count - 1) then
         begin

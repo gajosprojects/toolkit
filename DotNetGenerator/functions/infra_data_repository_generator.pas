@@ -26,8 +26,6 @@ var
   t_nome_singular_classe: string;
   t_nome_plural_classe: string;
   t_nome_singular_snk_classe: string;
-  t_aux: Integer;
-  t_nome_atributo_pk: string;
   t_diretorio: string;
 begin
   try
@@ -51,24 +49,12 @@ begin
     t_arquivo.Add('        {');
     t_arquivo.Add('        }');
     t_arquivo.Add('');
-
-    for t_aux := 0 to pEntidade.Atributos.Count - 1 do
-    begin
-      if (pEntidade.Atributos.Items[t_aux].ChavePrimaria) then
-      begin
-        t_nome_atributo_pk := pEntidade.Atributos.Items[t_aux].Nome;
-
-        t_arquivo.Add(Format('        public override void Delete(%s obj)', [t_nome_singular_classe]));
-        t_arquivo.Add('        {');
-        t_arquivo.Add(Format('            var %s = GetBy%s(obj.%s);', [t_nome_singular_snk_classe, t_nome_atributo_pk, t_nome_atributo_pk]));
-        t_arquivo.Add(Format('            %s.Desativar();', [t_nome_singular_snk_classe]));
-        t_arquivo.Add(Format('            Update(%s);', [t_nome_singular_snk_classe]));
-        t_arquivo.Add('        }');
-
-        Break;
-      end;
-    end;
-
+    t_arquivo.Add(Format('        public override void Delete(%s obj)', [t_nome_singular_classe]));
+    t_arquivo.Add('        {');
+    t_arquivo.Add(Format('            var %s = GetById(obj.Id);', [t_nome_singular_snk_classe]));
+    t_arquivo.Add(Format('            %s.Desativar();', [t_nome_singular_snk_classe]));
+    t_arquivo.Add(Format('            Update(%s);', [t_nome_singular_snk_classe]));
+    t_arquivo.Add('        }');
     t_arquivo.Add('    }');
     t_arquivo.Add('}');
 

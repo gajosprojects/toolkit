@@ -1,4 +1,4 @@
-unit uMain;
+﻿unit uMain;
 
 interface
 
@@ -786,7 +786,7 @@ begin
         Atributo.Nome          := cdsAtributos.FieldByName('Nome').AsString;
         Atributo.NomeExibicao  := cdsAtributos.FieldByName('NomeExibicao').AsString;
         Atributo.Tipo          := cdsAtributos.FieldByName('Tipo').AsString;
-        Atributo.ChavePrimaria := SameText(cdsAtributos.FieldByName('ChavePrimaria').AsString, cSim);
+//        Atributo.ChavePrimaria := SameText(cdsAtributos.FieldByName('ChavePrimaria').AsString, cSim);
         Atributo.ChaveUnica    := SameText(cdsAtributos.FieldByName('ChaveUnica').AsString, cSim);
         Atributo.Requerido     := SameText(cdsAtributos.FieldByName('Requerido').AsString, cSim);
 
@@ -957,7 +957,7 @@ end;
 function TMain.IsValidacaoOk(): Boolean;
 var
   selecionados: Integer;
-  pks: Integer;
+//  pks: Integer;
   tipo_nao_informado: Integer;
 begin
   Result := False;
@@ -991,7 +991,7 @@ begin
   end;
 
   selecionados := 0;
-  pks := 0;
+//  pks := 0;
   tipo_nao_informado := 0;
 
   try
@@ -1005,10 +1005,10 @@ begin
         Inc(selecionados);
       end;
 
-      if SameText(cdsAtributos.FieldByName('ChavePrimaria').AsString, cSim) then
-      begin
-        Inc(pks);
-      end;
+//      if SameText(cdsAtributos.FieldByName('ChavePrimaria').AsString, cSim) then
+//      begin
+//        Inc(pks);
+//      end;
 
       if SameText(Trim(cdsAtributos.FieldByName('Tipo').AsString), EmptyStr) then
       begin
@@ -1030,14 +1030,14 @@ begin
     Exit
   end;
 
-  if (pks = 0) then
-  begin
-    ShowMessage('Ao menos um atributo deve ser chave primária');
-    dbgrdAtributos.SetFocus();
-    Exit
-  end;
+//  if (pks = 0) then
+//  begin
+//    ShowMessage('Ao menos um atributo deve ser chave primária');
+//    dbgrdAtributos.SetFocus();
+//    Exit
+//  end;
 
-  if (pks = 0) then
+  if (tipo_nao_informado > 0) then
   begin
     ShowMessage('Existe(m) atributo(s) sem tipo informado');
     dbgrdAtributos.SetFocus();
@@ -1172,19 +1172,22 @@ begin
 
     while not cdsAux.Eof do
     begin
-      cdsAtributos.Append();
+      if SameText(cdsAux.FieldByName('ChavePrimaria').AsString, cNao) then
+      begin
+        cdsAtributos.Append();
 
-      nome_aux := UpperCase(Copy(cdsAux.FieldByName('Nome').AsString, 1, 1)) + LowerCase(Copy(cdsAux.FieldByName('Nome').AsString, 2, Length(cdsAux.FieldByName('Nome').AsString)));
+        nome_aux := UpperCase(Copy(cdsAux.FieldByName('Nome').AsString, 1, 1)) + LowerCase(Copy(cdsAux.FieldByName('Nome').AsString, 2, Length(cdsAux.FieldByName('Nome').AsString)));
 
-      cdsAtributos.FieldByName('Selecionado').AsString := cSim;
-      cdsAtributos.FieldByName('Nome').AsString := nome_aux;
-      cdsAtributos.FieldByName('NomeExibicao').AsString := nome_aux;
-      cdsAtributos.FieldByName('Tipo').AsString := GetTipoAtributoDotNetFromSQLServer(cdsAux.FieldByName('Tipo').AsString);
-      cdsAtributos.FieldByName('ChavePrimaria').AsString := cdsAux.FieldByName('ChavePrimaria').AsString;
-      cdsAtributos.FieldByName('ChaveUnica').AsString := cdsAux.FieldByName('ChaveUnica').AsString;
-      cdsAtributos.FieldByName('Requerido').AsString := cdsAux.FieldByName('Requerido').AsString;
+        cdsAtributos.FieldByName('Selecionado').AsString := cSim;
+        cdsAtributos.FieldByName('Nome').AsString := nome_aux;
+        cdsAtributos.FieldByName('NomeExibicao').AsString := nome_aux;
+        cdsAtributos.FieldByName('Tipo').AsString := GetTipoAtributoDotNetFromSQLServer(cdsAux.FieldByName('Tipo').AsString);
+//        cdsAtributos.FieldByName('ChavePrimaria').AsString := cdsAux.FieldByName('ChavePrimaria').AsString;
+        cdsAtributos.FieldByName('ChaveUnica').AsString := cdsAux.FieldByName('ChaveUnica').AsString;
+        cdsAtributos.FieldByName('Requerido').AsString := cdsAux.FieldByName('Requerido').AsString;
 
-      cdsAtributos.Post();
+        cdsAtributos.Post();
+      end;
 
       cdsAux.Next();
     end;
