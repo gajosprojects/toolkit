@@ -101,10 +101,6 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="..\uMain.pas">
-            <Form>Main</Form>
-            <FormType>dfm</FormType>
-        </DCCReference>
         <DCCReference Include="..\dtos\uEntidadeDTO.pas"/>
         <DCCReference Include="..\dtos\uAtributoDTO.pas"/>
         <DCCReference Include="..\functions\service_api_view_model_generator.pas"/>
@@ -116,6 +112,21 @@
         <DCCReference Include="..\functions\domain_commands_generator.pas"/>
         <DCCReference Include="..\functions\domain_events_generator.pas"/>
         <DCCReference Include="..\functions\domain_repositories_generator.pas"/>
+        <DCCReference Include="..\uMainForm.pas">
+            <Form>MainForm</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="..\uDotNetGeneratorSourceCodeFrame.pas">
+            <Form>DotNetGeneratorSourceCodeFrame</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TFrame</DesignClass>
+        </DCCReference>
+        <DCCReference Include="..\uMainDataModule.pas">
+            <Form>MainDataModule</Form>
+            <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
+        </DCCReference>
+        <DCCReference Include="..\uConstantes.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

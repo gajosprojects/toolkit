@@ -1,31 +1,19 @@
-object Main: TMain
+object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
+  AlignWithMargins = True
   Left = 0
   Top = 0
-  BorderIcons = [biSystemMenu, biMinimize]
-  BorderStyle = bsSingle
-  Caption = '.Net Files Generator - Gajos  Project'
-  ClientHeight = 571
-  ClientWidth = 794
-  Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
-  Font.Color = clWindowText
-  Font.Height = -11
-  Font.Name = 'Tahoma'
-  Font.Style = []
-  FormStyle = fsMDIForm
-  OldCreateOrder = False
-  Position = poDesktopCenter
-  OnCreate = FormCreate
-  PixelsPerInch = 96
-  TextHeight = 13
+  Width = 800
+  Height = 600
+  TabOrder = 0
   object gbxOrigem: TGroupBox
     Left = 0
     Top = 0
-    Width = 794
+    Width = 800
     Height = 52
     Align = alTop
     Caption = 'Origem'
     TabOrder = 0
+    ExplicitWidth = 794
     object cmbOrigemClasse: TComboBox
       Left = 15
       Top = 22
@@ -52,34 +40,37 @@ object Main: TMain
   object gbxGenerator: TGroupBox
     Left = 0
     Top = 52
-    Width = 794
-    Height = 519
+    Width = 800
+    Height = 548
     Align = alClient
     TabOrder = 1
+    ExplicitWidth = 794
+    ExplicitHeight = 519
     object pgcGenerator: TPageControl
       AlignWithMargins = True
       Left = 5
       Top = 18
-      Width = 784
-      Height = 496
+      Width = 790
+      Height = 525
       ActivePage = tsDadosClasse
       Align = alClient
       TabOrder = 0
+      ExplicitWidth = 784
+      ExplicitHeight = 496
       object tsConexao: TTabSheet
         Caption = 'Conex'#227'o'
         ImageIndex = 1
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
+        ExplicitWidth = 776
+        ExplicitHeight = 468
         object gbxDadosConexaoSQLServer: TGroupBox
           Left = 0
           Top = 0
-          Width = 776
+          Width = 782
           Height = 68
           Align = alTop
           Caption = 'Dados'
           TabOrder = 0
+          ExplicitWidth = 776
           object edtInstanciaSQLServer: TLabeledEdit
             Left = 8
             Top = 36
@@ -130,11 +121,12 @@ object Main: TMain
         object gbxBaseDados: TGroupBox
           Left = 0
           Top = 68
-          Width = 776
+          Width = 782
           Height = 68
           Align = alTop
           Caption = 'Base'
           TabOrder = 1
+          ExplicitWidth = 776
           object lblBaseDados: TLabel
             Left = 8
             Top = 20
@@ -206,28 +198,28 @@ object Main: TMain
       end
       object tsDadosClasse: TTabSheet
         Caption = 'Dados da classe a ser gerada'
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
+        ExplicitWidth = 776
+        ExplicitHeight = 468
         object pnlEntidade: TPanel
           AlignWithMargins = True
           Left = 3
           Top = 3
-          Width = 770
+          Width = 776
           Height = 72
           Align = alTop
           BevelOuter = bvNone
           TabOrder = 0
+          ExplicitWidth = 770
           object gbxNomeEntidade: TGroupBox
             AlignWithMargins = True
             Left = 262
             Top = 3
-            Width = 505
+            Width = 511
             Height = 66
             Align = alClient
             Caption = 'Nome da Entidade'
             TabOrder = 1
+            ExplicitWidth = 505
             object lblNomeSingular: TLabel
               Left = 8
               Top = 20
@@ -282,19 +274,20 @@ object Main: TMain
           AlignWithMargins = True
           Left = 3
           Top = 81
-          Width = 770
-          Height = 384
+          Width = 776
+          Height = 413
           Align = alClient
           Caption = 'Atributos'
           TabOrder = 1
+          ExplicitWidth = 770
+          ExplicitHeight = 384
           object dbgrdAtributos: TDBGrid
             AlignWithMargins = True
             Left = 5
             Top = 49
-            Width = 760
-            Height = 330
+            Width = 766
+            Height = 359
             Align = alClient
-            DataSource = dsAtributos
             Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
             TabOrder = 1
             TitleFont.Charset = DEFAULT_CHARSET
@@ -384,169 +377,16 @@ object Main: TMain
             AlignWithMargins = True
             Left = 5
             Top = 18
-            Width = 760
+            Width = 766
             Height = 25
-            DataSource = dsAtributos
             VisibleButtons = [nbInsert, nbDelete, nbEdit, nbPost, nbCancel, nbRefresh]
             Align = alTop
             TabOrder = 0
             OnClick = dbnvgrAtributosClick
+            ExplicitWidth = 760
           end
         end
       end
-    end
-  end
-  object cdsAtributos: TClientDataSet
-    Aggregates = <>
-    Params = <>
-    Left = 120
-    Top = 312
-    object cdsAtributosSelecionado: TWideStringField
-      FieldName = 'Selecionado'
-      OnGetText = cdsAtributosSelecionadoGetText
-      Size = 1
-    end
-    object cdsAtributosNome: TWideStringField
-      FieldName = 'Nome'
-      Size = 100
-    end
-    object cdsAtributosNomeExibicao: TWideStringField
-      DisplayLabel = 'Nome Exibi'#231#227'o'
-      FieldName = 'NomeExibicao'
-      Size = 255
-    end
-    object cdsAtributosTipo: TWideStringField
-      FieldName = 'Tipo'
-      Size = 50
-    end
-    object cdsAtributosChavePrimaria: TWideStringField
-      DisplayLabel = 'Chave Prim'#225'ria'
-      FieldName = 'ChavePrimaria'
-      OnGetText = cdsAtributosChavePrimariaGetText
-      Size = 1
-    end
-    object cdsAtributosChaveUnica: TWideStringField
-      DisplayLabel = 'Chave '#218'nica'
-      FieldName = 'ChaveUnica'
-      Size = 1
-    end
-    object cdsAtributosRequerido: TWideStringField
-      FieldName = 'Requerido'
-      OnGetText = cdsAtributosRequeridoGetText
-      Size = 1
-    end
-  end
-  object dsAtributos: TDataSource
-    DataSet = cdsAtributos
-    Left = 40
-    Top = 312
-  end
-  object conBD: TZConnection
-    ControlsCodePage = cCP_UTF16
-    Catalog = ''
-    HostName = ''
-    Port = 0
-    Database = 
-      'Provider=SQLOLEDB.1;Password=gajos;Persist Security Info=True;Us' +
-      'er ID=sa;Initial Catalog=ERP_TESTE;Data Source=.\SQLEXPRESS'
-    User = ''
-    Password = ''
-    Protocol = 'ado'
-    Left = 40
-    Top = 265
-  end
-  object dsBaseDados: TDataSource
-    DataSet = cdsBaseDados
-    Left = 504
-    Top = 264
-  end
-  object qryBaseDados: TZReadOnlyQuery
-    Connection = conBD
-    Params = <>
-    Left = 727
-    Top = 264
-  end
-  object cdsBaseDados: TClientDataSet
-    Aggregates = <>
-    Params = <>
-    ProviderName = 'dspBaseDados'
-    Left = 576
-    Top = 264
-    object cdsBaseDadosNome: TWideStringField
-      FieldName = 'nome'
-      Required = True
-      Size = 128
-    end
-  end
-  object dspBaseDados: TDataSetProvider
-    DataSet = qryBaseDados
-    Left = 651
-    Top = 264
-  end
-  object dsTabelas: TDataSource
-    DataSet = cdsTabelas
-    Left = 504
-    Top = 312
-  end
-  object cdsTabelas: TClientDataSet
-    Aggregates = <>
-    Params = <>
-    ProviderName = 'dspTabelas'
-    Left = 576
-    Top = 312
-    object cdsTabelasNome: TWideStringField
-      FieldName = 'nome'
-      Required = True
-      Size = 128
-    end
-  end
-  object dspTabelas: TDataSetProvider
-    DataSet = qryTabelas
-    Left = 651
-    Top = 312
-  end
-  object qryTabelas: TZReadOnlyQuery
-    Connection = conBD
-    Params = <>
-    Left = 727
-    Top = 312
-  end
-  object qryAux: TZReadOnlyQuery
-    Connection = conBD
-    Params = <>
-    Left = 727
-    Top = 363
-  end
-  object dspAux: TDataSetProvider
-    DataSet = qryAux
-    Left = 651
-    Top = 363
-  end
-  object cdsAux: TClientDataSet
-    Aggregates = <>
-    Params = <>
-    ProviderName = 'dspAux'
-    Left = 576
-    Top = 363
-    object cdsAuxNome: TWideStringField
-      FieldName = 'nome'
-      Size = 128
-    end
-    object cdsAuxTipo: TWideStringField
-      FieldName = 'tipo'
-      Size = 128
-    end
-    object cdsAuxChavePrimaria: TWideStringField
-      FieldName = 'chaveprimaria'
-      Size = 1
-    end
-    object cdsAuxChaveUNica: TWideStringField
-      FieldName = 'chaveunica'
-      Size = 1
-    end
-    object cdsAuxRequerido: TWideStringField
-      FieldName = 'requerido'
-      Size = 1
     end
   end
 end
