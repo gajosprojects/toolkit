@@ -7,7 +7,11 @@ uses
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, Datasnap.DBClient,
   Vcl.StdCtrls, Vcl.Grids, Vcl.DBGrids, Vcl.ImgList, System.ImageList, Vcl.DBCtrls,
   Vcl.ExtCtrls, uEntidadeDTO, MidasLib, Vcl.ComCtrls, ZConnection,
-  ZAbstractConnection, Vcl.Mask, ZAbstractRODataset, ZDataset, Datasnap.Provider;
+  ZAbstractConnection, Vcl.Mask, ZAbstractRODataset, ZDataset, Datasnap.Provider,
+  cxGraphics, cxControls, cxLookAndFeels, cxLookAndFeelPainters, cxCustomData,
+  cxStyles, cxTL, cxTLdxBarBuiltInMenu,
+  cxDataControllerConditionalFormattingRulesManagerDialog, dxSkinsCore,
+  cxInplaceContainer, cxTLData, cxDBTL, cxMaskEdit, cxCheckBox, cxDropDownEdit;
 
 type
   TDotNetGeneratorSourceCodeFrame = class(TFrame)
@@ -41,29 +45,33 @@ type
     gbxModulo: TGroupBox;
     edtNomeModulo: TEdit;
     gbxAtributos: TGroupBox;
-    dbgrdAtributos: TDBGrid;
-    dbnvgrAtributos: TDBNavigator;
+    tlAtributos: TcxDBTreeList;
+    tlAtributosSelecionado: TcxDBTreeListColumn;
+    tlAtributosNome: TcxDBTreeListColumn;
+    tlAtributosNomeExibicao: TcxDBTreeListColumn;
+    tlAtributosTipo: TcxDBTreeListColumn;
+    tlAtributosChavePrimaria: TcxDBTreeListColumn;
+    tlAtributosChaveUnica: TcxDBTreeListColumn;
+    tlAtributosRequerido: TcxDBTreeListColumn;
 
     procedure btnCarregarClick(Sender: TObject);
     procedure btnConectarSQLServerClick(Sender: TObject);
     procedure btnGerarClick(Sender: TObject);
-    procedure cdsAtributosChavePrimariaGetText(Sender: TField; var Text: string; DisplayText: Boolean);
-    procedure cdsAtributosRequeridoGetText(Sender: TField; var Text: string; DisplayText: Boolean);
-    procedure cdsAtributosSelecionadoGetText(Sender: TField; var Text: string; DisplayText: Boolean);
     procedure cmbBaseDadosSelect(Sender: TObject);
     procedure cmbOrigemClasseChange(Sender: TObject);
     procedure cmbSchemaSelect(Sender: TObject);
     procedure cmbTabelasSelect(Sender: TObject);
-    procedure dbgrdAtributosCellClick(Column: TColumn);
-    procedure dbgrdAtributosColEnter(Sender: TObject);
-    procedure dbgrdAtributosDrawColumnCell(Sender: TObject; const Rect: TRect; DataCol: Integer; Column: TColumn; State: TGridDrawState);
-    procedure dbnvgrAtributosClick(Sender: TObject; Button: TNavigateBtn);
     procedure edtInstanciaSQLServerChange(Sender: TObject);
     procedure edtSenhaSQLServerChange(Sender: TObject);
     procedure edtUsuarioSQLServerChange(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
+    procedure tlAtributosNavigatorButtonsButtonClick(Sender: TObject; AButtonIndex: Integer; var ADone: Boolean);
 
   private
+    FNextIdAtributo: Integer;
+
+    FClientDataSetAtributos: TClientDataSet;
+    FDataSourceAtributos: TDataSource;
+
     { Private declarations }
     procedure InicializarFormulario();
 
@@ -100,6 +108,7 @@ type
   public
     { Public declarations }
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy(); override;
 
   end;
 
@@ -109,7 +118,7 @@ uses
   uAtributoDTO, service_api_view_model_generator, service_api_controller_generator,
   infra_data_repository_generator, infra_data_mapping_generator, infra_data_context_generator,
   domain_entity_generator, domain_commands_generator, domain_events_generator, domain_repositories_generator,
-  System.UITypes, uMainDataModule, uConstantes;
+  System.UITypes, uMainDataModule, uConstantes, cxNavigator;
 
 {$R *.dfm}
 
@@ -119,15 +128,23 @@ constructor TDotNetGeneratorSourceCodeFrame.Create(AOwner: TComponent);
 begin
   inherited;
 
+  FClientDataSetAtributos := TClientDataSet.Create(nil);
+  FDataSourceAtributos := TDataSource.Create(nil);
+
   InicializarFormulario();
 end;
 
 procedure TDotNetGeneratorSourceCodeFrame.InicializarFormulario();
 begin
+  FDataSourceAtributos.DataSet := FClientDataSetAtributos;
+
   cmbOrigemClasse.ItemIndex := cOrigemManual;
 
-  dbgrdAtributos.DataSource := MainDataModule.Get().dsAtributos;
-  dbgrdAtributos.DataSource := MainDataModule.Get().dsAtributos;
+  tlAtributos.DataController.DataSource := FDataSourceAtributos;
+  tlAtributos.DataController.KeyField := 'Id';
+  tlAtributos.DataController.ParentField := 'ParentId';
+
+  FNextIdAtributo := 1;
 
   cmbOrigemClasseChange(nil);
 end;
@@ -138,9 +155,9 @@ var
 begin
   resposta := True;
 
-  if (MainDataModule.Get().cdsAtributos.Active) then
+  if (FClientDataSetAtributos.Active) then
   begin
-    if MainDataModule.Get().cdsAtributos.RecordCount > 0 then
+    if (FClientDataSetAtributos.RecordCount > 0) then
     begin
       resposta := (MessageDlg(Format('Os atributos existentes serão perdidos.%sDeseja continuar?', [sLineBreak]),
                               mtWarning, [mbYes,mbNo], 0, mbNo) = mrYes);
@@ -150,9 +167,9 @@ begin
   if resposta then
   begin
     try
-      if (MainDataModule.Get().cdsAtributos.Active) then
+      if (FClientDataSetAtributos.Active) then
       begin
-        MainDataModule.Get().cdsAtributos.EmptyDataSet();
+        FClientDataSetAtributos.EmptyDataSet();
       end;
 
       MainDataModule.Get().ValidarConexaoSQLServer(edtInstanciaSQLServer.Text, edtUsuarioSQLServer.Text, edtSenhaSQLServer.Text, cmbBaseDados.Text);
@@ -187,6 +204,9 @@ end;
 
 procedure TDotNetGeneratorSourceCodeFrame.btnGerarClick(Sender: TObject);
 begin
+  if (tlAtributos.IsEditing) then
+    tlAtributos.Post();
+
   if IsValidacaoOk() then
     GerarArquivos();
 end;
@@ -209,23 +229,6 @@ begin
       //
     end;
   end;
-end;
-
-procedure TDotNetGeneratorSourceCodeFrame.cdsAtributosChavePrimariaGetText(Sender: TField;
-  var Text: string; DisplayText: Boolean);
-begin
-  Text := EmptyStr;
-end;
-
-procedure TDotNetGeneratorSourceCodeFrame.cdsAtributosRequeridoGetText(Sender: TField; var Text: string;
-  DisplayText: Boolean);
-begin
-  Text := EmptyStr;
-end;
-
-procedure TDotNetGeneratorSourceCodeFrame.cdsAtributosSelecionadoGetText(Sender: TField; var Text: string; DisplayText: Boolean);
-begin
-  Text := EmptyStr;
 end;
 
 procedure TDotNetGeneratorSourceCodeFrame.cmbBaseDadosSelect(Sender: TObject);
@@ -258,8 +261,6 @@ begin
   cmbSchema.Enabled    := False;
   cmbTabelas.Enabled   := False;
 
-  dbgrdAtributos.EditorMode := False;
-
   HabilitarBotaoConectar();
   HabilitarBotaoCarregar();
 
@@ -276,11 +277,11 @@ begin
       edtNomeSingular.Text := EmptyStr;
       edtNomePlural.Text   := EmptyStr;
 
-      if (MainDataModule.Get().cdsAtributos.Active) then
+      if (FClientDataSetAtributos.Active) then
       begin
         resposta := True;
 
-        if (MainDataModule.Get().cdsAtributos.RecordCount > 0) then
+        if (FClientDataSetAtributos.RecordCount > 0) then
         begin
           resposta := (MessageDlg(Format('Os atributos existentes serão perdidos.%sDeseja continuar?', [sLineBreak]),
                                   mtWarning, [mbYes,mbNo], 0, mbNo) = mrYes);
@@ -288,14 +289,23 @@ begin
 
         if resposta then
         begin
-          MainDataModule.Get().cdsAtributos.EmptyDataSet();
+          FClientDataSetAtributos.EmptyDataSet();
         end;
       end
       else
       begin
-        MainDataModule.Get().cdsAtributos.Close();
-        MainDataModule.Get().cdsAtributos.CreateDataSet();
-        MainDataModule.Get().cdsAtributos.Open();
+        FClientDataSetAtributos.Close();
+        FClientDataSetAtributos.FieldDefs.Add('Id', ftInteger);
+        FClientDataSetAtributos.FieldDefs.Add('ParentId', ftInteger);
+        FClientDataSetAtributos.FieldDefs.Add('Selecionado', ftWideString, 1);
+        FClientDataSetAtributos.FieldDefs.Add('Nome', ftWideString, 100);
+        FClientDataSetAtributos.FieldDefs.Add('NomeExibicao', ftWideString, 100);
+        FClientDataSetAtributos.FieldDefs.Add('Tipo', ftWideString, 50);
+        FClientDataSetAtributos.FieldDefs.Add('ChavePrimaria', ftWideString, 1);
+        FClientDataSetAtributos.FieldDefs.Add('ChaveUnica', ftWideString, 1);
+        FClientDataSetAtributos.FieldDefs.Add('Requerido', ftWideString, 1);
+        FClientDataSetAtributos.CreateDataSet();
+        FClientDataSetAtributos.Open();
       end;
 
       //TransformarColunaTipoAtributoEmComboBox();
@@ -311,7 +321,7 @@ begin
 
       resposta := True;
 
-      if (MainDataModule.Get().cdsAtributos.RecordCount > 0) then
+      if (FClientDataSetAtributos.RecordCount > 0) then
       begin
         resposta := (MessageDlg(Format('Os atributos existentes serão perdidos.%sDeseja continuar?', [sLineBreak]),
                                 mtWarning, [mbYes,mbNo], 0, mbNo) = mrYes);
@@ -319,8 +329,8 @@ begin
 
       if resposta then
       begin
-        MainDataModule.Get().cdsAtributos.EmptyDataSet();
-        MainDataModule.Get().cdsAtributos.Close();
+        FClientDataSetAtributos.EmptyDataSet();
+        FClientDataSetAtributos.Close();
       end;
     end;
 
@@ -336,7 +346,7 @@ begin
 //
 //      resposta := True;
 //
-//      if (MainDataModule.Get().cdsAtributos.RecordCount > 0) then
+//      if (FClientDataSetAtributos.RecordCount > 0) then
 //      begin
 //        resposta := (MessageDlg(Format('Os atributos existentes serão perdidos.%sDeseja continuar?', [sLineBreak]),
 //                                mtWarning, [mbYes,mbNo], 0, mbNo) = mrYes);
@@ -344,8 +354,8 @@ begin
 //
 //      if resposta then
 //      begin
-//        MainDataModule.Get().cdsAtributos.EmptyDataSet();
-//        MainDataModule.Get().cdsAtributos.Close();
+//        FClientDataSetAtributos.EmptyDataSet();
+//        FClientDataSetAtributos.Close();
 //      end;
 //    end;
   else
@@ -367,111 +377,15 @@ begin
   HabilitarBotaoCarregar();
 end;
 
-procedure TDotNetGeneratorSourceCodeFrame.dbgrdAtributosCellClick(Column: TColumn);
-var
-  sValorColuna: string;
-  sNomeColuna: string;
+destructor TDotNetGeneratorSourceCodeFrame.Destroy();
 begin
-  sNomeColuna := Column.FieldName;
+  if Assigned(FClientDataSetAtributos) then
+    FreeAndNil(FClientDataSetAtributos);
 
-  if (IsColunaBoolean(sNomeColuna)) then
-  begin
-    if SameText(MainDataModule.Get().cdsAtributos.FieldByName(sNomeColuna).AsString, cSim) then
-      sValorColuna := cNao
-    else
-      sValorColuna := cSim;
+  if Assigned(FDataSourceAtributos) then
+    FreeAndNil(FDataSourceAtributos);
 
-    // edita o DataSet, alterna o status e grava os dados
-    MainDataModule.Get().cdsAtributos.Edit();
-    MainDataModule.Get().cdsAtributos.FieldByName(sNomeColuna).AsString := sValorColuna;
-    MainDataModule.Get().cdsAtributos.Post();
-  end;
-
-  if SameText(sNomeColuna, 'Tipo') then
-    dbgrdAtributos.EditorMode := True;
-end;
-
-procedure TDotNetGeneratorSourceCodeFrame.dbgrdAtributosColEnter(Sender: TObject);
-var
-  sNomeColuna: string;
-begin
-  sNomeColuna := dbgrdAtributos.SelectedField.FieldName;
-  // controla a edição da célula
-  if (IsColunaBoolean(sNomeColuna)) then
-    dbgrdAtributos.Options := dbgrdAtributos.Options - [dgEditing]
-  else
-    dbgrdAtributos.Options := dbgrdAtributos.Options + [dgEditing];
-
-  if SameText(sNomeColuna, 'Tipo') then
-    dbgrdAtributos.EditorMode := True;
-end;
-
-procedure TDotNetGeneratorSourceCodeFrame.dbgrdAtributosDrawColumnCell(Sender: TObject; const Rect: TRect;
-  DataCol: Integer; Column: TColumn; State: TGridDrawState);
-var
-  nMarcar: word;
-  oRetangulo: TRect;
-  sNomeColuna: string;
-  nLinha: integer;
-begin
-  // obtém o número do registro (linha)
-  nLinha := dbgrdAtributos.DataSource.DataSet.RecNo;
-
-  // verifica se o número da linha é par ou ímpar, aplicando as cores
-  if Odd(nLinha) then
-    dbgrdAtributos.Canvas.Brush.Color := clBtnFace
-  else
-    dbgrdAtributos.Canvas.Brush.Color := clWhite;
-
-  // pinta a linha
-  dbgrdAtributos.DefaultDrawColumnCell(Rect, DataCol, Column, State);
-
-  // verifica se o registro está inativo
-  if (MainDataModule.Get().cdsAtributos.FieldByName('Selecionado').AsString = 'N') then
-  begin
-    dbgrdAtributos.Canvas.Font.Style := [fsStrikeOut];
-
-    // pinta a linha
-    dbgrdAtributos.DefaultDrawColumnCell(Rect, DataCol, Column, State);
-  end;
-
-  sNomeColuna := Column.FieldName;
-
-  if (IsColunaBoolean(sNomeColuna)) then
-  begin
-    dbgrdAtributos.Canvas.FillRect(Rect);
-
-    if SameText(Column.Field.AsString, cSim) then
-      nMarcar := DFCS_CHECKED
-    else
-      nMarcar := DFCS_BUTTONCHECK;
-
-    // ajusta o tamanho do CheckBox
-    oRetangulo := Rect;
-    InflateRect(oRetangulo, -2, -2);
-
-    // desenha o CheckBox na célula conforme a condição acima
-    DrawFrameControl(dbgrdAtributos.Canvas.Handle, oRetangulo, DFC_BUTTON, nMarcar);
-  end;
-end;
-
-procedure TDotNetGeneratorSourceCodeFrame.dbnvgrAtributosClick(Sender: TObject; Button: TNavigateBtn);
-begin
-  if (Button = nbInsert) then
-  begin
-    MainDataModule.Get().cdsAtributos.Append();
-    MainDataModule.Get().cdsAtributos.FieldByName('Selecionado').AsString := cSim;
-    MainDataModule.Get().cdsAtributos.FieldByName('ChavePrimaria').AsString := cNao;
-    MainDataModule.Get().cdsAtributos.FieldByName('ChaveUnica').AsString := cNao;
-    MainDataModule.Get().cdsAtributos.FieldByName('Requerido').AsString := cNao;
-    MainDataModule.Get().cdsAtributos.Post;
-    dbgrdAtributos.SelectedIndex := 0;
-  end
-  else if (Button = nbEdit) then
-  begin
-    MainDataModule.Get().cdsAtributos.Edit();
-    dbgrdAtributos.SelectedIndex := 0;
-  end;
+  inherited;
 end;
 
 procedure TDotNetGeneratorSourceCodeFrame.edtInstanciaSQLServerChange(Sender: TObject);
@@ -487,11 +401,6 @@ end;
 procedure TDotNetGeneratorSourceCodeFrame.edtUsuarioSQLServerChange(Sender: TObject);
 begin
   HabilitarBotaoConectar();
-end;
-
-procedure TDotNetGeneratorSourceCodeFrame.FormCreate(Sender: TObject);
-begin
-  InicializarFormulario();
 end;
 
 procedure TDotNetGeneratorSourceCodeFrame.GerarArquivos();
@@ -642,32 +551,32 @@ begin
 
   //loop nos atributos
   try
-    MainDataModule.Get().cdsAtributos.DisableControls();
+    FClientDataSetAtributos.DisableControls();
 
-    MainDataModule.Get().cdsAtributos.First();
+    FClientDataSetAtributos.First();
 
-    while (not MainDataModule.Get().cdsAtributos.Eof) do
+    while (not FClientDataSetAtributos.Eof) do
     begin
-      if (SameText(MainDataModule.Get().cdsAtributos.FieldByName('Selecionado').AsString, cSim)) then
+      if (SameText(FClientDataSetAtributos.FieldByName('Selecionado').AsString, cSim)) then
       begin
         Atributo := TAtributoDTO.Create();
 
-        Atributo.Nome          := MainDataModule.Get().cdsAtributos.FieldByName('Nome').AsString;
-        Atributo.NomeExibicao  := MainDataModule.Get().cdsAtributos.FieldByName('NomeExibicao').AsString;
-        Atributo.Tipo          := MainDataModule.Get().cdsAtributos.FieldByName('Tipo').AsString;
-//        Atributo.ChavePrimaria := SameText(MainDataModule.Get().cdsAtributos.FieldByName('ChavePrimaria').AsString, cSim);
-        Atributo.ChaveUnica    := SameText(MainDataModule.Get().cdsAtributos.FieldByName('ChaveUnica').AsString, cSim);
-        Atributo.Requerido     := SameText(MainDataModule.Get().cdsAtributos.FieldByName('Requerido').AsString, cSim);
+        Atributo.Nome          := FClientDataSetAtributos.FieldByName('Nome').AsString;
+        Atributo.NomeExibicao  := FClientDataSetAtributos.FieldByName('NomeExibicao').AsString;
+        Atributo.Tipo          := FClientDataSetAtributos.FieldByName('Tipo').AsString;
+//        Atributo.ChavePrimaria := SameText(FClientDataSetAtributos.FieldByName('ChavePrimaria').AsString, cSim);
+        Atributo.ChaveUnica    := SameText(FClientDataSetAtributos.FieldByName('ChaveUnica').AsString, cSim);
+        Atributo.Requerido     := SameText(FClientDataSetAtributos.FieldByName('Requerido').AsString, cSim);
 
         Result.Atributos.Add(Atributo);
       end;
 
-      MainDataModule.Get().cdsAtributos.Next;
+      FClientDataSetAtributos.Next;
     end;
 
   finally
-    MainDataModule.Get().cdsAtributos.First();
-    MainDataModule.Get().cdsAtributos.EnableControls();
+    FClientDataSetAtributos.First();
+    FClientDataSetAtributos.EnableControls();
   end;
 end;
 
@@ -845,10 +754,10 @@ begin
     Exit
   end;
 
-  if (MainDataModule.Get().cdsAtributos.RecordCount = 0) then
+  if (FClientDataSetAtributos.RecordCount = 0) then
   begin
     ShowMessage('Ao menos um atributo é obrigatório');
-    dbgrdAtributos.SetFocus();
+    tlAtributos.SetFocus();
     Exit
   end;
 
@@ -857,52 +766,52 @@ begin
   tipo_nao_informado := 0;
 
   try
-    MainDataModule.Get().cdsAtributos.DisableControls();
-    MainDataModule.Get().cdsAtributos.First();
+    FClientDataSetAtributos.DisableControls();
+    FClientDataSetAtributos.First();
 
-    while not MainDataModule.Get().cdsAtributos.Eof do
+    while not FClientDataSetAtributos.Eof do
     begin
-      if SameText(MainDataModule.Get().cdsAtributos.FieldByName('Selecionado').AsString, cSim) then
+      if SameText(FClientDataSetAtributos.FieldByName('Selecionado').AsString, cSim) then
       begin
         Inc(selecionados);
       end;
 
-//      if SameText(MainDataModule.Get().cdsAtributos.FieldByName('ChavePrimaria').AsString, cSim) then
+//      if SameText(FClientDataSetAtributos.FieldByName('ChavePrimaria').AsString, cSim) then
 //      begin
 //        Inc(pks);
 //      end;
 
-      if SameText(Trim(MainDataModule.Get().cdsAtributos.FieldByName('Tipo').AsString), EmptyStr) then
+      if SameText(Trim(FClientDataSetAtributos.FieldByName('Tipo').AsString), EmptyStr) then
       begin
         Inc(tipo_nao_informado);
       end;
 
-      MainDataModule.Get().cdsAtributos.Next();
+      FClientDataSetAtributos.Next();
     end;
   finally
-    MainDataModule.Get().cdsAtributos.First();
+    FClientDataSetAtributos.First();
 
-    MainDataModule.Get().cdsAtributos.EnableControls();
+    FClientDataSetAtributos.EnableControls();
   end;
 
   if (selecionados = 0) then
   begin
     ShowMessage('Ao menos um atributo deve ser selecionado');
-    dbgrdAtributos.SetFocus();
+    tlAtributos.SetFocus();
     Exit
   end;
 
 //  if (pks = 0) then
 //  begin
 //    ShowMessage('Ao menos um atributo deve ser chave primária');
-//    dbgrdAtributos.SetFocus();
+//    tlAtributos.SetFocus();
 //    Exit
 //  end;
 
   if (tipo_nao_informado > 0) then
   begin
     ShowMessage('Existe(m) atributo(s) sem tipo informado');
-    dbgrdAtributos.SetFocus();
+    tlAtributos.SetFocus();
     Exit
   end;
 
@@ -1005,13 +914,15 @@ var
   nome_aux: string;
 begin
   try
+    FNextIdAtributo := 1;
+
     t_cds := TClientDataSet.Create(nil);
     t_cds.XMLData := pXMLData;
 
-    MainDataModule.Get().cdsAtributos.Close();
-    MainDataModule.Get().cdsAtributos.Open();
+    FClientDataSetAtributos.Close();
+    FClientDataSetAtributos.Open();
 
-    MainDataModule.Get().cdsAtributos.DisableControls();
+    FClientDataSetAtributos.DisableControls();
 
     t_cds.First;
 
@@ -1019,29 +930,35 @@ begin
     begin
       if SameText(t_cds.FieldByName('ChavePrimaria').AsString, cNao) then
       begin
-        MainDataModule.Get().cdsAtributos.Append();
+        FClientDataSetAtributos.Append();
 
         nome_aux := UpperCase(Copy(t_cds.FieldByName('Nome').AsString, 1, 1)) + LowerCase(Copy(t_cds.FieldByName('Nome').AsString, 2, Length(t_cds.FieldByName('Nome').AsString)));
 
-        MainDataModule.Get().cdsAtributos.FieldByName('Selecionado').AsString := cSim;
-        MainDataModule.Get().cdsAtributos.FieldByName('Nome').AsString := nome_aux;
-        MainDataModule.Get().cdsAtributos.FieldByName('NomeExibicao').AsString := nome_aux;
-        MainDataModule.Get().cdsAtributos.FieldByName('Tipo').AsString := GetTipoAtributoDotNetFromSQLServer(t_cds.FieldByName('Tipo').AsString);
-//        MainDataModule.Get().cdsAtributos.FieldByName('ChavePrimaria').AsString := t_cds.FieldByName('ChavePrimaria').AsString;
-        MainDataModule.Get().cdsAtributos.FieldByName('ChaveUnica').AsString := t_cds.FieldByName('ChaveUnica').AsString;
-        MainDataModule.Get().cdsAtributos.FieldByName('Requerido').AsString := t_cds.FieldByName('Requerido').AsString;
+        FClientDataSetAtributos.FieldByName('Id').AsInteger := FNextIdAtributo;
+        FClientDataSetAtributos.FieldByName('ParentId').AsInteger := 0;
+        FClientDataSetAtributos.FieldByName('Selecionado').AsString := cSim;
+        FClientDataSetAtributos.FieldByName('Nome').AsString := nome_aux;
+        FClientDataSetAtributos.FieldByName('NomeExibicao').AsString := nome_aux;
+        FClientDataSetAtributos.FieldByName('Tipo').AsString := GetTipoAtributoDotNetFromSQLServer(t_cds.FieldByName('Tipo').AsString);
+//        FClientDataSetAtributos.FieldByName('ChavePrimaria').AsString := t_cds.FieldByName('ChavePrimaria').AsString;
+        FClientDataSetAtributos.FieldByName('ChaveUnica').AsString := t_cds.FieldByName('ChaveUnica').AsString;
+        FClientDataSetAtributos.FieldByName('Requerido').AsString := t_cds.FieldByName('Requerido').AsString;
 
-        MainDataModule.Get().cdsAtributos.Post();
+        FClientDataSetAtributos.Post();
+
+        Inc(FNextIdAtributo);
       end;
 
       t_cds.Next();
     end;
   finally
-    MainDataModule.Get().cdsAtributos.EnableControls();
+    FClientDataSetAtributos.EnableControls();
 
     t_cds.Close();
 
     FreeAndNil(t_cds);
+
+    tlAtributos.Refresh();
   end;
 end;
 
@@ -1054,5 +971,24 @@ begin
   edtNomeSingular.Text := nome_aux;
 end;
 
+
+procedure TDotNetGeneratorSourceCodeFrame.tlAtributosNavigatorButtonsButtonClick(
+  Sender: TObject; AButtonIndex: Integer; var ADone: Boolean);
+begin
+  if (AButtonIndex = NBDI_APPEND) then
+  begin
+    FClientDataSetAtributos.Append();
+    FClientDataSetAtributos.FieldByName('Id').AsInteger := FNextIdAtributo;
+    FClientDataSetAtributos.FieldByName('ParentId').AsInteger := 0;
+    FClientDataSetAtributos.FieldByName('Selecionado').AsString := cSim;
+    FClientDataSetAtributos.FieldByName('ChavePrimaria').AsString := cNao;
+    FClientDataSetAtributos.FieldByName('ChaveUnica').AsString := cNao;
+    FClientDataSetAtributos.FieldByName('Requerido').AsString := cNao;
+
+    Inc(FNextIdAtributo);
+
+    ADone := True;
+  end;
+end;
 
 end.

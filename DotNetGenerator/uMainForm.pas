@@ -4,7 +4,8 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, Vcl.ExtCtrls,
+  dxGDIPlusClasses;
 
 type
   TNotifyEventWrapper = class(TComponent)
@@ -18,6 +19,7 @@ end;
 
 type
   TMainForm = class(TForm)
+    imgMarcaDagua: TImage;
 
   private
     { Private declarations }

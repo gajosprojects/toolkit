@@ -13,7 +13,6 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
     Align = alTop
     Caption = 'Origem'
     TabOrder = 0
-    ExplicitWidth = 794
     object cmbOrigemClasse: TComboBox
       Left = 15
       Top = 22
@@ -44,8 +43,6 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
     Height = 548
     Align = alClient
     TabOrder = 1
-    ExplicitWidth = 794
-    ExplicitHeight = 519
     object pgcGenerator: TPageControl
       AlignWithMargins = True
       Left = 5
@@ -55,13 +52,9 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
       ActivePage = tsDadosClasse
       Align = alClient
       TabOrder = 0
-      ExplicitWidth = 784
-      ExplicitHeight = 496
       object tsConexao: TTabSheet
         Caption = 'Conex'#227'o'
         ImageIndex = 1
-        ExplicitWidth = 776
-        ExplicitHeight = 468
         object gbxDadosConexaoSQLServer: TGroupBox
           Left = 0
           Top = 0
@@ -70,7 +63,6 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
           Align = alTop
           Caption = 'Dados'
           TabOrder = 0
-          ExplicitWidth = 776
           object edtInstanciaSQLServer: TLabeledEdit
             Left = 8
             Top = 36
@@ -126,7 +118,6 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
           Align = alTop
           Caption = 'Base'
           TabOrder = 1
-          ExplicitWidth = 776
           object lblBaseDados: TLabel
             Left = 8
             Top = 20
@@ -191,15 +182,9 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
       object tsInstrucaoSQL: TTabSheet
         Caption = 'Instru'#231#227'o SQL'
         ImageIndex = 2
-        ExplicitLeft = 0
-        ExplicitTop = 0
-        ExplicitWidth = 0
-        ExplicitHeight = 0
       end
       object tsDadosClasse: TTabSheet
         Caption = 'Dados da classe a ser gerada'
-        ExplicitWidth = 776
-        ExplicitHeight = 468
         object pnlEntidade: TPanel
           AlignWithMargins = True
           Left = 3
@@ -209,7 +194,6 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
           Align = alTop
           BevelOuter = bvNone
           TabOrder = 0
-          ExplicitWidth = 770
           object gbxNomeEntidade: TGroupBox
             AlignWithMargins = True
             Left = 262
@@ -219,7 +203,6 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
             Align = alClient
             Caption = 'Nome da Entidade'
             TabOrder = 1
-            ExplicitWidth = 505
             object lblNomeSingular: TLabel
               Left = 8
               Top = 20
@@ -279,111 +262,154 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
           Align = alClient
           Caption = 'Atributos'
           TabOrder = 1
-          ExplicitWidth = 770
-          ExplicitHeight = 384
-          object dbgrdAtributos: TDBGrid
-            AlignWithMargins = True
-            Left = 5
-            Top = 49
-            Width = 766
-            Height = 359
-            Align = alClient
-            Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit, dgTitleClick, dgTitleHotTrack]
-            TabOrder = 1
-            TitleFont.Charset = DEFAULT_CHARSET
-            TitleFont.Color = clWindowText
-            TitleFont.Height = -11
-            TitleFont.Name = 'Tahoma'
-            TitleFont.Style = []
-            OnCellClick = dbgrdAtributosCellClick
-            OnColEnter = dbgrdAtributosColEnter
-            OnDrawColumnCell = dbgrdAtributosDrawColumnCell
-            Columns = <
-              item
-                Expanded = False
-                FieldName = 'Selecionado'
-                Title.Alignment = taCenter
-                Title.Caption = ' '
-                Width = 21
-                Visible = True
-              end
-              item
-                Expanded = False
-                FieldName = 'Nome'
-                Title.Alignment = taCenter
-                Width = 180
-                Visible = True
-              end
-              item
-                Expanded = False
-                FieldName = 'NomeExibicao'
-                Title.Alignment = taCenter
-                Width = 180
-                Visible = True
-              end
-              item
-                DropDownRows = 15
-                Expanded = False
-                FieldName = 'Tipo'
-                PickList.Strings = (
-                  'byte[]'
-                  'byte'
-                  'bool'
-                  'decimal'
-                  'int'
-                  'long'
-                  'string'
-                  ''
-                  'Boolean'
-                  'Byte'
-                  'Byte[]'
-                  'DateTime'
-                  'DateTimeOffset'
-                  'Decimal'
-                  'Double'
-                  'Guid'
-                  'Int16'
-                  'Int32'
-                  'Int64'
-                  'Object'
-                  'Single'
-                  'String'
-                  'TimeSpan'
-                  'Xml')
-                Title.Alignment = taCenter
-                Width = 142
-                Visible = True
-              end
-              item
-                Expanded = False
-                FieldName = 'ChavePrimaria'
-                Title.Alignment = taCenter
-                Visible = False
-              end
-              item
-                Expanded = False
-                FieldName = 'ChaveUnica'
-                Title.Alignment = taCenter
-                Visible = True
-              end
-              item
-                Expanded = False
-                FieldName = 'Requerido'
-                Title.Alignment = taCenter
-                Visible = True
-              end>
-          end
-          object dbnvgrAtributos: TDBNavigator
+          object tlAtributos: TcxDBTreeList
             AlignWithMargins = True
             Left = 5
             Top = 18
             Width = 766
-            Height = 25
-            VisibleButtons = [nbInsert, nbDelete, nbEdit, nbPost, nbCancel, nbRefresh]
-            Align = alTop
+            Height = 390
+            Align = alClient
+            Bands = <
+              item
+              end>
+            DataController.KeyField = 'Nome'
+            Navigator.Buttons.OnButtonClick = tlAtributosNavigatorButtonsButtonClick
+            Navigator.Buttons.ConfirmDelete = True
+            Navigator.Buttons.CustomButtons = <>
+            Navigator.Buttons.First.Visible = False
+            Navigator.Buttons.PriorPage.Visible = False
+            Navigator.Buttons.Prior.Visible = False
+            Navigator.Buttons.Next.Visible = False
+            Navigator.Buttons.NextPage.Visible = False
+            Navigator.Buttons.Last.Visible = False
+            Navigator.Buttons.Insert.Visible = False
+            Navigator.Buttons.Append.Hint = 'Adicionar'
+            Navigator.Buttons.Append.Visible = True
+            Navigator.Buttons.Delete.Hint = 'Remover'
+            Navigator.Buttons.Edit.Hint = 'Editar'
+            Navigator.Buttons.Post.Hint = 'Salvar'
+            Navigator.Buttons.Cancel.Hint = 'Cancelar'
+            Navigator.Buttons.Refresh.Hint = 'Atualizar'
+            Navigator.Buttons.Refresh.Visible = True
+            Navigator.Buttons.SaveBookmark.Visible = False
+            Navigator.Buttons.GotoBookmark.Visible = False
+            Navigator.Buttons.Filter.Visible = False
+            Navigator.Visible = True
+            OptionsData.Inserting = True
+            RootValue = -1
             TabOrder = 0
-            OnClick = dbnvgrAtributosClick
-            ExplicitWidth = 760
+            object tlAtributosSelecionado: TcxDBTreeListColumn
+              PropertiesClassName = 'TcxCheckBoxProperties'
+              Properties.ValueChecked = 'S'
+              Properties.ValueUnchecked = 'N'
+              Caption.Text = ' '
+              DataBinding.FieldName = 'Selecionado'
+              Width = 30
+              Position.ColIndex = 0
+              Position.RowIndex = 0
+              Position.BandIndex = 0
+              Summary.FooterSummaryItems = <>
+              Summary.GroupFooterSummaryItems = <>
+            end
+            object tlAtributosNome: TcxDBTreeListColumn
+              Caption.AlignHorz = taCenter
+              DataBinding.FieldName = 'Nome'
+              Width = 150
+              Position.ColIndex = 1
+              Position.RowIndex = 0
+              Position.BandIndex = 0
+              Summary.FooterSummaryItems = <>
+              Summary.GroupFooterSummaryItems = <>
+            end
+            object tlAtributosNomeExibicao: TcxDBTreeListColumn
+              Caption.AlignHorz = taCenter
+              Caption.Text = 'Nome Exibi'#231#227'o'
+              DataBinding.FieldName = 'NomeExibicao'
+              Width = 150
+              Position.ColIndex = 2
+              Position.RowIndex = 0
+              Position.BandIndex = 0
+              Summary.FooterSummaryItems = <>
+              Summary.GroupFooterSummaryItems = <>
+            end
+            object tlAtributosTipo: TcxDBTreeListColumn
+              PropertiesClassName = 'TcxComboBoxProperties'
+              Properties.Items.Strings = (
+                'byte[]'
+                'byte'
+                'bool'
+                'decimal'
+                'int'
+                'long'
+                'string'
+                ''
+                'Boolean'
+                'Byte'
+                'Byte[]'
+                'DateTime'
+                'DateTimeOffset'
+                'Decimal'
+                'Double'
+                'Guid'
+                'Int16'
+                'Int32'
+                'Int64'
+                'Object'
+                'Single'
+                'String'
+                'TimeSpan'
+                'Xml')
+              Caption.AlignHorz = taCenter
+              DataBinding.FieldName = 'Tipo'
+              Width = 100
+              Position.ColIndex = 3
+              Position.RowIndex = 0
+              Position.BandIndex = 0
+              Summary.FooterSummaryItems = <>
+              Summary.GroupFooterSummaryItems = <>
+            end
+            object tlAtributosChavePrimaria: TcxDBTreeListColumn
+              PropertiesClassName = 'TcxCheckBoxProperties'
+              Properties.ValueChecked = 'S'
+              Properties.ValueUnchecked = 'N'
+              Visible = False
+              Caption.AlignHorz = taCenter
+              Caption.Text = 'Chave Prim'#225'ria'
+              DataBinding.FieldName = 'ChavePrimaria'
+              Width = 100
+              Position.ColIndex = 4
+              Position.RowIndex = 0
+              Position.BandIndex = 0
+              Summary.FooterSummaryItems = <>
+              Summary.GroupFooterSummaryItems = <>
+            end
+            object tlAtributosChaveUnica: TcxDBTreeListColumn
+              PropertiesClassName = 'TcxCheckBoxProperties'
+              Properties.ValueChecked = 'S'
+              Properties.ValueUnchecked = 'N'
+              Caption.AlignHorz = taCenter
+              Caption.Text = 'Chave '#218'nica'
+              DataBinding.FieldName = 'ChaveUnica'
+              Width = 80
+              Position.ColIndex = 5
+              Position.RowIndex = 0
+              Position.BandIndex = 0
+              Summary.FooterSummaryItems = <>
+              Summary.GroupFooterSummaryItems = <>
+            end
+            object tlAtributosRequerido: TcxDBTreeListColumn
+              PropertiesClassName = 'TcxCheckBoxProperties'
+              Properties.ValueChecked = 'S'
+              Properties.ValueUnchecked = 'N'
+              Caption.AlignHorz = taCenter
+              DataBinding.FieldName = 'Requerido'
+              Width = 80
+              Position.ColIndex = 6
+              Position.RowIndex = 0
+              Position.BandIndex = 0
+              Summary.FooterSummaryItems = <>
+              Summary.GroupFooterSummaryItems = <>
+            end
           end
         end
       end
