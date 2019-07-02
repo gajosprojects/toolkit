@@ -31,7 +31,7 @@ type
     cmbBaseDados: TComboBox;
     cmbTabelas: TComboBox;
     cmbSchema: TComboBox;
-    btnCarregar: TButton;
+    btnCarregarAtributos: TButton;
     tsInstrucaoSQL: TTabSheet;
     tsDadosClasse: TTabSheet;
     pnlEntidade: TPanel;
@@ -54,7 +54,7 @@ type
     btnExportarXML: TButton;
     btnCarregarXML: TButton;
 
-    procedure btnCarregarClick(Sender: TObject);
+    procedure btnCarregarAtributosClick(Sender: TObject);
     procedure btnConectarSQLServerClick(Sender: TObject);
     procedure btnGerarClick(Sender: TObject);
     procedure cmbBaseDadosSelect(Sender: TObject);
@@ -70,6 +70,7 @@ type
 
   private
     FNextIdAtributo: Integer;
+    FUltimoArquivoCarregado: string;
 
     FClientDataSetAtributos: TClientDataSet;
     FDataSourceAtributos: TDataSource;
@@ -98,8 +99,9 @@ type
     procedure HabilitarComboSchemas();
     procedure HabilitarComboTabelas();
 
+    procedure HabilitarBotaoCarregarXML();
     procedure HabilitarBotaoConectar();
-    procedure HabilitarBotaoCarregar();
+    procedure HabilitarBotaoCarregarAtributos();
 
     //CONVERSAO
     function GetTipoAtributoDotNetFromSQLServer(pNomeTipo: string): string;
@@ -110,8 +112,8 @@ type
     function IsValidacaoOk(): Boolean;
 
     //
-    procedure CarregarXML();
-    procedure ExportarArquivo();
+    procedure CarregarXML(pArquivoXML: string);
+    procedure ExportarArquivo(pArquivoXML: string);
     procedure GerarArquivos();
 
   public
@@ -127,7 +129,8 @@ uses
   uAtributoDTO, service_api_view_model_generator, service_api_controller_generator,
   infra_data_repository_generator, infra_data_mapping_generator, infra_data_context_generator,
   domain_entity_generator, domain_commands_generator, domain_events_generator, domain_repositories_generator,
-  System.UITypes, uMainDataModule, uConstantes, cxNavigator, System.IniFiles, uSerializadorXML;
+  System.UITypes, uMainDataModule, uConstantes, cxNavigator, System.IniFiles, uSerializadorXML,
+  System.Contnrs;
 
 {$R *.dfm}
 
@@ -160,7 +163,7 @@ begin
   cmbOrigemClasseChange(nil);
 end;
 
-procedure TDotNetGeneratorSourceCodeFrame.btnCarregarClick(Sender: TObject);
+procedure TDotNetGeneratorSourceCodeFrame.btnCarregarAtributosClick(Sender: TObject);
 var
   t_resposta: Boolean;
 begin
@@ -198,21 +201,44 @@ end;
 procedure TDotNetGeneratorSourceCodeFrame.btnCarregarXMLClick(Sender: TObject);
 var
   t_resposta: Boolean;
+  t_OpenXMLDialog: TOpenDialog;
 begin
+//  if (cmbOrigemClasse.ItemIndex <> cOrigemTabela) then
+//  begin
+//    ShowMessage('A origem da entidade deve ser Manual');
+//    cmbOrigemClasse.SetFocus();
+//    Exit
+//  end;
+
   t_resposta := True;
 
-  if (FClientDataSetAtributos.Active) then
+  if (FClientDataSetAtributos.RecordCount > 0) then
   begin
-    if (FClientDataSetAtributos.RecordCount > 0) then
-    begin
-      t_resposta := (MessageDlg(Format('Os atributos existentes serão perdidos.%sDeseja continuar?', [sLineBreak]),
+    t_resposta := (MessageDlg(Format('Os atributos existentes serão perdidos.%sDeseja continuar?', [sLineBreak]),
                               mtWarning, [mbYes,mbNo], 0, mbNo) = mrYes);
-    end;
   end;
 
-  if (t_resposta) then
+  if t_resposta then
   begin
-    CarregarXML();
+    t_OpenXMLDialog := TOpenDialog.Create(nil);
+
+    try
+      t_OpenXMLDialog.Filter := 'XML files (*.xml)|*.XML|Any file (*.*)|*.*';
+      t_OpenXMLDialog.InitialDir := ExtractFilePath(Application.ExeName);
+
+      if t_OpenXMLDialog.Execute() then
+      begin
+        cmbOrigemClasse.ItemIndex := cOrigemManual;
+        cmbOrigemClasseChange(nil);
+
+        CarregarXML(t_OpenXMLDialog.FileName);
+
+        ShowMessage('Arquivo carregado com sucesso!');
+      end;
+    finally
+      if Assigned(t_OpenXMLDialog) then
+        FreeAndNil(t_OpenXMLDialog);
+    end;
   end;
 end;
 
@@ -225,7 +251,7 @@ begin
     HabilitarComboBaseDados();
     HabilitarComboSchemas();
     HabilitarComboTabelas();
-    HabilitarBotaoCarregar();
+    HabilitarBotaoCarregarAtributos();
 //    cmbSchema.Enabled    := False;
 //    cmbTabelas.Enabled   := False
   except
@@ -235,12 +261,33 @@ begin
 end;
 
 procedure TDotNetGeneratorSourceCodeFrame.btnExportarXMLClick(Sender: TObject);
+var
+  t_SaveXMLDialog: TSaveDialog;
 begin
   if (tlAtributos.IsEditing) then
     tlAtributos.Post();
 
   if IsValidacaoOk() then
-    ExportarArquivo();
+  begin
+    t_SaveXMLDialog := TSaveDialog.Create(nil);
+
+    try
+      t_SaveXMLDialog.Filter := 'XML files (*.xml)|*.XML|Any file (*.*)|*.*';
+      t_SaveXMLDialog.InitialDir := ExtractFilePath(Application.ExeName);
+      t_SaveXMLDialog.FileName := Format('%s.%s', [edtNomeModulo.Text, edtNomeSingular.Text]);
+      t_SaveXMLDialog.DefaultExt := 'xml';
+
+      if t_SaveXMLDialog.Execute() then
+      begin
+        ExportarArquivo(t_SaveXMLDialog.FileName);
+
+        ShowMessage('Arquivo exportado com sucesso!');
+      end;
+    finally
+      if Assigned(t_SaveXMLDialog) then
+        FreeAndNil(t_SaveXMLDialog);
+    end;
+  end;
 end;
 
 procedure TDotNetGeneratorSourceCodeFrame.btnGerarClick(Sender: TObject);
@@ -260,6 +307,7 @@ var
   t_BaseDadosAux: string;
   t_SchemasAux: string;
   t_TabelassAux: string;
+  t_UltimoArquivoCarregado: string;
 begin
   // Cria o objeto do tipo TIniFile
   t_ArquivoIni := TIniFile.Create(Format('%s%s.ini', [ExtractFilePath(Application.ExeName), cToolkitConfig]));
@@ -279,57 +327,69 @@ begin
       end;
     end;
 
-    if (cmbOrigemClasse.ItemIndex = cOrigemTabela) then
-    begin
-      edtInstanciaSQLServer.Text := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroInstancia, EmptyStr);
-      edtUsuarioSQLServer.Text   := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroUsuario, EmptyStr);
-      edtSenhaSQLServer.Text     := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroSenha, EmptyStr);
-
-      if (btnConectarSQLServer.Enabled) then
+    case (cmbOrigemClasse.ItemIndex) of
+      cOrigemManual:
       begin
-        btnConectarSQLServerClick(nil);
+        t_UltimoArquivoCarregado := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroUltimoXMLCarregado, EmptyStr);
 
-        t_BaseDadosAux := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroBaseDados, EmptyStr);
-
-        for t_Indice := 0 to cmbBaseDados.Items.Count -1 do
+        if (not SameText(t_UltimoArquivoCarregado, EmptyStr)) then
         begin
-          if SameText(cmbBaseDados.Items[t_Indice], t_BaseDadosAux) then
-          begin
-            cmbBaseDados.ItemIndex := t_Indice;
-            cmbBaseDadosSelect(nil);
-
-            Break;
-          end;
+          CarregarXML(t_UltimoArquivoCarregado);
         end;
+      end;
 
-        if (cmbSchema.Enabled) then
+      cOrigemTabela:
+      begin
+        edtInstanciaSQLServer.Text := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroInstancia, EmptyStr);
+        edtUsuarioSQLServer.Text   := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroUsuario, EmptyStr);
+        edtSenhaSQLServer.Text     := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroSenha, EmptyStr);
+
+        if (btnConectarSQLServer.Enabled) then
         begin
-          t_SchemasAux := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroSchema, EmptyStr);
+          btnConectarSQLServerClick(nil);
 
-          for t_Indice := 0 to cmbSchema.Items.Count -1 do
+          t_BaseDadosAux := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroBaseDados, EmptyStr);
+
+          for t_Indice := 0 to cmbBaseDados.Items.Count -1 do
           begin
-            if SameText(cmbSchema.Items[t_Indice], t_SchemasAux) then
+            if SameText(cmbBaseDados.Items[t_Indice], t_BaseDadosAux) then
             begin
-              cmbSchema.ItemIndex := t_Indice;
-              cmbSchemaSelect(nil);
+              cmbBaseDados.ItemIndex := t_Indice;
+              cmbBaseDadosSelect(nil);
 
               Break;
             end;
           end;
-        end;
 
-        if (cmbTabelas.Enabled) then
-        begin
-          t_TabelassAux := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroTabela, EmptyStr);
-
-          for t_Indice := 0 to cmbTabelas.Items.Count -1 do
+          if (cmbSchema.Enabled) then
           begin
-            if SameText(cmbTabelas.Items[t_Indice], t_TabelassAux) then
-            begin
-              cmbTabelas.ItemIndex := t_Indice;
-              cmbTabelasSelect(nil);
+            t_SchemasAux := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroSchema, EmptyStr);
 
-              Break;
+            for t_Indice := 0 to cmbSchema.Items.Count -1 do
+            begin
+              if SameText(cmbSchema.Items[t_Indice], t_SchemasAux) then
+              begin
+                cmbSchema.ItemIndex := t_Indice;
+                cmbSchemaSelect(nil);
+
+                Break;
+              end;
+            end;
+          end;
+
+          if (cmbTabelas.Enabled) then
+          begin
+            t_TabelassAux := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroTabela, EmptyStr);
+
+            for t_Indice := 0 to cmbTabelas.Items.Count -1 do
+            begin
+              if SameText(cmbTabelas.Items[t_Indice], t_TabelassAux) then
+              begin
+                cmbTabelas.ItemIndex := t_Indice;
+                cmbTabelasSelect(nil);
+
+                Break;
+              end;
             end;
           end;
         end;
@@ -341,39 +401,27 @@ begin
   end;
 end;
 
-procedure TDotNetGeneratorSourceCodeFrame.CarregarXML();
+procedure TDotNetGeneratorSourceCodeFrame.CarregarXML(pArquivoXML: string);
 var
-  t_OpenXMLDialog: TOpenDialog;
   t_Arquivo: TStringList;
   t_Serializador: TSerializadorXML;
   t_Entidade: TEntidadeDTO;
-  t_Atributo: TAtributoDTO;
 begin
   t_Serializador := TSerializadorXML.Create();
   t_Arquivo := TStringList.Create();
-  t_OpenXMLDialog := TOpenDialog.Create(nil);
   t_Entidade := nil;
 
   try
-    t_OpenXMLDialog.Filter := 'XML files (*.xml)|*.XML|Any file (*.*)|*.*';
-    t_OpenXMLDialog.InitialDir := ExtractFilePath(Application.ExeName);
+    FClientDataSetAtributos.EmptyDataSet();
 
-    if t_OpenXMLDialog.Execute() then
-    begin
-      FClientDataSetAtributos.EmptyDataSet();
+    FUltimoArquivoCarregado := pArquivoXML;
 
-      t_Arquivo.LoadFromFile(t_OpenXMLDialog.FileName);
+    t_Arquivo.LoadFromFile(FUltimoArquivoCarregado);
 
-      t_Entidade := TEntidadeDTO(t_Serializador.ObjectFromXML(t_Arquivo.Text));
+    t_Entidade := TEntidadeDTO(t_Serializador.ObjectFromXML(t_Arquivo.Text));
 
-      PopularDadosEntidade(t_Entidade);
-
-      ShowMessage('Arquivo carregado com sucesso!');
-    end;
+    PopularDadosEntidade(t_Entidade);
   finally
-    if Assigned(t_OpenXMLDialog) then
-      FreeAndNil(t_OpenXMLDialog);
-
     if Assigned(t_Arquivo) then
       FreeAndNil(t_Arquivo);
 
@@ -416,7 +464,7 @@ begin
 
   HabilitarComboSchemas();
   HabilitarComboTabelas();
-  HabilitarBotaoCarregar();
+  HabilitarBotaoCarregarAtributos();
 end;
 
 procedure TDotNetGeneratorSourceCodeFrame.cmbOrigemClasseChange(Sender: TObject);
@@ -435,8 +483,9 @@ begin
   cmbSchema.Enabled    := False;
   cmbTabelas.Enabled   := False;
 
+//  HabilitarBotaoCarregarXML();
   HabilitarBotaoConectar();
-  HabilitarBotaoCarregar();
+  HabilitarBotaoCarregarAtributos();
 
   case cmbOrigemClasse.ItemIndex of
 
@@ -453,18 +502,7 @@ begin
 
       if (FClientDataSetAtributos.Active) then
       begin
-        t_resposta := True;
-
-        if (FClientDataSetAtributos.RecordCount > 0) then
-        begin
-          t_resposta := (MessageDlg(Format('Os atributos existentes serão perdidos.%sDeseja continuar?', [sLineBreak]),
-                                  mtWarning, [mbYes,mbNo], 0, mbNo) = mrYes);
-        end;
-
-        if t_resposta then
-        begin
-          FClientDataSetAtributos.EmptyDataSet();
-        end;
+        FClientDataSetAtributos.EmptyDataSet();
       end
       else
       begin
@@ -544,12 +582,12 @@ procedure TDotNetGeneratorSourceCodeFrame.cmbSchemaSelect(Sender: TObject);
 begin
   HabilitarComboSchemas();
   HabilitarComboTabelas();
-  HabilitarBotaoCarregar();
+  HabilitarBotaoCarregarAtributos();
 end;
 
 procedure TDotNetGeneratorSourceCodeFrame.cmbTabelasSelect(Sender: TObject);
 begin
-  HabilitarBotaoCarregar();
+  HabilitarBotaoCarregarAtributos();
 end;
 
 destructor TDotNetGeneratorSourceCodeFrame.Destroy();
@@ -580,36 +618,21 @@ begin
   HabilitarBotaoConectar();
 end;
 
-procedure TDotNetGeneratorSourceCodeFrame.ExportarArquivo();
+procedure TDotNetGeneratorSourceCodeFrame.ExportarArquivo(pArquivoXML: string);
 var
-  t_SaveXMLDialog: TSaveDialog;
   t_Arquivo: TStringList;
   t_Serializador: TSerializadorXML;
   t_XML: WideString;
 begin
-  t_SaveXMLDialog := TSaveDialog.Create(nil);
   t_Serializador := TSerializadorXML.Create();
   t_Arquivo := TStringList.Create();
 
   try
-    t_SaveXMLDialog.Filter := 'XML files (*.xml)|*.XML|Any file (*.*)|*.*';
-    t_SaveXMLDialog.InitialDir := ExtractFilePath(Application.ExeName);
-    t_SaveXMLDialog.FileName := Format('%s.%s', [edtNomeModulo.Text, edtNomeSingular.Text]);
-    t_SaveXMLDialog.DefaultExt := 'xml';
+    t_XML := t_Serializador.ToXML(GetViewToEntidade());
 
-    if t_SaveXMLDialog.Execute() then
-    begin
-      t_XML := t_Serializador.ToXML(GetViewToEntidade());
-
-      t_Arquivo.Add(t_XML);
-      t_Arquivo.SaveToFile(t_SaveXMLDialog.FileName);
-
-      ShowMessage('Arquivo exportado com sucesso!');
-    end;
+    t_Arquivo.Add(t_XML);
+    t_Arquivo.SaveToFile(pArquivoXML);
   finally
-    if Assigned(t_SaveXMLDialog) then
-      FreeAndNil(t_SaveXMLDialog);
-
     if Assigned(t_Arquivo) then
       FreeAndNil(t_Arquivo);
 
@@ -825,7 +848,7 @@ begin
   end;
 end;
 
-procedure TDotNetGeneratorSourceCodeFrame.HabilitarBotaoCarregar();
+procedure TDotNetGeneratorSourceCodeFrame.HabilitarBotaoCarregarAtributos();
 begin
   case cmbOrigemClasse.ItemIndex of
     cOrigemTabela:
@@ -834,18 +857,18 @@ begin
          (cmbTabelas.ItemIndex >= 0) {and
          base de dados sqlserver} then
       begin
-        btnCarregar.Enabled := True;
+        btnCarregarAtributos.Enabled := True;
       end
       else if (cmbBaseDados.ItemIndex >= 0) and
               (cmbSchema.ItemIndex >= 0) and
               (cmbTabelas.ItemIndex >= 0) {and
               base de dados postgres} then
       begin
-        btnCarregar.Enabled := True;
+        btnCarregarAtributos.Enabled := True;
       end
       else
       begin
-        btnCarregar.Enabled := False;
+        btnCarregarAtributos.Enabled := False;
       end;
     end;
 
@@ -853,16 +876,30 @@ begin
     begin
       if (cmbBaseDados.ItemIndex >= 0) then
       begin
-        btnCarregar.Enabled := True;
+        btnCarregarAtributos.Enabled := True;
       end
       else
       begin
-        btnCarregar.Enabled := False;
+        btnCarregarAtributos.Enabled := False;
       end;
     end;
   else
     begin
-      btnCarregar.Enabled := False;
+      btnCarregarAtributos.Enabled := False;
+    end;
+  end;
+end;
+
+procedure TDotNetGeneratorSourceCodeFrame.HabilitarBotaoCarregarXML();
+begin
+  case cmbOrigemClasse.ItemIndex of
+    cOrigemTabela:
+    begin
+      btnCarregarXML.Enabled := True;
+    end;
+  else
+    begin
+      btnCarregarXML.Enabled := False;
     end;
   end;
 end;
@@ -1288,6 +1325,7 @@ begin
     t_ArquivoIni.WriteString(cModuloDotNetGenerator, cParametroBaseDados, cmbBaseDados.Text);
     t_ArquivoIni.WriteString(cModuloDotNetGenerator, cParametroSchema, cmbSchema.Text);
     t_ArquivoIni.WriteString(cModuloDotNetGenerator, cParametroTabela, cmbTabelas.Text);
+    t_ArquivoIni.WriteString(cModuloDotNetGenerator, cParametroUltimoXMLCarregado, FUltimoArquivoCarregado);
   finally
     // Liberar a referência do arquivo da memória
     t_ArquivoIni.Free;

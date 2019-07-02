@@ -25,6 +25,7 @@ const
   cParametroBaseDados = 'BaseDados';
   cParametroSchema = 'Schema';
   cParametroTabela = 'Tabela';
+  cParametroUltimoXMLCarregado = 'UltimoXMLCarregado';
 
 implementation
 

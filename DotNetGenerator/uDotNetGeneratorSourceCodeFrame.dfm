@@ -18,7 +18,7 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
       Top = 22
       Width = 161
       Height = 21
-      TabOrder = 1
+      TabOrder = 0
       TextHint = 'Selecione'
       OnChange = cmbOrigemClasseChange
       Items.Strings = (
@@ -32,7 +32,7 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
       Height = 25
       Cancel = True
       Caption = 'Gerar'
-      TabOrder = 0
+      TabOrder = 3
       OnClick = btnGerarClick
     end
     object btnExportarXML: TButton
@@ -52,7 +52,7 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
       Height = 25
       Cancel = True
       Caption = 'Carregar XML'
-      TabOrder = 3
+      TabOrder = 1
       OnClick = btnCarregarXMLClick
     end
   end
@@ -69,7 +69,7 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
       Top = 18
       Width = 790
       Height = 525
-      ActivePage = tsDadosClasse
+      ActivePage = tsConexao
       Align = alClient
       TabOrder = 0
       object tsConexao: TTabSheet
@@ -187,7 +187,7 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
             TextHint = 'Selecione'
             OnSelect = cmbSchemaSelect
           end
-          object btnCarregar: TButton
+          object btnCarregarAtributos: TButton
             Left = 527
             Top = 34
             Width = 75
@@ -195,7 +195,7 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
             Cancel = True
             Caption = 'Carregar'
             TabOrder = 3
-            OnClick = btnCarregarClick
+            OnClick = btnCarregarAtributosClick
           end
         end
       end
