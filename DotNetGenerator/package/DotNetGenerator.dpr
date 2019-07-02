@@ -16,7 +16,8 @@ uses
   uMainForm in '..\uMainForm.pas' {MainForm},
   uDotNetGeneratorSourceCodeFrame in '..\uDotNetGeneratorSourceCodeFrame.pas' {DotNetGeneratorSourceCodeFrame: TFrame},
   uMainDataModule in '..\uMainDataModule.pas' {MainDataModule: TDataModule},
-  uConstantes in '..\uConstantes.pas';
+  uConstantes in '..\uConstantes.pas',
+  uSerializadorXML in '..\uSerializadorXML.pas';
 
 {$R *.res}
 

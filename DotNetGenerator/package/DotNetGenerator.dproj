@@ -126,7 +126,10 @@
             <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
-        <DCCReference Include="..\uConstantes.pas"/>
+        <DCCReference Include="..\uConstantes.pas">
+            <Form>$R *.res</Form>
+        </DCCReference>
+        <DCCReference Include="..\uSerializadorXML.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

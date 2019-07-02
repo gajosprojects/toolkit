@@ -16,7 +16,7 @@ type
 implementation
 
 uses
-  System.Classes, System.SysUtils;
+  System.Classes, System.Contnrs, System.SysUtils, uAtributoDTO;
 
 { TDomainEntityGenerator }
 
@@ -34,6 +34,7 @@ var
   t_corpo_construtor: TStringList;
   t_diretorio: string;
   t_nome_snk_entidade: string;
+  t_AtributoDTO: TAtributoDTO;
 begin
   try
     t_diretorio := EmptyStr;
@@ -52,8 +53,9 @@ begin
 
     for t_aux := 0 to pEntidade.Atributos.Count - 1 do
     begin
-      t_nome_atributo := pEntidade.Atributos.Items[t_aux].Nome;
-      t_tipo_atributo := pEntidade.Atributos.Items[t_aux].Tipo;
+      t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_aux]);
+      t_nome_atributo := t_AtributoDTO.Nome;
+      t_tipo_atributo := t_AtributoDTO.Tipo;
 
       t_arquivo.Add(Format('        public %s %s { get; private set; }', [t_tipo_atributo, t_nome_atributo]));
     end;
@@ -66,15 +68,16 @@ begin
 
     for t_aux := 0 to pEntidade.Atributos.Count - 1 do
     begin
-      t_nome_atributo          := pEntidade.Atributos.Items[t_aux].Nome;
-      t_nome_exibicao_atributo := pEntidade.Atributos.Items[t_aux].NomeExibicao;
+      t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_aux]);
+	  t_nome_atributo := t_AtributoDTO.Nome;
+      t_nome_exibicao_atributo := t_AtributoDTO.NomeExibicao;
 
       try
         t_validacao_atributo := TStringList.Create();
 
         t_validacao_atributo.Add(Format('            RuleFor(%s => %s.%s)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular), t_nome_atributo]));
 
-        if (pEntidade.Atributos.Items[t_aux].Requerido) then
+        if (t_AtributoDTO.Requerido) then
         begin
           t_validacao_atributo.Add(Format('                .NotEmpty().WithMessage("%s obrigatório(a)"))', [t_nome_exibicao_atributo]));
         end;
@@ -116,10 +119,10 @@ begin
 
       for t_aux := 0 to pEntidade.Atributos.Count - 1 do
       begin
-        t_nome_atributo := pEntidade.Atributos.Items[t_aux].Nome;
+        t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_aux]);
+	    t_nome_atributo := t_AtributoDTO.Nome;
         t_nome_snk_atributo := LowerCase(Copy(t_nome_atributo, 1, 1)) + Copy(t_nome_atributo, 2, Length(t_nome_atributo));
-
-        t_tipo_atributo := pEntidade.Atributos.Items[t_aux].Tipo;
+        t_tipo_atributo := t_AtributoDTO.Tipo;
 
         t_parametros_construtor := t_parametros_construtor + Format(', %s %s', [t_tipo_atributo, t_nome_snk_atributo]);
 

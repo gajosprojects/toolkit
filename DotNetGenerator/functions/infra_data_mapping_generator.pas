@@ -16,7 +16,7 @@ type
 implementation
 
 uses
-  System.Classes, System.SysUtils;
+  System.Classes, System.Contnrs, System.SysUtils, uAtributoDTO;
 
 { TInfraDataMappingGenerator }
 
@@ -28,6 +28,7 @@ var
   t_diretorio: string;
   t_builder_atributo: TStringList;
   t_atributo_aux: string;
+  t_AtributoDTO: TAtributoDTO;
 begin
   try
     t_diretorio := EmptyStr;
@@ -56,7 +57,8 @@ begin
 
     for t_aux := 0 to pEntidade.Atributos.Count - 1 do
     begin
-      t_nome_atributo := pEntidade.Atributos.Items[t_aux].Nome;
+      t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_aux]);
+      t_nome_atributo := t_AtributoDTO.Nome;
 
       try
         t_builder_atributo := TStringList.Create();
@@ -64,12 +66,12 @@ begin
         t_builder_atributo.Add(Format('            builder.Property(%s => %s.%s)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular), t_nome_atributo]));
         t_builder_atributo.Add(Format('                   .HasColumnName("%s")', [LowerCase(t_nome_atributo)]));
 
-        if (pEntidade.Atributos.Items[t_aux].ChaveUnica) then
+        if (t_AtributoDTO.ChaveUnica) then
         begin
           t_builder_atributo.Add(Format('                   .HasAlternateKey(%s => %s.%s)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular), t_nome_atributo]));
         end;
 
-        if (pEntidade.Atributos.Items[t_aux].Requerido) then
+        if (t_AtributoDTO.Requerido) then
         begin
           t_builder_atributo.Add('                   .IsRequired()');
         end;

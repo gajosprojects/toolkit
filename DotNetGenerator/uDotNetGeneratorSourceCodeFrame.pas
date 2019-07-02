@@ -5,13 +5,11 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, Datasnap.DBClient,
-  Vcl.StdCtrls, Vcl.Grids, Vcl.DBGrids, Vcl.ImgList, System.ImageList, Vcl.DBCtrls,
-  Vcl.ExtCtrls, uEntidadeDTO, MidasLib, Vcl.ComCtrls, ZConnection,
-  ZAbstractConnection, Vcl.Mask, ZAbstractRODataset, ZDataset, Datasnap.Provider,
-  cxGraphics, cxControls, cxLookAndFeels, cxLookAndFeelPainters, cxCustomData,
-  cxStyles, cxTL, cxTLdxBarBuiltInMenu,
-  cxDataControllerConditionalFormattingRulesManagerDialog, dxSkinsCore,
-  cxInplaceContainer, cxTLData, cxDBTL, cxMaskEdit, cxCheckBox, cxDropDownEdit;
+  Vcl.StdCtrls, Vcl.DBCtrls, Vcl.ExtCtrls, uEntidadeDTO, MidasLib, Vcl.ComCtrls,
+  ZAbstractConnection, cxGraphics, cxControls, cxLookAndFeels, cxLookAndFeelPainters,
+  cxStyles, cxTL, cxTLdxBarBuiltInMenu, cxDataControllerConditionalFormattingRulesManagerDialog, 
+  dxSkinsCore, cxInplaceContainer, cxTLData, cxDBTL, cxMaskEdit, cxCheckBox, cxDropDownEdit,
+  cxCustomData, Vcl.ExtDlgs;
 
 type
   TDotNetGeneratorSourceCodeFrame = class(TFrame)
@@ -53,6 +51,8 @@ type
     tlAtributosChavePrimaria: TcxDBTreeListColumn;
     tlAtributosChaveUnica: TcxDBTreeListColumn;
     tlAtributosRequerido: TcxDBTreeListColumn;
+    btnExportarXML: TButton;
+    btnCarregarXML: TButton;
 
     procedure btnCarregarClick(Sender: TObject);
     procedure btnConectarSQLServerClick(Sender: TObject);
@@ -65,6 +65,8 @@ type
     procedure edtSenhaSQLServerChange(Sender: TObject);
     procedure edtUsuarioSQLServerChange(Sender: TObject);
     procedure tlAtributosNavigatorButtonsButtonClick(Sender: TObject; AButtonIndex: Integer; var ADone: Boolean);
+    procedure btnExportarXMLClick(Sender: TObject);
+    procedure btnCarregarXMLClick(Sender: TObject);
 
   private
     FNextIdAtributo: Integer;
@@ -75,6 +77,10 @@ type
     { Private declarations }
     procedure InicializarFormulario();
 
+    //CONFIGURACAO
+    procedure SalvarConfiguracao();
+    procedure CarregarConfiguracao();
+
     //SQLSERVER
     procedure ListarBaseDadosSQLServer();
     procedure ListarTabelasBaseDadosSQLServer();
@@ -83,7 +89,8 @@ type
     //PREENCHER COMPONNETES
     procedure PopularComboBaseDados(pXMLData: WideString);
     procedure PopularComboTabelasBaseDados(pXMLData: WideString);
-    procedure PopularGridAtributos(pXMLData: WideString);
+    procedure PopularClientDataSetAtributos(pXMLData: WideString);
+    procedure PopularDadosEntidade(pEntidadeDTO: TEntidadeDTO);
     procedure PopularNomeClasse();
 
     //HABILITAR COMPONENTES
@@ -103,6 +110,8 @@ type
     function IsValidacaoOk(): Boolean;
 
     //
+    procedure CarregarXML();
+    procedure ExportarArquivo();
     procedure GerarArquivos();
 
   public
@@ -118,7 +127,7 @@ uses
   uAtributoDTO, service_api_view_model_generator, service_api_controller_generator,
   infra_data_repository_generator, infra_data_mapping_generator, infra_data_context_generator,
   domain_entity_generator, domain_commands_generator, domain_events_generator, domain_repositories_generator,
-  System.UITypes, uMainDataModule, uConstantes, cxNavigator;
+  System.UITypes, uMainDataModule, uConstantes, cxNavigator, System.IniFiles, uSerializadorXML;
 
 {$R *.dfm}
 
@@ -132,6 +141,8 @@ begin
   FDataSourceAtributos := TDataSource.Create(nil);
 
   InicializarFormulario();
+
+  CarregarConfiguracao();
 end;
 
 procedure TDotNetGeneratorSourceCodeFrame.InicializarFormulario();
@@ -151,20 +162,20 @@ end;
 
 procedure TDotNetGeneratorSourceCodeFrame.btnCarregarClick(Sender: TObject);
 var
-  resposta: Boolean;
+  t_resposta: Boolean;
 begin
-  resposta := True;
+  t_resposta := True;
 
   if (FClientDataSetAtributos.Active) then
   begin
     if (FClientDataSetAtributos.RecordCount > 0) then
     begin
-      resposta := (MessageDlg(Format('Os atributos existentes serão perdidos.%sDeseja continuar?', [sLineBreak]),
+      t_resposta := (MessageDlg(Format('Os atributos existentes serão perdidos.%sDeseja continuar?', [sLineBreak]),
                               mtWarning, [mbYes,mbNo], 0, mbNo) = mrYes);
     end;
   end;
 
-  if resposta then
+  if t_resposta then
   begin
     try
       if (FClientDataSetAtributos.Active) then
@@ -181,6 +192,27 @@ begin
     end;
 
     pgcGenerator.ActivePage := tsDadosClasse;
+  end;
+end;
+
+procedure TDotNetGeneratorSourceCodeFrame.btnCarregarXMLClick(Sender: TObject);
+var
+  t_resposta: Boolean;
+begin
+  t_resposta := True;
+
+  if (FClientDataSetAtributos.Active) then
+  begin
+    if (FClientDataSetAtributos.RecordCount > 0) then
+    begin
+      t_resposta := (MessageDlg(Format('Os atributos existentes serão perdidos.%sDeseja continuar?', [sLineBreak]),
+                              mtWarning, [mbYes,mbNo], 0, mbNo) = mrYes);
+    end;
+  end;
+
+  if (t_resposta) then
+  begin
+    CarregarXML();
   end;
 end;
 
@@ -202,6 +234,15 @@ begin
   end;
 end;
 
+procedure TDotNetGeneratorSourceCodeFrame.btnExportarXMLClick(Sender: TObject);
+begin
+  if (tlAtributos.IsEditing) then
+    tlAtributos.Post();
+
+  if IsValidacaoOk() then
+    ExportarArquivo();
+end;
+
 procedure TDotNetGeneratorSourceCodeFrame.btnGerarClick(Sender: TObject);
 begin
   if (tlAtributos.IsEditing) then
@@ -209,6 +250,139 @@ begin
 
   if IsValidacaoOk() then
     GerarArquivos();
+end;
+
+procedure TDotNetGeneratorSourceCodeFrame.CarregarConfiguracao();
+var
+  t_ArquivoIni: TIniFile;
+  t_Indice: Integer;
+  t_OrigemAux: string;
+  t_BaseDadosAux: string;
+  t_SchemasAux: string;
+  t_TabelassAux: string;
+begin
+  // Cria o objeto do tipo TIniFile
+  t_ArquivoIni := TIniFile.Create(Format('%s%s.ini', [ExtractFilePath(Application.ExeName), cToolkitConfig]));
+
+  try
+    // Lê o conteúdo gravado no arquivo conforme parametros informados
+    t_OrigemAux := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroOrigem, EmptyStr);
+
+    for t_Indice := 0 to cmbOrigemClasse.Items.Count -1 do
+    begin
+      if SameText(cmbOrigemClasse.Items[t_Indice], t_OrigemAux) then
+      begin
+        cmbOrigemClasse.ItemIndex := t_Indice;
+        cmbOrigemClasseChange(nil);
+
+        Break;
+      end;
+    end;
+
+    if (cmbOrigemClasse.ItemIndex = cOrigemTabela) then
+    begin
+      edtInstanciaSQLServer.Text := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroInstancia, EmptyStr);
+      edtUsuarioSQLServer.Text   := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroUsuario, EmptyStr);
+      edtSenhaSQLServer.Text     := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroSenha, EmptyStr);
+
+      if (btnConectarSQLServer.Enabled) then
+      begin
+        btnConectarSQLServerClick(nil);
+
+        t_BaseDadosAux := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroBaseDados, EmptyStr);
+
+        for t_Indice := 0 to cmbBaseDados.Items.Count -1 do
+        begin
+          if SameText(cmbBaseDados.Items[t_Indice], t_BaseDadosAux) then
+          begin
+            cmbBaseDados.ItemIndex := t_Indice;
+            cmbBaseDadosSelect(nil);
+
+            Break;
+          end;
+        end;
+
+        if (cmbSchema.Enabled) then
+        begin
+          t_SchemasAux := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroSchema, EmptyStr);
+
+          for t_Indice := 0 to cmbSchema.Items.Count -1 do
+          begin
+            if SameText(cmbSchema.Items[t_Indice], t_SchemasAux) then
+            begin
+              cmbSchema.ItemIndex := t_Indice;
+              cmbSchemaSelect(nil);
+
+              Break;
+            end;
+          end;
+        end;
+
+        if (cmbTabelas.Enabled) then
+        begin
+          t_TabelassAux := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroTabela, EmptyStr);
+
+          for t_Indice := 0 to cmbTabelas.Items.Count -1 do
+          begin
+            if SameText(cmbTabelas.Items[t_Indice], t_TabelassAux) then
+            begin
+              cmbTabelas.ItemIndex := t_Indice;
+              cmbTabelasSelect(nil);
+
+              Break;
+            end;
+          end;
+        end;
+      end;
+    end;
+  finally
+    // Liberar a referência do arquivo da memória
+    FreeAndNil(t_ArquivoIni);
+  end;
+end;
+
+procedure TDotNetGeneratorSourceCodeFrame.CarregarXML();
+var
+  t_OpenXMLDialog: TOpenDialog;
+  t_Arquivo: TStringList;
+  t_Serializador: TSerializadorXML;
+  t_Entidade: TEntidadeDTO;
+  t_Atributo: TAtributoDTO;
+begin
+  t_Serializador := TSerializadorXML.Create();
+  t_Arquivo := TStringList.Create();
+  t_OpenXMLDialog := TOpenDialog.Create(nil);
+  t_Entidade := nil;
+
+  try
+    t_OpenXMLDialog.Filter := 'XML files (*.xml)|*.XML|Any file (*.*)|*.*';
+    t_OpenXMLDialog.InitialDir := ExtractFilePath(Application.ExeName);
+
+    if t_OpenXMLDialog.Execute() then
+    begin
+      FClientDataSetAtributos.EmptyDataSet();
+
+      t_Arquivo.LoadFromFile(t_OpenXMLDialog.FileName);
+
+      t_Entidade := TEntidadeDTO(t_Serializador.ObjectFromXML(t_Arquivo.Text));
+
+      PopularDadosEntidade(t_Entidade);
+
+      ShowMessage('Arquivo carregado com sucesso!');
+    end;
+  finally
+    if Assigned(t_OpenXMLDialog) then
+      FreeAndNil(t_OpenXMLDialog);
+
+    if Assigned(t_Arquivo) then
+      FreeAndNil(t_Arquivo);
+
+    if Assigned(t_Serializador) then
+      FreeAndNil(t_Serializador);
+
+    if Assigned(t_Entidade) then
+      FreeAndNil(t_Entidade);
+  end;
 end;
 
 procedure TDotNetGeneratorSourceCodeFrame.ObterAtributosSQLServer();
@@ -220,7 +394,7 @@ begin
 
     if (not SameText(t_XMLData, EmptyWideStr)) then
     begin
-      PopularGridAtributos(t_XMLData);
+      PopularClientDataSetAtributos(t_XMLData);
       PopularNomeClasse();
     end;
   except
@@ -247,7 +421,7 @@ end;
 
 procedure TDotNetGeneratorSourceCodeFrame.cmbOrigemClasseChange(Sender: TObject);
 var
-  resposta: Boolean;
+  t_resposta: Boolean;
 begin
   edtInstanciaSQLServer.Clear();
   edtUsuarioSQLServer.Clear();
@@ -279,15 +453,15 @@ begin
 
       if (FClientDataSetAtributos.Active) then
       begin
-        resposta := True;
+        t_resposta := True;
 
         if (FClientDataSetAtributos.RecordCount > 0) then
         begin
-          resposta := (MessageDlg(Format('Os atributos existentes serão perdidos.%sDeseja continuar?', [sLineBreak]),
+          t_resposta := (MessageDlg(Format('Os atributos existentes serão perdidos.%sDeseja continuar?', [sLineBreak]),
                                   mtWarning, [mbYes,mbNo], 0, mbNo) = mrYes);
         end;
 
-        if resposta then
+        if t_resposta then
         begin
           FClientDataSetAtributos.EmptyDataSet();
         end;
@@ -295,6 +469,7 @@ begin
       else
       begin
         FClientDataSetAtributos.Close();
+        FClientDataSetAtributos.FieldDefs.Clear();
         FClientDataSetAtributos.FieldDefs.Add('Id', ftInteger);
         FClientDataSetAtributos.FieldDefs.Add('ParentId', ftInteger);
         FClientDataSetAtributos.FieldDefs.Add('Selecionado', ftWideString, 1);
@@ -319,15 +494,15 @@ begin
 
       pgcGenerator.ActivePage := tsConexao;
 
-      resposta := True;
+      t_resposta := True;
 
       if (FClientDataSetAtributos.RecordCount > 0) then
       begin
-        resposta := (MessageDlg(Format('Os atributos existentes serão perdidos.%sDeseja continuar?', [sLineBreak]),
+        t_resposta := (MessageDlg(Format('Os atributos existentes serão perdidos.%sDeseja continuar?', [sLineBreak]),
                                 mtWarning, [mbYes,mbNo], 0, mbNo) = mrYes);
       end;
 
-      if resposta then
+      if t_resposta then
       begin
         FClientDataSetAtributos.EmptyDataSet();
         FClientDataSetAtributos.Close();
@@ -344,15 +519,15 @@ begin
 //
 //      pgcGenerator.ActivePage := tsConexao;
 //
-//      resposta := True;
+//      t_resposta := True;
 //
 //      if (FClientDataSetAtributos.RecordCount > 0) then
 //      begin
-//        resposta := (MessageDlg(Format('Os atributos existentes serão perdidos.%sDeseja continuar?', [sLineBreak]),
+//        t_resposta := (MessageDlg(Format('Os atributos existentes serão perdidos.%sDeseja continuar?', [sLineBreak]),
 //                                mtWarning, [mbYes,mbNo], 0, mbNo) = mrYes);
 //      end;
 //
-//      if resposta then
+//      if t_resposta then
 //      begin
 //        FClientDataSetAtributos.EmptyDataSet();
 //        FClientDataSetAtributos.Close();
@@ -385,6 +560,8 @@ begin
   if Assigned(FDataSourceAtributos) then
     FreeAndNil(FDataSourceAtributos);
 
+  SalvarConfiguracao();
+
   inherited;
 end;
 
@@ -403,73 +580,140 @@ begin
   HabilitarBotaoConectar();
 end;
 
+procedure TDotNetGeneratorSourceCodeFrame.ExportarArquivo();
+var
+  t_SaveXMLDialog: TSaveDialog;
+  t_Arquivo: TStringList;
+  t_Serializador: TSerializadorXML;
+  t_XML: WideString;
+begin
+  t_SaveXMLDialog := TSaveDialog.Create(nil);
+  t_Serializador := TSerializadorXML.Create();
+  t_Arquivo := TStringList.Create();
+
+  try
+    t_SaveXMLDialog.Filter := 'XML files (*.xml)|*.XML|Any file (*.*)|*.*';
+    t_SaveXMLDialog.InitialDir := ExtractFilePath(Application.ExeName);
+    t_SaveXMLDialog.FileName := Format('%s.%s', [edtNomeModulo.Text, edtNomeSingular.Text]);
+    t_SaveXMLDialog.DefaultExt := 'xml';
+
+    if t_SaveXMLDialog.Execute() then
+    begin
+      t_XML := t_Serializador.ToXML(GetViewToEntidade());
+
+      t_Arquivo.Add(t_XML);
+      t_Arquivo.SaveToFile(t_SaveXMLDialog.FileName);
+
+      ShowMessage('Arquivo exportado com sucesso!');
+    end;
+  finally
+    if Assigned(t_SaveXMLDialog) then
+      FreeAndNil(t_SaveXMLDialog);
+
+    if Assigned(t_Arquivo) then
+      FreeAndNil(t_Arquivo);
+
+    if Assigned(t_Serializador) then
+      FreeAndNil(t_Serializador);
+  end;
+end;
+
 procedure TDotNetGeneratorSourceCodeFrame.GerarArquivos();
 var
-  Entidade: TEntidadeDTO;
-  ServiceApiViewModelGenerator: TServiceApiViewModelGenerator;
-  ServiceApiControllerGenerator: TServiceApiControllerGenerator;
-  InfraDataRepositoryGenerator: TInfraDataRepositoryGenerator;
-  InfraDataMapppingGenerator: TInfraDataMappingGenerator;
-  InfraDataContextGenerator: TInfraDataContextGenerator;
-  DomainEntityGenerator: TDomainEntityGenerator;
-  DomainCommandsGenerator: TDomainCommandsGenerator;
-  DomainEventsGenerator: TDomainEventsGenerator;
-  DomainRepositoryGenerator: TDomainRepositoriesGenerator;
+  t_Entidade: TEntidadeDTO;
+  t_ServiceApiViewModelGenerator: TServiceApiViewModelGenerator;
+  t_ServiceApiControllerGenerator: TServiceApiControllerGenerator;
+  t_InfraDataRepositoryGenerator: TInfraDataRepositoryGenerator;
+  t_InfraDataMapppingGenerator: TInfraDataMappingGenerator;
+  t_InfraDataContextGenerator: TInfraDataContextGenerator;
+  t_DomainEntityGenerator: TDomainEntityGenerator;
+  t_DomainCommandsGenerator: TDomainCommandsGenerator;
+  t_DomainEventsGenerator: TDomainEventsGenerator;
+  t_DomainRepositoryGenerator: TDomainRepositoriesGenerator;
 begin
+  t_ServiceApiViewModelGenerator := TServiceApiViewModelGenerator.Create();
+  t_ServiceApiControllerGenerator := TServiceApiControllerGenerator.Create();
+  t_InfraDataRepositoryGenerator := TInfraDataRepositoryGenerator.Create();
+  t_InfraDataMapppingGenerator := TInfraDataMappingGenerator.Create();
+  t_InfraDataContextGenerator := TInfraDataContextGenerator.Create();
+  t_DomainEntityGenerator := TDomainEntityGenerator.Create();
+  t_DomainCommandsGenerator := TDomainCommandsGenerator.Create();
+  t_DomainEventsGenerator := TDomainEventsGenerator.Create();
+  t_DomainRepositoryGenerator := TDomainRepositoriesGenerator.Create();
+
   try
-    //preenchimento do objeto entidade e seus atributos
-    Entidade := GetViewToEntidade();
+    try
+      //preenchimento do objeto t_Entidade e seus atributos
+      t_Entidade := GetViewToEntidade();
 
-    //view_model
-    ServiceApiViewModelGenerator := TServiceApiViewModelGenerator.Create();
-    ServiceApiViewModelGenerator.generate(Entidade);
+      //view_model
+      t_ServiceApiViewModelGenerator.generate(t_Entidade);
 
-    //controller
-    ServiceApiControllerGenerator := TServiceApiControllerGenerator.Create();
-    ServiceApiControllerGenerator.generate(Entidade);
+      //controller
+      t_ServiceApiControllerGenerator.generate(t_Entidade);
 
-    //repository
-    InfraDataRepositoryGenerator := TInfraDataRepositoryGenerator.Create();
-    InfraDataRepositoryGenerator.generate(Entidade);
+      //repository
+      t_InfraDataRepositoryGenerator.generate(t_Entidade);
 
-    //mapping
-    InfraDataMapppingGenerator := TInfraDataMappingGenerator.Create();
-    InfraDataMapppingGenerator.generate(Entidade);
+      //mapping
+      t_InfraDataMapppingGenerator.generate(t_Entidade);
 
-    //context
-    InfraDataContextGenerator := TInfraDataContextGenerator.Create();
-    InfraDataContextGenerator.generate(Entidade);
+      //context
+      t_InfraDataContextGenerator.generate(t_Entidade);
 
-    //entity
-    DomainEntityGenerator := TDomainEntityGenerator.Create();
-    DomainEntityGenerator.generate(Entidade);
+      //entity
+      t_DomainEntityGenerator.generate(t_Entidade);
 
-    //commands
-    DomainCommandsGenerator := TDomainCommandsGenerator.Create();
-    DomainCommandsGenerator.generateBaseCommand(Entidade);
-    DomainCommandsGenerator.generateCommandHandler(Entidade);
-    DomainCommandsGenerator.generateSaveCommand(Entidade);
-    DomainCommandsGenerator.generateUpdateCommand(Entidade);
-    DomainCommandsGenerator.generateDeleteCommand(Entidade);
+      //commands
+      t_DomainCommandsGenerator.generateBaseCommand(t_Entidade);
+      t_DomainCommandsGenerator.generateCommandHandler(t_Entidade);
+      t_DomainCommandsGenerator.generateSaveCommand(t_Entidade);
+      t_DomainCommandsGenerator.generateUpdateCommand(t_Entidade);
+      t_DomainCommandsGenerator.generateDeleteCommand(t_Entidade);
 
-    //events
-    DomainEventsGenerator := TDomainEventsGenerator.Create();
-    DomainEventsGenerator.generateBaseEvent(Entidade);
-    DomainEventsGenerator.generateEventHandler(Entidade);
-    DomainEventsGenerator.generateSavedEvent(Entidade);
-    DomainEventsGenerator.generateUpdatedEvent(Entidade);
-    DomainEventsGenerator.generateDeletedEvent(Entidade);
+      //events
+      t_DomainEventsGenerator.generateBaseEvent(t_Entidade);
+      t_DomainEventsGenerator.generateEventHandler(t_Entidade);
+      t_DomainEventsGenerator.generateSavedEvent(t_Entidade);
+      t_DomainEventsGenerator.generateUpdatedEvent(t_Entidade);
+      t_DomainEventsGenerator.generateDeletedEvent(t_Entidade);
 
-    //domain -> repositories
-    DomainRepositoryGenerator := TDomainRepositoriesGenerator.Create();
-    DomainRepositoryGenerator.generate(Entidade);
+      //irepository
+      t_DomainRepositoryGenerator.generate(t_Entidade);
 
-    ShowMessage('Arquivos gerados com sucesso!');
-  except
-    on E: Exception do
-      ShowMessage(Format('Ocorreu um erro ao gerar os arquivos: [%s]', [E.Message]));
+      ShowMessage('Arquivos gerados com sucesso!');
+    except
+      on E: Exception do
+        ShowMessage(Format('Ocorreu um erro ao gerar os arquivos: [%s]', [E.Message]));
+    end;
+  finally
+    if Assigned(t_ServiceApiViewModelGenerator) then
+      FreeAndNil(t_ServiceApiViewModelGenerator);
+
+    if Assigned(t_ServiceApiControllerGenerator) then
+      FreeAndNil(t_ServiceApiControllerGenerator);
+
+    if Assigned(t_InfraDataRepositoryGenerator) then
+      FreeAndNil(t_InfraDataRepositoryGenerator);
+
+    if Assigned(t_InfraDataMapppingGenerator) then
+      FreeAndNil(t_InfraDataMapppingGenerator);
+
+    if Assigned(t_InfraDataContextGenerator) then
+      FreeAndNil(t_InfraDataContextGenerator);
+
+    if Assigned(t_DomainEntityGenerator) then
+      FreeAndNil(t_DomainEntityGenerator);
+
+    if Assigned(t_DomainCommandsGenerator) then
+      FreeAndNil(t_DomainCommandsGenerator);
+
+    if Assigned(t_DomainEventsGenerator) then
+      FreeAndNil(t_DomainEventsGenerator);
+
+    if Assigned(t_DomainRepositoryGenerator) then
+      FreeAndNil(t_DomainRepositoryGenerator);
   end;
-
 end;
 
 function TDotNetGeneratorSourceCodeFrame.GetTipoAtributoDotNetFromSQLServer(pNomeTipo: string): string;
@@ -541,10 +785,10 @@ end;
 
 function TDotNetGeneratorSourceCodeFrame.GetViewToEntidade(): TEntidadeDTO;
 var
-  Atributo: TAtributoDTO;
+  t_Atributo: TAtributoDTO;
 begin
   //preenchimento do objeto entidade e seus atributos
-  Result                    := TEntidadeDTO.Create();
+  Result                    := TEntidadeDTO.Create(Self);
   Result.NomeModulo         := edtNomeModulo.Text;
   Result.NomeClasseSingular := edtNomeSingular.Text;
   Result.NomeClassePlural   := edtNomePlural.Text;
@@ -559,16 +803,17 @@ begin
     begin
       if (SameText(FClientDataSetAtributos.FieldByName('Selecionado').AsString, cSim)) then
       begin
-        Atributo := TAtributoDTO.Create();
+//        t_Atributo := Result.Atributos.Add();
+        t_Atributo := TAtributoDTO.Create();
 
-        Atributo.Nome          := FClientDataSetAtributos.FieldByName('Nome').AsString;
-        Atributo.NomeExibicao  := FClientDataSetAtributos.FieldByName('NomeExibicao').AsString;
-        Atributo.Tipo          := FClientDataSetAtributos.FieldByName('Tipo').AsString;
-//        Atributo.ChavePrimaria := SameText(FClientDataSetAtributos.FieldByName('ChavePrimaria').AsString, cSim);
-        Atributo.ChaveUnica    := SameText(FClientDataSetAtributos.FieldByName('ChaveUnica').AsString, cSim);
-        Atributo.Requerido     := SameText(FClientDataSetAtributos.FieldByName('Requerido').AsString, cSim);
+        t_Atributo.Nome          := FClientDataSetAtributos.FieldByName('Nome').AsString;
+        t_Atributo.NomeExibicao  := FClientDataSetAtributos.FieldByName('NomeExibicao').AsString;
+        t_Atributo.Tipo          := FClientDataSetAtributos.FieldByName('Tipo').AsString;
+//        t_Atributo.ChavePrimaria := SameText(FClientDataSetAtributos.FieldByName('ChavePrimaria').AsString, cSim);
+        t_Atributo.ChaveUnica    := SameText(FClientDataSetAtributos.FieldByName('ChaveUnica').AsString, cSim);
+        t_Atributo.Requerido     := SameText(FClientDataSetAtributos.FieldByName('Requerido').AsString, cSim);
 
-        Result.Atributos.Add(Atributo);
+        Result.Atributos.Add(t_Atributo);
       end;
 
       FClientDataSetAtributos.Next;
@@ -727,9 +972,9 @@ end;
 
 function TDotNetGeneratorSourceCodeFrame.IsValidacaoOk(): Boolean;
 var
-  selecionados: Integer;
-//  pks: Integer;
-  tipo_nao_informado: Integer;
+  t_Selecionado: Integer;
+//  t_Pks: Integer;
+  t_TipoNaoInformado: Integer;
 begin
   Result := False;
 
@@ -761,9 +1006,9 @@ begin
     Exit
   end;
 
-  selecionados := 0;
-//  pks := 0;
-  tipo_nao_informado := 0;
+  t_Selecionado := 0;
+//  t_Pks := 0;
+  t_TipoNaoInformado := 0;
 
   try
     FClientDataSetAtributos.DisableControls();
@@ -773,17 +1018,17 @@ begin
     begin
       if SameText(FClientDataSetAtributos.FieldByName('Selecionado').AsString, cSim) then
       begin
-        Inc(selecionados);
+        Inc(t_Selecionado);
       end;
 
 //      if SameText(FClientDataSetAtributos.FieldByName('ChavePrimaria').AsString, cSim) then
 //      begin
-//        Inc(pks);
+//        Inc(t_Pks);
 //      end;
 
       if SameText(Trim(FClientDataSetAtributos.FieldByName('Tipo').AsString), EmptyStr) then
       begin
-        Inc(tipo_nao_informado);
+        Inc(t_TipoNaoInformado);
       end;
 
       FClientDataSetAtributos.Next();
@@ -794,21 +1039,21 @@ begin
     FClientDataSetAtributos.EnableControls();
   end;
 
-  if (selecionados = 0) then
+  if (t_Selecionado = 0) then
   begin
     ShowMessage('Ao menos um atributo deve ser selecionado');
     tlAtributos.SetFocus();
     Exit
   end;
 
-//  if (pks = 0) then
+//  if (t_Pks = 0) then
 //  begin
 //    ShowMessage('Ao menos um atributo deve ser chave primária');
 //    tlAtributos.SetFocus();
 //    Exit
 //  end;
 
-  if (tipo_nao_informado > 0) then
+  if (t_TipoNaoInformado > 0) then
   begin
     ShowMessage('Existe(m) atributo(s) sem tipo informado');
     tlAtributos.SetFocus();
@@ -855,6 +1100,61 @@ begin
     begin
       //
     end;
+  end;
+end;
+
+procedure TDotNetGeneratorSourceCodeFrame.PopularDadosEntidade(pEntidadeDTO: TEntidadeDTO);
+var
+  t_Indice: Integer;
+  t_NomeAtributo: string;
+  t_AtributoDTO: TAtributoDTO;
+begin
+  try
+    FNextIdAtributo := 1;
+
+    edtNomeModulo.Text   := pEntidadeDTO.NomeModulo;
+    edtNomeSingular.Text := pEntidadeDTO.NomeClasseSingular;
+    edtNomePlural.Text   := pEntidadeDTO.NomeClassePlural;
+
+    FClientDataSetAtributos.Close();
+    FClientDataSetAtributos.Open();
+
+    FClientDataSetAtributos.DisableControls();
+
+    for t_Indice := 0 to pEntidadeDTO.Atributos.Count - 1 do
+    begin
+      t_AtributoDTO := TAtributoDTO(pEntidadeDTO.Atributos.Items[t_Indice]);
+
+      FClientDataSetAtributos.Append();
+
+      t_NomeAtributo := UpperCase(Copy(t_AtributoDTO.Nome, 1, 1)) + LowerCase(Copy(t_AtributoDTO.Nome, 2, Length(t_AtributoDTO.Nome)));
+
+      FClientDataSetAtributos.FieldByName('Id').AsInteger := FNextIdAtributo;
+      FClientDataSetAtributos.FieldByName('ParentId').AsInteger := 0;
+      FClientDataSetAtributos.FieldByName('Selecionado').AsString := cSim;
+      FClientDataSetAtributos.FieldByName('Nome').AsString := t_NomeAtributo;
+      FClientDataSetAtributos.FieldByName('NomeExibicao').AsString := t_NomeAtributo;
+      FClientDataSetAtributos.FieldByName('Tipo').AsString := t_AtributoDTO.Tipo;
+//      FClientDataSetAtributos.FieldByName('ChavePrimaria').AsString := t_AtributoDTO.ChavePrimaria;
+
+      if (t_AtributoDTO.ChaveUnica) then
+        FClientDataSetAtributos.FieldByName('ChaveUnica').AsString := cSim
+      else
+        FClientDataSetAtributos.FieldByName('ChaveUnica').AsString := cNao;
+
+      if (t_AtributoDTO.Requerido) then
+        FClientDataSetAtributos.FieldByName('Requerido').AsString := cSim
+      else
+        FClientDataSetAtributos.FieldByName('Requerido').AsString := cNao;
+
+      FClientDataSetAtributos.Post();
+
+      Inc(FNextIdAtributo);
+    end;
+  finally
+    FClientDataSetAtributos.EnableControls();
+
+    tlAtributos.Refresh();
   end;
 end;
 
@@ -908,10 +1208,10 @@ begin
   end;
 end;
 
-procedure TDotNetGeneratorSourceCodeFrame.PopularGridAtributos(pXMLData: WideString);
+procedure TDotNetGeneratorSourceCodeFrame.PopularClientDataSetAtributos(pXMLData: WideString);
 var
   t_cds: TClientDataSet;
-  nome_aux: string;
+  t_NomeAtributo: string;
 begin
   try
     FNextIdAtributo := 1;
@@ -932,13 +1232,13 @@ begin
       begin
         FClientDataSetAtributos.Append();
 
-        nome_aux := UpperCase(Copy(t_cds.FieldByName('Nome').AsString, 1, 1)) + LowerCase(Copy(t_cds.FieldByName('Nome').AsString, 2, Length(t_cds.FieldByName('Nome').AsString)));
+        t_NomeAtributo := UpperCase(Copy(t_cds.FieldByName('Nome').AsString, 1, 1)) + LowerCase(Copy(t_cds.FieldByName('Nome').AsString, 2, Length(t_cds.FieldByName('Nome').AsString)));
 
         FClientDataSetAtributos.FieldByName('Id').AsInteger := FNextIdAtributo;
         FClientDataSetAtributos.FieldByName('ParentId').AsInteger := 0;
         FClientDataSetAtributos.FieldByName('Selecionado').AsString := cSim;
-        FClientDataSetAtributos.FieldByName('Nome').AsString := nome_aux;
-        FClientDataSetAtributos.FieldByName('NomeExibicao').AsString := nome_aux;
+        FClientDataSetAtributos.FieldByName('Nome').AsString := t_NomeAtributo;
+        FClientDataSetAtributos.FieldByName('NomeExibicao').AsString := t_NomeAtributo;
         FClientDataSetAtributos.FieldByName('Tipo').AsString := GetTipoAtributoDotNetFromSQLServer(t_cds.FieldByName('Tipo').AsString);
 //        FClientDataSetAtributos.FieldByName('ChavePrimaria').AsString := t_cds.FieldByName('ChavePrimaria').AsString;
         FClientDataSetAtributos.FieldByName('ChaveUnica').AsString := t_cds.FieldByName('ChaveUnica').AsString;
@@ -964,13 +1264,35 @@ end;
 
 procedure TDotNetGeneratorSourceCodeFrame.PopularNomeClasse();
 var
-  nome_aux: string;
+  t_NomeClasse: string;
 begin
-  nome_aux := UpperCase(Copy(cmbTabelas.Text, 1, 1)) + LowerCase(Copy(cmbTabelas.Text, 2, Length(cmbTabelas.Text)));
+  t_NomeClasse := UpperCase(Copy(cmbTabelas.Text, 1, 1)) + LowerCase(Copy(cmbTabelas.Text, 2, Length(cmbTabelas.Text)));
 
-  edtNomeSingular.Text := nome_aux;
+  edtNomeSingular.Text := t_NomeClasse;
 end;
 
+
+procedure TDotNetGeneratorSourceCodeFrame.SalvarConfiguracao();
+var
+  t_ArquivoIni: TIniFile;
+begin
+  // Cria o arquivo ini no mesmo diretório da aplicação
+  t_ArquivoIni := TIniFile.Create(Format('%s%s.ini', [ExtractFilePath(Application.ExeName), cToolkitConfig]));
+
+  try
+    // Grava os dados no arquivo ini
+    t_ArquivoIni.WriteString(cModuloDotNetGenerator, cParametroOrigem, cmbOrigemClasse.Text);
+    t_ArquivoIni.WriteString(cModuloDotNetGenerator, cParametroInstancia, edtInstanciaSQLServer.Text);
+    t_ArquivoIni.WriteString(cModuloDotNetGenerator, cParametroUsuario, edtUsuarioSQLServer.Text);
+    t_ArquivoIni.WriteString(cModuloDotNetGenerator, cParametroSenha, edtSenhaSQLServer.Text);
+    t_ArquivoIni.WriteString(cModuloDotNetGenerator, cParametroBaseDados, cmbBaseDados.Text);
+    t_ArquivoIni.WriteString(cModuloDotNetGenerator, cParametroSchema, cmbSchema.Text);
+    t_ArquivoIni.WriteString(cModuloDotNetGenerator, cParametroTabela, cmbTabelas.Text);
+  finally
+    // Liberar a referência do arquivo da memória
+    t_ArquivoIni.Free;
+  end;
+end;
 
 procedure TDotNetGeneratorSourceCodeFrame.tlAtributosNavigatorButtonsButtonClick(
   Sender: TObject; AButtonIndex: Integer; var ADone: Boolean);

@@ -20,7 +20,7 @@ type
 implementation
 
 uses
-  System.Classes, System.SysUtils;
+  System.Classes, System.Contnrs, System.SysUtils, uAtributoDTO;
 
 { TDomainCommandsGenerator }
 
@@ -31,6 +31,7 @@ var
   t_nome_atributo: string;
   t_tipo_atributo: string;
   t_diretorio: string;
+  t_AtributoDTO: TAtributoDTO;
 begin
   try
     t_diretorio := EmptyStr;
@@ -49,8 +50,9 @@ begin
 
     for t_aux := 0 to pEntidade.Atributos.Count - 1 do
     begin
-      t_nome_atributo := pEntidade.Atributos.Items[t_aux].Nome;
-      t_tipo_atributo := pEntidade.Atributos.Items[t_aux].Tipo;
+      t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_aux]);
+      t_nome_atributo := t_AtributoDTO.Nome;
+      t_tipo_atributo := t_AtributoDTO.Tipo;
 
       t_arquivo.Add(Format('        public %s %s { get; protected set; }', [t_tipo_atributo, t_nome_atributo]));
     end;
@@ -97,6 +99,7 @@ var
   t_parametros_new_entidade: string;
   t_parametros_saved_updated_entidade_event: string;
   t_diretorio: string;
+  t_AtributoDTO: TAtributoDTO;
 begin
   try
     t_diretorio := EmptyStr;
@@ -147,7 +150,8 @@ begin
 
     for t_aux := 0 to pEntidade.Atributos.Count - 1 do
     begin
-      t_nome_atributo := pEntidade.Atributos.Items[t_aux].Nome;
+      t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_aux]);
+      t_nome_atributo := t_AtributoDTO.Nome;
 
       t_parametros_new_entidade := t_parametros_new_entidade + Format(', request.%s', [t_nome_atributo]);
 
@@ -317,6 +321,7 @@ var
   t_parametros_save_entidade_command: string;
   t_corpo_save_entidade_command: TStringList;
   t_diretorio: string;
+  t_AtributoDTO: TAtributoDTO;
 begin
   try
     t_diretorio := EmptyStr;
@@ -335,9 +340,10 @@ begin
 
       for t_aux := 0 to pEntidade.Atributos.Count - 1 do
       begin
-        t_nome_atributo := pEntidade.Atributos.Items[t_aux].Nome;
+        t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_aux]);
+        t_nome_atributo := t_AtributoDTO.Nome;
         t_nome_snk_atributo := LowerCase(Copy(t_nome_atributo, 1, 1)) + Copy(t_nome_atributo, 2, Length(t_nome_atributo));
-        t_tipo_atributo := pEntidade.Atributos.Items[t_aux].Tipo;
+        t_tipo_atributo := t_AtributoDTO.Tipo;
 
         if SameText(t_parametros_save_entidade_command, EmptyStr) then
         begin
@@ -399,6 +405,7 @@ var
   t_parametros_update_entidade_command: string;
   t_corpo_update_entidade_command: TStringList;
   t_diretorio: string;
+  t_AtributoDTO: TAtributoDTO;
 begin
   try
     t_diretorio := EmptyStr;
@@ -421,9 +428,10 @@ begin
 
       for t_aux := 0 to pEntidade.Atributos.Count - 1 do
       begin
-        t_nome_atributo := pEntidade.Atributos.Items[t_aux].Nome;
+        t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_aux]);
+	      t_nome_atributo := t_AtributoDTO.Nome;
         t_nome_snk_atributo := LowerCase(Copy(t_nome_atributo, 1, 1)) + Copy(t_nome_atributo, 2, Length(t_nome_atributo));
-        t_tipo_atributo := pEntidade.Atributos.Items[t_aux].Tipo;
+        t_tipo_atributo := t_AtributoDTO.Tipo;
 
         t_parametros_update_entidade_command := t_parametros_update_entidade_command + Format(', %s %s', [t_tipo_atributo, t_nome_snk_atributo]);
 

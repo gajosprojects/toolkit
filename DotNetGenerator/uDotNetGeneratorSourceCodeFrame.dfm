@@ -35,6 +35,26 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
       TabOrder = 0
       OnClick = btnGerarClick
     end
+    object btnExportarXML: TButton
+      Left = 624
+      Top = 20
+      Width = 75
+      Height = 25
+      Cancel = True
+      Caption = 'Exportar XML'
+      TabOrder = 2
+      OnClick = btnExportarXMLClick
+    end
+    object btnCarregarXML: TButton
+      Left = 544
+      Top = 20
+      Width = 75
+      Height = 25
+      Cancel = True
+      Caption = 'Carregar XML'
+      TabOrder = 3
+      OnClick = btnCarregarXMLClick
+    end
   end
   object gbxGenerator: TGroupBox
     Left = 0
@@ -274,7 +294,6 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
               end>
             DataController.KeyField = 'Nome'
             Navigator.Buttons.OnButtonClick = tlAtributosNavigatorButtonsButtonClick
-            Navigator.Buttons.ConfirmDelete = True
             Navigator.Buttons.CustomButtons = <>
             Navigator.Buttons.First.Visible = False
             Navigator.Buttons.PriorPage.Visible = False

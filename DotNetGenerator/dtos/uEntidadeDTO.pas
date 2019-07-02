@@ -3,26 +3,31 @@ unit uEntidadeDTO;
 interface
 
 uses
-  System.Generics.Collections,
+//  System.Generics.Collections,
+  System.Classes,
+  System.Contnrs,
   uAtributoDTO;
 
 type
-  TEntidadeDTO = class
+  TEntidadeDTO = class(TPersistent)
 
   private
     FNomeModulo: string;
     FNomeSingular: string;
     FNomePlural: string;
-    FAtributos: TObjectList<TAtributoDTO>;
+//    FAtributos: TObjectList<TAtributoDTO>;
+    FAtributos: TObjectList;
 
   public
-    constructor Create();
+    constructor Create(AOwner: TComponent);
     destructor Destroy(); override;
 
+  published
     property NomeModulo: string read FNomeModulo write FNomeModulo;
     property NomeClasseSingular: string read FNomeSingular write FNomeSingular;
     property NomeClassePlural: string read FNomePlural write FNomePlural;
-    property Atributos: TObjectList<TAtributoDTO> read FAtributos write FAtributos;
+//    property Atributos: TObjectList<TAtributoDTO> read FAtributos write FAtributos;
+    property Atributos: TObjectList read FAtributos write FAtributos;
 
   end;
 
@@ -31,17 +36,22 @@ implementation
 uses
   System.SysUtils;
 
-{ clMain }
+{ TEntidadeDTO }
 
-constructor TEntidadeDTO.Create();
+constructor TEntidadeDTO.Create(AOwner: TComponent);
 begin
-  Atributos := TObjectlist<TAtributoDTO>.Create();
+//  FAtributos := TObjectList<TAtributoDTO>.Create();;
+  FAtributos := TObjectList.Create();
 end;
 
 destructor TEntidadeDTO.Destroy();
 begin
+  inherited Destroy;
+
   FreeAndNil(FAtributos);
-  inherited;
 end;
+
+initialization
+  RegisterClass(TEntidadeDTO);
 
 end.
