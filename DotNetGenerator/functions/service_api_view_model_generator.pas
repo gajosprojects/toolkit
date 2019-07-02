@@ -83,6 +83,13 @@ begin
       ForceDirectories(t_diretorio);
     end;
 
+    t_diretorio := Format('%s\%s', [t_diretorio, pEntidade.NomeModulo]);
+
+    if (not DirectoryExists(t_diretorio)) then
+    begin
+      ForceDirectories(t_diretorio);
+    end;
+
     t_arquivo.SaveToFile(Format('%s\%sViewModel.cs', [t_diretorio, pEntidade.NomeClasseSingular]));
   finally
     FreeAndNil(t_arquivo);

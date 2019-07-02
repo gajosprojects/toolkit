@@ -48,17 +48,24 @@ begin
     t_arquivo.Add(Format('        public %sRepository(%sContext db) : base(db)', [t_nome_plural_classe, t_nome_plural_classe]));
     t_arquivo.Add('        {');
     t_arquivo.Add('        }');
-    t_arquivo.Add('');
-    t_arquivo.Add(Format('        public override void Delete(%s obj)', [t_nome_singular_classe]));
-    t_arquivo.Add('        {');
-    t_arquivo.Add(Format('            var %s = GetById(obj.Id);', [t_nome_singular_snk_classe]));
-    t_arquivo.Add(Format('            %s.Desativar();', [t_nome_singular_snk_classe]));
-    t_arquivo.Add(Format('            Update(%s);', [t_nome_singular_snk_classe]));
-    t_arquivo.Add('        }');
+//    t_arquivo.Add('');
+//    t_arquivo.Add(Format('        public override void Delete(%s obj)', [t_nome_singular_classe]));
+//    t_arquivo.Add('        {');
+//    t_arquivo.Add(Format('            var %s = GetById(obj.Id);', [t_nome_singular_snk_classe]));
+//    t_arquivo.Add(Format('            %s.Desativar();', [t_nome_singular_snk_classe]));
+//    t_arquivo.Add(Format('            Update(%s);', [t_nome_singular_snk_classe]));
+//    t_arquivo.Add('        }');
     t_arquivo.Add('    }');
     t_arquivo.Add('}');
 
     t_diretorio := GetCurrentDir() + '\ERP.Infra.Data\Repositories';
+
+    if (not DirectoryExists(t_diretorio)) then
+    begin
+      ForceDirectories(t_diretorio);
+    end;
+
+    t_diretorio := Format('%s\%s', [t_diretorio, pEntidade.NomeModulo]);
 
     if (not DirectoryExists(t_diretorio)) then
     begin

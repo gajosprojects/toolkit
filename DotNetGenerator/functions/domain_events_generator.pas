@@ -57,6 +57,8 @@ begin
       t_arquivo.Add(Format('        public %s %s { get; protected set; }', [t_tipo_atributo, t_nome_atributo]));
     end;
 
+    t_arquivo.Add('        public DateTime DataCadastro { get; protected set; }');
+    t_arquivo.Add('        public DateTime DataUltimaAtualizacao { get; protected set; }');
     t_arquivo.Add('    }');
     t_arquivo.Add('}');
 
@@ -214,6 +216,7 @@ var
   t_tipo_atributo: string;
   t_parametros_saved_entidade_event: string;
   t_corpo_saved_entidade_event: TStringList;
+  t_corpo_saved_entidade_event_aux: string;
   t_diretorio: string;
   t_AtributoDTO: TAtributoDTO;
 begin
@@ -248,16 +251,22 @@ begin
         t_corpo_saved_entidade_event.Add(Format('            %s = %s;', [t_nome_atributo, t_nome_snk_atributo]));
       end;
 
+      t_parametros_saved_entidade_event := t_parametros_saved_entidade_event + ', DateTime dataCadastro, DateTime dataUltimaAtualizacao';
+
+      t_corpo_saved_entidade_event.Add('            DataCadastro = dataCadastro;');
+      t_corpo_saved_entidade_event.Add('            DataUltimaAtualizacao = dataUltimaAtualizacao;');
       t_corpo_saved_entidade_event.Add('            AggregateId = Id;');
 
-      t_arquivo.Add(Format('        public Saved%sEvent(%s)', [pEntidade.NomeClasseSingular, t_parametros_saved_entidade_event]));
-      t_arquivo.Add('        {');
-      t_arquivo.Add(Format('%s', [t_corpo_saved_entidade_event.Text]));
-      t_arquivo.Add('        }');
+      t_corpo_saved_entidade_event_aux := t_corpo_saved_entidade_event.Text;
+      Delete(t_corpo_saved_entidade_event_aux, Length(t_corpo_saved_entidade_event_aux) - 1, 2);
     finally
       FreeAndNil(t_corpo_saved_entidade_event);
     end;
 
+    t_arquivo.Add(Format('        public Saved%sEvent(%s)', [pEntidade.NomeClasseSingular, t_parametros_saved_entidade_event]));
+    t_arquivo.Add('        {');
+    t_arquivo.Add(Format('%s', [t_corpo_saved_entidade_event_aux]));
+    t_arquivo.Add('        }');
     t_arquivo.Add('    }');
     t_arquivo.Add('}');
 
@@ -297,6 +306,7 @@ var
   t_tipo_atributo: string;
   t_parametros_updated_entidade_event: string;
   t_corpo_updated_entidade_event: TStringList;
+  t_corpo_updated_entidade_event_aux: string;
   t_diretorio: string;
   t_AtributoDTO: TAtributoDTO;
 begin
@@ -331,16 +341,21 @@ begin
         t_corpo_updated_entidade_event.Add(Format('            %s = %s;', [t_nome_atributo, t_nome_snk_atributo]));
       end;
 
+      t_parametros_updated_entidade_event := t_parametros_updated_entidade_event + ', DateTime dataUltimaAtualizacao';
+
+      t_corpo_updated_entidade_event.Add('            DataUltimaAtualizacao = dataUltimaAtualizacao;');
       t_corpo_updated_entidade_event.Add('            AggregateId = Id;');
 
-      t_arquivo.Add(Format('        public Updated%sEvent(%s)', [pEntidade.NomeClasseSingular, t_parametros_updated_entidade_event]));
-      t_arquivo.Add('        {');
-      t_arquivo.Add(Format('%s', [t_corpo_updated_entidade_event.Text]));
-      t_arquivo.Add('        }');
+      t_corpo_updated_entidade_event_aux := t_corpo_updated_entidade_event.Text;
+      Delete(t_corpo_updated_entidade_event_aux, Length(t_corpo_updated_entidade_event_aux) - 1, 2);
     finally
       FreeAndNil(t_corpo_updated_entidade_event);
     end;
 
+    t_arquivo.Add(Format('        public Updated%sEvent(%s)', [pEntidade.NomeClasseSingular, t_parametros_updated_entidade_event]));
+    t_arquivo.Add('        {');
+    t_arquivo.Add(Format('%s', [t_corpo_updated_entidade_event_aux]));
+    t_arquivo.Add('        }');
     t_arquivo.Add('    }');
     t_arquivo.Add('}');
 

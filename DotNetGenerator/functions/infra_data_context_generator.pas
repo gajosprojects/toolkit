@@ -32,7 +32,7 @@ begin
 
     t_arquivo.Add('');
 
-    t_arquivo.Add(Format('using ERP.Admin.Domain.%s.%s;', [pEntidade.NomeModulo, pEntidade.NomeClassePlural]));
+    t_arquivo.Add(Format('using ERP.%s.Domain.%s;', [pEntidade.NomeModulo, pEntidade.NomeClassePlural]));
     t_arquivo.Add(Format('using ERP.Infra.Data.Mappings.%s;', [pEntidade.NomeModulo]));
     t_arquivo.Add('using Microsoft.AspNetCore.Hosting;');
     t_arquivo.Add('using Microsoft.EntityFrameworkCore;');
@@ -43,11 +43,11 @@ begin
     t_arquivo.Add(Format('    public class %sContext : DbContext', [pEntidade.NomeClassePlural]));
     t_arquivo.Add('    {');
     t_arquivo.Add(Format('        public DbSet<%s> %s { get; set; }', [pEntidade.NomeClasseSingular, pEntidade.NomeClassePlural]));
-    t_arquivo.Add('        private readonly IHostingEnvironment _hostingEnviroment;');
+    t_arquivo.Add('        private readonly IHostingEnvironment _hostingEnvironment;');
     t_arquivo.Add('');
-    t_arquivo.Add(Format('        public %sContext(IHostingEnvironment hostingEnviroment)', [pEntidade.NomeClassePlural]));
+    t_arquivo.Add(Format('        public %sContext(IHostingEnvironment hostingEnvironment)', [pEntidade.NomeClassePlural]));
     t_arquivo.Add('        {');
-    t_arquivo.Add('            _hostingEnviroment = hostingEnviroment;');
+    t_arquivo.Add('            _hostingEnvironment = hostingEnvironment;');
     t_arquivo.Add('        }');
     t_arquivo.Add('');
     t_arquivo.Add('        protected override void OnModelCreating(ModelBuilder modelBuilder)');
@@ -58,10 +58,10 @@ begin
     t_arquivo.Add('');
     t_arquivo.Add('        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)');
     t_arquivo.Add('        {');
-    t_arquivo.Add('            var config = new ConfigurationBuilder().SetBasePath(_hostingEnviroment.ContentRootPath)');
+    t_arquivo.Add('            var config = new ConfigurationBuilder().SetBasePath(_hostingEnvironment.ContentRootPath)');
     t_arquivo.Add('                                                   .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)');
-    t_arquivo.Add('                                                   .AddJsonFile($"appsettings.{_hostingEnviroment.EnvironmentName}.json", optional: true)');
-    t_arquivo.Add('                                                   .Build()');
+    t_arquivo.Add('                                                   .AddJsonFile($"appsettings.{_hostingEnvironment.EnvironmentName}.json", optional: true)');
+    t_arquivo.Add('                                                   .Build();');
     t_arquivo.Add('            optionsBuilder.UseSqlServer(config.GetConnectionString("ERP_CONNECTION_STRING"));');
     t_arquivo.Add('        }');
     t_arquivo.Add('    }');
