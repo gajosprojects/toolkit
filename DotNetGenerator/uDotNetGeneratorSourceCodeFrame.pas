@@ -9,7 +9,8 @@ uses
   ZAbstractConnection, cxGraphics, cxControls, cxLookAndFeels, cxLookAndFeelPainters,
   cxStyles, cxTL, cxTLdxBarBuiltInMenu, cxDataControllerConditionalFormattingRulesManagerDialog, 
   dxSkinsCore, cxInplaceContainer, cxTLData, cxDBTL, cxMaskEdit, cxCheckBox, cxDropDownEdit,
-  cxCustomData, Vcl.ExtDlgs;
+  cxCustomData, Vcl.ExtDlgs, uArquivoDTO, System.Generics.Collections,
+  Vcl.Buttons;
 
 type
   TDotNetGeneratorSourceCodeFrame = class(TFrame)
@@ -60,6 +61,13 @@ type
     lblNomeClasseExibicao: TLabel;
     lblNomeModulo: TLabel;
     lblNomeTabela: TLabel;
+    tsPreview: TTabSheet;
+    tvArquivos: TTreeView;
+    edtConteudo: TMemo;
+    btnPreview: TSpeedButton;
+    pnlAtualizarPreview: TPanel;
+    btnAtualizar: TButton;
+    Splitter: TSplitter;
 
     procedure btnCarregarAtributosClick(Sender: TObject);
     procedure btnConectarSQLServerClick(Sender: TObject);
@@ -74,6 +82,11 @@ type
     procedure tlAtributosNavigatorButtonsButtonClick(Sender: TObject; AButtonIndex: Integer; var ADone: Boolean);
     procedure btnExportarXMLClick(Sender: TObject);
     procedure btnCarregarXMLClick(Sender: TObject);
+    procedure tvArquivosChange(Sender: TObject; Node: TTreeNode);
+    procedure btnPreviewClick(Sender: TObject);
+    procedure btnAtualizarClick(Sender: TObject);
+    procedure tvArquivosCustomDrawItem(Sender: TCustomTreeView; Node: TTreeNode;
+      State: TCustomDrawState; var DefaultDraw: Boolean);
 
   private
     FNextIdAtributo: Integer;
@@ -81,6 +94,7 @@ type
 
     FClientDataSetAtributos: TClientDataSet;
     FDataSourceAtributos: TDataSource;
+    FListaArquivos: TObjectList<TArquivoDTO>;
 
     FProgressBar: TProgressBar;
 
@@ -103,12 +117,15 @@ type
     procedure PopularDadosEntidade(pEntidadeDTO: TEntidadeDTO);
     procedure PopularNomeTabela();
 
+    procedure PopularTreeViewPreview();
+
+    function RetornarNoPorTexto(pNode: TTreeNode; pTexto:String; pInclusive: Boolean): TTreeNode;
+
     //HABILITAR COMPONENTES
     procedure HabilitarComboBaseDados();
     procedure HabilitarComboSchemas();
     procedure HabilitarComboTabelas();
 
-    procedure HabilitarBotaoCarregarXML();
     procedure HabilitarBotaoConectar();
     procedure HabilitarBotaoCarregarAtributos();
 
@@ -126,6 +143,7 @@ type
     procedure CarregarXML(pArquivoXML: string);
     procedure ExportarArquivo(pArquivoXML: string);
     procedure GerarArquivos();
+    procedure SalvarArquivos();
 
   public
     { Public declarations }
@@ -139,9 +157,9 @@ type
 implementation
 
 uses
-  uAtributoDTO, service_api_view_model_generator, service_api_controller_generator,
+  uAtributoDTO, service_api_viewmodels_generator, service_api_controller_generator,
   infra_data_repository_generator, infra_data_mapping_generator, infra_data_context_generator,
-  domain_entity_generator, domain_commands_generator, domain_events_generator, domain_repositories_generator,
+  domain_entity_generator, domain_commands_generator, domain_events_generator, domain_repository_generator,
   System.UITypes, uMainDataModule, uConstantes, cxNavigator, System.IniFiles, uSerializadorXML,
   System.Contnrs;
 
@@ -155,6 +173,8 @@ begin
 
   FClientDataSetAtributos := TClientDataSet.Create(nil);
   FDataSourceAtributos := TDataSource.Create(nil);
+
+  FListaArquivos := TObjectList<TArquivoDTO>.Create();
 
   InicializarFormulario();
 
@@ -180,6 +200,28 @@ procedure TDotNetGeneratorSourceCodeFrame.AtualizarStatusBar();
 begin
   FProgressBar.Position := FProgressBar.Position + 1;
   TStatusBar(FProgressBar.Parent).Repaint();
+end;
+
+procedure TDotNetGeneratorSourceCodeFrame.btnAtualizarClick(Sender: TObject);
+var
+  t_Node: TTreeNode;
+  t_NodeText: string;
+begin
+  t_NodeText := EmptyStr;
+
+  if Assigned(tvArquivos.Selected) then
+  begin
+    t_NodeText := tvArquivos.Selected.Text;
+  end;
+
+  try
+    GerarArquivos();
+    PopularTreeViewPreview();
+  finally
+    t_Node := RetornarNoPorTexto(tvArquivos.Selected, t_NodeText, False);
+
+    t_Node.Selected := True;
+  end;
 end;
 
 procedure TDotNetGeneratorSourceCodeFrame.btnCarregarAtributosClick(Sender: TObject);
@@ -315,7 +357,42 @@ begin
     tlAtributos.Post();
 
   if IsValidacaoOk() then
+  begin
     GerarArquivos();
+    SalvarArquivos();
+    ShowMessage('Arquivos gerados com sucesso!');
+  end;
+end;
+
+procedure TDotNetGeneratorSourceCodeFrame.btnPreviewClick(Sender: TObject);
+begin
+  if(btnPreview.AllowAllUp) then
+  begin
+    btnPreview.AllowAllUp := False;
+    btnPreview.Down := True;
+    btnPreview.Font.Style := [fsStrikeOut];
+  end else
+  begin
+    btnPreview.AllowAllUp := True;
+    btnPreview.Down := False;
+    btnPreview.Font.Style := [];
+  end;
+
+  if btnPreview.Down then
+  begin
+    GerarArquivos();
+    PopularTreeViewPreview();
+
+    pgcGenerator.ActivePage := tsPreview;
+    tsPreview.TabVisible := True;
+  end
+  else
+  begin
+    edtConteudo.Clear();
+    tvArquivos.Items.Clear();
+    tsPreview.TabVisible := False;
+    FListaArquivos.Clear();
+  end;
 end;
 
 procedure TDotNetGeneratorSourceCodeFrame.CarregarConfiguracao();
@@ -513,6 +590,7 @@ begin
       tsConexao.TabVisible      := False;
       tsInstrucaoSQL.TabVisible := False;
       tsDadosClasse.TabVisible  := True;
+      tsPreview.TabVisible      := False;
 
       pgcGenerator.ActivePage := tsDadosClasse;
 
@@ -551,6 +629,7 @@ begin
       tsConexao.TabVisible      := True;
       tsInstrucaoSQL.TabVisible := False;
       tsDadosClasse.TabVisible  := True;
+      tsPreview.TabVisible      := False;
 
       pgcGenerator.ActivePage := tsConexao;
 
@@ -576,6 +655,7 @@ begin
 //      tsConexao.TabVisible      := True;
 //      tsInstrucaoSQL.TabVisible := True;
 //      tsDadosClasse.TabVisible  := True;
+//      tsPreview.TabVisible      := False;
 //
 //      pgcGenerator.ActivePage := tsConexao;
 //
@@ -619,6 +699,9 @@ begin
 
   if Assigned(FDataSourceAtributos) then
     FreeAndNil(FDataSourceAtributos);
+
+  if Assigned(FListaArquivos) then
+    FreeAndNil(FListaArquivos);
 
   SalvarConfiguracao();
 
@@ -672,7 +755,7 @@ end;
 procedure TDotNetGeneratorSourceCodeFrame.GerarArquivos();
 var
   t_Entidade: TEntidadeDTO;
-  t_ServiceApiViewModelGenerator: TServiceApiViewModelGenerator;
+  t_ServiceApiViewModelsGenerator: TServiceApiViewModelsGenerator;
   t_ServiceApiControllerGenerator: TServiceApiControllerGenerator;
   t_InfraDataRepositoryGenerator: TInfraDataRepositoryGenerator;
   t_InfraDataMapppingGenerator: TInfraDataMappingGenerator;
@@ -680,9 +763,9 @@ var
   t_DomainEntityGenerator: TDomainEntityGenerator;
   t_DomainCommandsGenerator: TDomainCommandsGenerator;
   t_DomainEventsGenerator: TDomainEventsGenerator;
-  t_DomainRepositoryGenerator: TDomainRepositoriesGenerator;
+  t_DomainRepositoryGenerator: TDomainRepositoryGenerator;
 begin
-  t_ServiceApiViewModelGenerator := TServiceApiViewModelGenerator.Create();
+  t_ServiceApiViewModelsGenerator := TServiceApiViewModelsGenerator.Create();
   t_ServiceApiControllerGenerator := TServiceApiControllerGenerator.Create();
   t_InfraDataRepositoryGenerator := TInfraDataRepositoryGenerator.Create();
   t_InfraDataMapppingGenerator := TInfraDataMappingGenerator.Create();
@@ -690,10 +773,12 @@ begin
   t_DomainEntityGenerator := TDomainEntityGenerator.Create();
   t_DomainCommandsGenerator := TDomainCommandsGenerator.Create();
   t_DomainEventsGenerator := TDomainEventsGenerator.Create();
-  t_DomainRepositoryGenerator := TDomainRepositoriesGenerator.Create();
+  t_DomainRepositoryGenerator := TDomainRepositoryGenerator.Create();
 
   FProgressBar.Position := 0;
-  FProgressBar.Max      := 22;
+  FProgressBar.Max      := 20;
+
+  FListaArquivos.Clear();
 
   try
     try
@@ -701,79 +786,74 @@ begin
       AtualizarStatusBar();
       t_Entidade := GetViewToEntidade();
 
-      //view_model
-      AtualizarStatusBar();
-      t_ServiceApiViewModelGenerator.generate(t_Entidade);
-
-      AtualizarStatusBar();
-      t_ServiceApiViewModelGenerator.generateSave(t_Entidade);
-
-      AtualizarStatusBar();
-      t_ServiceApiViewModelGenerator.generateUpdate(t_Entidade);
-
-      AtualizarStatusBar();
-      t_ServiceApiViewModelGenerator.generateDelete(t_Entidade);
-
-      AtualizarStatusBar();
-      t_ServiceApiViewModelGenerator.generate(t_Entidade);
-
-      //controller
-      AtualizarStatusBar();
-      t_ServiceApiControllerGenerator.generate(t_Entidade);
-
-      //repository
-      AtualizarStatusBar();
-      t_InfraDataRepositoryGenerator.generate(t_Entidade);
-
-      //mapping
-      AtualizarStatusBar();
-      t_InfraDataMapppingGenerator.generate(t_Entidade);
-
-      //context
-      AtualizarStatusBar();
-      t_InfraDataContextGenerator.generate(t_Entidade);
-
       //entity
       AtualizarStatusBar();
-      t_DomainEntityGenerator.generate(t_Entidade);
+      FListaArquivos.Add(t_DomainEntityGenerator.getFile(t_Entidade));
 
       //commands
       AtualizarStatusBar();
-      t_DomainCommandsGenerator.generateBaseCommand(t_Entidade);
+      FListaArquivos.Add(t_DomainCommandsGenerator.generateBaseFile(t_Entidade));
 
       AtualizarStatusBar();
-      t_DomainCommandsGenerator.generateCommandHandler(t_Entidade);
+      FListaArquivos.Add(t_DomainCommandsGenerator.generateHandlerFile(t_Entidade));
 
       AtualizarStatusBar();
-      t_DomainCommandsGenerator.generateSaveCommand(t_Entidade);
+      FListaArquivos.Add(t_DomainCommandsGenerator.generateSaveFile(t_Entidade));
 
       AtualizarStatusBar();
-      t_DomainCommandsGenerator.generateUpdateCommand(t_Entidade);
+      FListaArquivos.Add(t_DomainCommandsGenerator.generateUpdateFile(t_Entidade));
 
       AtualizarStatusBar();
-      t_DomainCommandsGenerator.generateDeleteCommand(t_Entidade);
+      FListaArquivos.Add(t_DomainCommandsGenerator.generateDeleteFile(t_Entidade));
 
       //events
       AtualizarStatusBar();
-      t_DomainEventsGenerator.generateBaseEvent(t_Entidade);
+      FListaArquivos.Add(t_DomainEventsGenerator.generateBaseFile(t_Entidade));
 
       AtualizarStatusBar();
-      t_DomainEventsGenerator.generateEventHandler(t_Entidade);
+      FListaArquivos.Add(t_DomainEventsGenerator.generateHandlerFile(t_Entidade));
 
       AtualizarStatusBar();
-      t_DomainEventsGenerator.generateSavedEvent(t_Entidade);
+      FListaArquivos.Add(t_DomainEventsGenerator.generateSaveFile(t_Entidade));
 
       AtualizarStatusBar();
-      t_DomainEventsGenerator.generateUpdatedEvent(t_Entidade);
+      FListaArquivos.Add(t_DomainEventsGenerator.generateUpdateFile(t_Entidade));
 
       AtualizarStatusBar();
-      t_DomainEventsGenerator.generateDeletedEvent(t_Entidade);
+      FListaArquivos.Add(t_DomainEventsGenerator.generateDeleteFile(t_Entidade));
 
       //irepository
       AtualizarStatusBar();
-      t_DomainRepositoryGenerator.generate(t_Entidade);
+      FListaArquivos.Add(t_DomainRepositoryGenerator.getFile(t_Entidade));
 
-      ShowMessage('Arquivos gerados com sucesso!');
+      //context
+      AtualizarStatusBar();
+      FListaArquivos.Add(t_InfraDataContextGenerator.getFile(t_Entidade));
+
+      //mapping
+      AtualizarStatusBar();
+      FListaArquivos.Add(t_InfraDataMapppingGenerator.getFile(t_Entidade));
+
+      //repository
+      AtualizarStatusBar();
+      FListaArquivos.Add(t_InfraDataRepositoryGenerator.getFile(t_Entidade));
+
+      //controller
+      AtualizarStatusBar();
+      FListaArquivos.Add(t_ServiceApiControllerGenerator.getFile(t_Entidade));
+
+      //view_model
+      AtualizarStatusBar();
+      FListaArquivos.Add(t_ServiceApiViewModelsGenerator.getBaseFile(t_Entidade));
+
+      AtualizarStatusBar();
+      FListaArquivos.Add(t_ServiceApiViewModelsGenerator.getSaveFile(t_Entidade));
+
+      AtualizarStatusBar();
+      FListaArquivos.Add(t_ServiceApiViewModelsGenerator.getUpdateFile(t_Entidade));
+
+      AtualizarStatusBar();
+      FListaArquivos.Add(t_ServiceApiViewModelsGenerator.getDeleteFile(t_Entidade));
 
       FProgressBar.Position := FProgressBar.Min;
     except
@@ -781,8 +861,8 @@ begin
         ShowMessage(Format('Ocorreu um erro ao gerar os arquivos: [%s]', [E.Message]));
     end;
   finally
-    if Assigned(t_ServiceApiViewModelGenerator) then
-      FreeAndNil(t_ServiceApiViewModelGenerator);
+    if Assigned(t_ServiceApiViewModelsGenerator) then
+      FreeAndNil(t_ServiceApiViewModelsGenerator);
 
     if Assigned(t_ServiceApiControllerGenerator) then
       FreeAndNil(t_ServiceApiControllerGenerator);
@@ -959,20 +1039,6 @@ begin
   else
     begin
       btnCarregarAtributos.Enabled := False;
-    end;
-  end;
-end;
-
-procedure TDotNetGeneratorSourceCodeFrame.HabilitarBotaoCarregarXML();
-begin
-  case cmbOrigemClasse.ItemIndex of
-    cOrigemTabela:
-    begin
-      btnCarregarXML.Enabled := True;
-    end;
-  else
-    begin
-      btnCarregarXML.Enabled := False;
     end;
   end;
 end;
@@ -1394,6 +1460,242 @@ begin
 end;
 
 
+procedure TDotNetGeneratorSourceCodeFrame.PopularTreeViewPreview();
+var
+  t_Arquivo: TArquivoDTO;
+  t_Aux: TStringList;
+  t_Indice: Integer;
+  t_RootLevel: Boolean;
+  t_RootNode: TTreeNode;
+  t_Node: TTreeNode;
+begin
+  tvArquivos.Items.Clear();
+
+  for t_Arquivo in FListaArquivos do
+  begin
+    t_RootLevel := True;
+
+    t_Aux := TStringList.Create();
+
+    try
+      t_Aux.Delimiter := '\';
+      t_Aux.DelimitedText := t_Arquivo.Diretorio;
+
+      for t_Indice := 0 to t_Aux.Count -1 do
+      begin
+        if (t_RootLevel) then
+        begin
+          if (not SameText(Trim(t_Aux[t_Indice]), EmptyStr)) then
+          begin
+            if Assigned(t_RootNode) then
+              t_Node := RetornarNoPorTexto(t_RootNode, t_Aux[t_Indice], True)
+            else
+              t_Node := RetornarNoPorTexto(nil, t_Aux[t_Indice], False);
+
+            if (not Assigned(t_Node)) then
+            begin
+              t_Node := tvArquivos.Items.Add(t_RootNode, t_Aux[t_Indice]);
+            end;
+
+            t_Node.Selected := True;
+
+            if (not Assigned(t_RootNode)) then
+            begin
+              t_RootNode := RetornarNoPorTexto(t_Node, t_Aux[t_Indice], True);
+            end;
+
+            t_RootLevel := False;
+          end;
+        end
+        else
+        begin
+          if (not SameText(Trim(t_Aux[t_Indice]), EmptyStr)) then
+          begin
+            t_Node := RetornarNoPorTexto(tvArquivos.Selected.getFirstChild(), t_Aux[t_Indice], True);
+
+            if (not Assigned(t_Node)) then
+            begin
+              t_Node := tvArquivos.Items.AddChild(tvArquivos.Selected, t_Aux[t_Indice]);
+            end;
+
+            t_Node.Selected := True;
+          end;
+        end;
+      end;
+
+      t_Node := tvArquivos.Items.AddChildObject(tvArquivos.Selected, t_Arquivo.Nome, t_Arquivo);
+    finally
+      FreeAndNil(t_Aux);
+    end;
+  end;
+
+  for t_Indice := 0 to tvArquivos.Items.Count - 1 do
+  begin
+    tvArquivos.Items.Item[t_Indice].Collapse(True);
+    tvArquivos.Items.Item[t_Indice].Selected := False;
+  end;
+
+  edtConteudo.Clear();
+//var
+//  t_Arquivo: TArquivoDTO;
+//  t_Aux: TStringList;
+//  t_Indice: Integer;
+//  t_Node: TTreeNode;
+//  t_FirstNode: TTreeNode;
+//begin
+//  t_FirstNode := nil;
+//
+//  tvArquivos.Items.Clear();
+//
+//  for t_Arquivo in FListaArquivos do
+//  begin
+//    t_Aux := TStringList.Create();
+//
+//    try
+//      t_Aux.Delimiter := '\';
+//      t_Aux.DelimitedText := t_arquivo.Diretorio;
+//
+//      for t_Indice := 0 to t_Aux.Count -1 do
+//      begin
+//        if (not Assigned(tvArquivos.Selected)) then
+//        begin
+//          if (not SameText(Trim(t_Aux[t_Indice]), EmptyStr)) then
+//          begin
+//            t_Node := RetornarNoPorTexto(nil, t_Aux[t_Indice], False);
+//
+//            if (not Assigned(t_Node)) then
+//            begin
+//              t_Node := tvArquivos.Items.Add(t_FirstNode, t_Aux[t_Indice]);
+//              t_Node.Selected := True;
+//
+//              if not Assigned(t_FirstNode) then
+//              begin
+//                t_FirstNode := RetornarNoPorTexto(tvArquivos.Selected, t_Aux[t_Indice], False);
+//              end;
+//            end;
+//          end;
+//        end
+//        else
+//        begin
+//          if (not SameText(Trim(t_Aux[t_Indice]), EmptyStr)) then
+//          begin
+//            t_Node := RetornarNoPorTexto(tvArquivos.Selected, t_Aux[t_Indice], False);
+//
+//            if (not Assigned(t_Node)) then
+//            begin
+//              t_Node := tvArquivos.Items.AddChild(tvArquivos.Selected, t_Aux[t_Indice]);
+//            end;
+//
+//            t_Node.Selected := True;
+//          end;
+//        end;
+//      end;
+//
+//      t_Node := tvArquivos.Items.AddChildObject(tvArquivos.Selected, t_Arquivo.Nome, t_Arquivo);
+//      t_Node.MakeVisible();
+//    finally
+//      FreeAndNil(t_Aux);
+//    end;
+//  end;
+//
+//  for t_Indice := 0 to tvArquivos.Items.Count - 1 do
+//  begin
+//    tvArquivos.Items.Item[t_Indice].Collapse(True);
+//    tvArquivos.Items.Item[t_Indice].Selected := False;
+//  end;
+//
+//  edtConteudo.Clear();
+end;
+
+function TDotNetGeneratorSourceCodeFrame.RetornarNoPorTexto(pNode: TTreeNode; pTexto:String; pInclusive: Boolean): TTreeNode;
+var
+  t_Indice: Integer;
+  t_TextoNo: string;
+  t_TestNode: TTreeNode;
+begin
+  Result := nil;
+
+  if Assigned(pNode) then
+  begin
+    if (pInclusive) then
+    begin
+      if (SameText(pNode.Text, pTexto)) then
+      begin
+        Result := pNode;
+        Exit;
+      end;
+    end;
+
+    t_TestNode := pNode;
+
+    repeat
+      t_TestNode := t_TestNode.GetPrevSibling();
+
+      if Assigned(t_TestNode) then
+      begin
+        if (SameText(t_TestNode.Text, pTexto)) then
+        begin
+          Result := t_TestNode;
+          Exit;
+        end;
+      end
+    until (t_TestNode = nil);
+
+    t_TestNode := pNode;
+
+    repeat
+      t_TestNode := t_TestNode.GetNextSibling();
+
+      if Assigned(t_TestNode) then
+      begin
+        if (SameText(t_TestNode.Text, pTexto)) then
+        begin
+          Result := t_TestNode;
+          Exit;
+        end;
+      end;
+    until (t_TestNode = nil);
+  end;
+
+//  for t_Indice := 0 to tvArquivos.Items.Count - 1 do
+//  begin
+//    t_TextoNo := tvArquivos.Items[t_Indice].Text;
+//
+//    if SameText(pTexto, t_TextoNo) then
+//    begin
+//      Result := tvArquivos.Items[t_Indice];
+//      Exit;
+//    end;
+//  end;
+end;
+
+procedure TDotNetGeneratorSourceCodeFrame.SalvarArquivos();
+var
+  t_Arquivo: TArquivoDTO;
+  t_SaveFile: TStringList;
+  t_Diretorio: string;
+begin
+  for t_Arquivo in FListaArquivos do
+  begin
+    t_SaveFile := TStringList.Create();
+
+    try
+      t_SaveFile.Add(t_Arquivo.Conteudo);
+
+      t_Diretorio := Format('%s\%s', [GetCurrentDir(), t_Arquivo.Diretorio]);
+
+      if (not DirectoryExists(t_Diretorio)) then
+      begin
+        ForceDirectories(t_Diretorio);
+      end;
+
+      t_SaveFile.SaveToFile(Format('%s%s', [t_Diretorio, t_Arquivo.Nome]));
+    finally
+      FreeAndNil(t_SaveFile);
+    end;
+  end;
+end;
+
 procedure TDotNetGeneratorSourceCodeFrame.SalvarConfiguracao();
 var
   t_ArquivoIni: TIniFile;
@@ -1433,6 +1735,47 @@ begin
     Inc(FNextIdAtributo);
 
     ADone := True;
+  end;
+end;
+
+procedure TDotNetGeneratorSourceCodeFrame.tvArquivosChange(Sender: TObject; Node: TTreeNode);
+var
+  t_Arquivo: TArquivoDTO;
+begin
+  if Assigned(Node) then
+  begin
+    if (not Node.HasChildren) then
+    begin
+      if Assigned(Node) then
+      begin
+        t_Arquivo := Node.Data;
+
+        if Assigned(t_Arquivo) then
+        begin
+          edtConteudo.Enabled := True;
+          edtConteudo.Color := clWindow;
+          edtConteudo.Clear();
+          edtConteudo.Lines.BeginUpdate();
+          edtConteudo.Lines.Add(t_Arquivo.Conteudo);
+          edtConteudo.Lines.EndUpdate();
+        end;
+      end;
+    end
+    else
+    begin
+      edtConteudo.Clear();
+      edtConteudo.Enabled := False;
+      edtConteudo.Color := clBtnFace;
+    end;
+  end;
+end;
+
+procedure TDotNetGeneratorSourceCodeFrame.tvArquivosCustomDrawItem(Sender: TCustomTreeView; Node: TTreeNode;
+  State: TCustomDrawState; var DefaultDraw: Boolean);
+begin
+  if (not Node.HasChildren) then
+  begin
+    (Sender as TCustomTreeView).Canvas.Font.Style := [fsBold];
   end;
 end;
 

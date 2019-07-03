@@ -103,7 +103,7 @@
         </DelphiCompile>
         <DCCReference Include="..\dtos\uEntidadeDTO.pas"/>
         <DCCReference Include="..\dtos\uAtributoDTO.pas"/>
-        <DCCReference Include="..\functions\service_api_view_model_generator.pas"/>
+        <DCCReference Include="..\functions\service_api_viewmodels_generator.pas"/>
         <DCCReference Include="..\functions\service_api_controller_generator.pas"/>
         <DCCReference Include="..\functions\infra_data_repository_generator.pas"/>
         <DCCReference Include="..\functions\infra_data_mapping_generator.pas"/>
@@ -111,7 +111,7 @@
         <DCCReference Include="..\functions\domain_entity_generator.pas"/>
         <DCCReference Include="..\functions\domain_commands_generator.pas"/>
         <DCCReference Include="..\functions\domain_events_generator.pas"/>
-        <DCCReference Include="..\functions\domain_repositories_generator.pas"/>
+        <DCCReference Include="..\functions\domain_repository_generator.pas"/>
         <DCCReference Include="..\uMainForm.pas">
             <Form>MainForm</Form>
             <FormType>dfm</FormType>
@@ -130,6 +130,7 @@
             <Form>$R *.res</Form>
         </DCCReference>
         <DCCReference Include="..\uSerializadorXML.pas"/>
+        <DCCReference Include="..\dtos\uArquivoDTO.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
