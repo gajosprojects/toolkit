@@ -60,7 +60,7 @@ begin
     t_arquivo.Add('        private readonly IMapper _mapper;');
     t_arquivo.Add('        private readonly IMediatorHandler _mediator;');
     t_arquivo.Add('');
-    t_arquivo.Add(Format('        public %sController(INotificationHandler<DomainNotification> notifications, IMediatorHandler mediator, I%sRepository %sRepository, IMapper mapper) : base(notifications, mediator)', [t_nome_plural_classe, t_nome_plural_classe, t_nome_plural_snk_classe]));
+    t_arquivo.Add(Format('        public %sController(INotificationHandler<DomainNotification> notifications, IUser user, IMediatorHandler mediator, I%sRepository %sRepository, IMapper mapper) : base(notifications, user, mediator)', [t_nome_plural_classe, t_nome_plural_classe, t_nome_plural_snk_classe]));
     t_arquivo.Add('        {');
     t_arquivo.Add(Format('            _%sRepository = %sRepository;', [t_nome_plural_snk_classe, t_nome_plural_snk_classe]));
     t_arquivo.Add('            _mapper = mapper;');

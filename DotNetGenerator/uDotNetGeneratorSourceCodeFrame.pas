@@ -38,8 +38,8 @@ type
     gbxNomeEntidade: TGroupBox;
     lblNomeSingular: TLabel;
     lblNomePlural: TLabel;
-    edtNomeSingular: TEdit;
-    edtNomePlural: TEdit;
+    edtNomeClasseSingular: TEdit;
+    edtNomeClassePlural: TEdit;
     gbxModulo: TGroupBox;
     edtNomeModulo: TEdit;
     gbxAtributos: TGroupBox;
@@ -53,6 +53,13 @@ type
     tlAtributosRequerido: TcxDBTreeListColumn;
     btnExportarXML: TButton;
     btnCarregarXML: TButton;
+    gbxNomeTabela: TGroupBox;
+    edtNomeTabela: TEdit;
+    gbxNomeClasseExibicao: TGroupBox;
+    edtNomeClasseExibicao: TEdit;
+    lblNomeClasseExibicao: TLabel;
+    lblNomeModulo: TLabel;
+    lblNomeTabela: TLabel;
 
     procedure btnCarregarAtributosClick(Sender: TObject);
     procedure btnConectarSQLServerClick(Sender: TObject);
@@ -75,6 +82,8 @@ type
     FClientDataSetAtributos: TClientDataSet;
     FDataSourceAtributos: TDataSource;
 
+    FProgressBar: TProgressBar;
+
     { Private declarations }
     procedure InicializarFormulario();
 
@@ -92,7 +101,7 @@ type
     procedure PopularComboTabelasBaseDados(pXMLData: WideString);
     procedure PopularClientDataSetAtributos(pXMLData: WideString);
     procedure PopularDadosEntidade(pEntidadeDTO: TEntidadeDTO);
-    procedure PopularNomeClasse();
+    procedure PopularNomeTabela();
 
     //HABILITAR COMPONENTES
     procedure HabilitarComboBaseDados();
@@ -102,6 +111,8 @@ type
     procedure HabilitarBotaoCarregarXML();
     procedure HabilitarBotaoConectar();
     procedure HabilitarBotaoCarregarAtributos();
+
+    procedure AtualizarStatusBar();
 
     //CONVERSAO
     function GetTipoAtributoDotNetFromSQLServer(pNomeTipo: string): string;
@@ -120,6 +131,8 @@ type
     { Public declarations }
     constructor Create(AOwner: TComponent); override;
     destructor Destroy(); override;
+
+    procedure ExibirFrame(pProgressBar: TProgressBar);
 
   end;
 
@@ -161,6 +174,12 @@ begin
   FNextIdAtributo := 1;
 
   cmbOrigemClasseChange(nil);
+end;
+
+procedure TDotNetGeneratorSourceCodeFrame.AtualizarStatusBar();
+begin
+  FProgressBar.Position := FProgressBar.Position + 1;
+  TStatusBar(FProgressBar.Parent).Repaint();
 end;
 
 procedure TDotNetGeneratorSourceCodeFrame.btnCarregarAtributosClick(Sender: TObject);
@@ -274,7 +293,7 @@ begin
     try
       t_SaveXMLDialog.Filter := 'XML files (*.xml)|*.XML|Any file (*.*)|*.*';
       t_SaveXMLDialog.InitialDir := ExtractFilePath(Application.ExeName);
-      t_SaveXMLDialog.FileName := Format('%s.%s', [edtNomeModulo.Text, edtNomeSingular.Text]);
+      t_SaveXMLDialog.FileName := Format('%s.%s', [edtNomeModulo.Text, edtNomeClasseSingular.Text]);
       t_SaveXMLDialog.DefaultExt := 'xml';
 
       if t_SaveXMLDialog.Execute() then
@@ -443,7 +462,7 @@ begin
     if (not SameText(t_XMLData, EmptyWideStr)) then
     begin
       PopularClientDataSetAtributos(t_XMLData);
-      PopularNomeClasse();
+      PopularNomeTabela();
     end;
   except
     on E: Exception do
@@ -497,8 +516,11 @@ begin
 
       pgcGenerator.ActivePage := tsDadosClasse;
 
-      edtNomeSingular.Text := EmptyStr;
-      edtNomePlural.Text   := EmptyStr;
+      edtNomeModulo.Text         := EmptyStr;
+      edtNomeTabela.Text         := EmptyStr;
+      edtNomeClasseSingular.Text := EmptyStr;
+      edtNomeClassePlural.Text   := EmptyStr;
+      edtNomeClasseExibicao.Text := EmptyStr;
 
       if (FClientDataSetAtributos.Active) then
       begin
@@ -618,6 +640,12 @@ begin
   HabilitarBotaoConectar();
 end;
 
+procedure TDotNetGeneratorSourceCodeFrame.ExibirFrame(pProgressBar: TProgressBar);
+begin
+  FProgressBar := pProgressBar;
+  Show();
+end;
+
 procedure TDotNetGeneratorSourceCodeFrame.ExportarArquivo(pArquivoXML: string);
 var
   t_Arquivo: TStringList;
@@ -664,47 +692,90 @@ begin
   t_DomainEventsGenerator := TDomainEventsGenerator.Create();
   t_DomainRepositoryGenerator := TDomainRepositoriesGenerator.Create();
 
+  FProgressBar.Position := 0;
+  FProgressBar.Max      := 22;
+
   try
     try
       //preenchimento do objeto t_Entidade e seus atributos
+      AtualizarStatusBar();
       t_Entidade := GetViewToEntidade();
 
       //view_model
+      AtualizarStatusBar();
+      t_ServiceApiViewModelGenerator.generate(t_Entidade);
+
+      AtualizarStatusBar();
+      t_ServiceApiViewModelGenerator.generateSave(t_Entidade);
+
+      AtualizarStatusBar();
+      t_ServiceApiViewModelGenerator.generateUpdate(t_Entidade);
+
+      AtualizarStatusBar();
+      t_ServiceApiViewModelGenerator.generateDelete(t_Entidade);
+
+      AtualizarStatusBar();
       t_ServiceApiViewModelGenerator.generate(t_Entidade);
 
       //controller
+      AtualizarStatusBar();
       t_ServiceApiControllerGenerator.generate(t_Entidade);
 
       //repository
+      AtualizarStatusBar();
       t_InfraDataRepositoryGenerator.generate(t_Entidade);
 
       //mapping
+      AtualizarStatusBar();
       t_InfraDataMapppingGenerator.generate(t_Entidade);
 
       //context
+      AtualizarStatusBar();
       t_InfraDataContextGenerator.generate(t_Entidade);
 
       //entity
+      AtualizarStatusBar();
       t_DomainEntityGenerator.generate(t_Entidade);
 
       //commands
+      AtualizarStatusBar();
       t_DomainCommandsGenerator.generateBaseCommand(t_Entidade);
+
+      AtualizarStatusBar();
       t_DomainCommandsGenerator.generateCommandHandler(t_Entidade);
+
+      AtualizarStatusBar();
       t_DomainCommandsGenerator.generateSaveCommand(t_Entidade);
+
+      AtualizarStatusBar();
       t_DomainCommandsGenerator.generateUpdateCommand(t_Entidade);
+
+      AtualizarStatusBar();
       t_DomainCommandsGenerator.generateDeleteCommand(t_Entidade);
 
       //events
+      AtualizarStatusBar();
       t_DomainEventsGenerator.generateBaseEvent(t_Entidade);
+
+      AtualizarStatusBar();
       t_DomainEventsGenerator.generateEventHandler(t_Entidade);
+
+      AtualizarStatusBar();
       t_DomainEventsGenerator.generateSavedEvent(t_Entidade);
+
+      AtualizarStatusBar();
       t_DomainEventsGenerator.generateUpdatedEvent(t_Entidade);
+
+      AtualizarStatusBar();
       t_DomainEventsGenerator.generateDeletedEvent(t_Entidade);
 
       //irepository
+      AtualizarStatusBar();
       t_DomainRepositoryGenerator.generate(t_Entidade);
 
       ShowMessage('Arquivos gerados com sucesso!');
+
+      FProgressBar.Position := FProgressBar.Min;
     except
       on E: Exception do
         ShowMessage(Format('Ocorreu um erro ao gerar os arquivos: [%s]', [E.Message]));
@@ -813,8 +884,10 @@ begin
   //preenchimento do objeto entidade e seus atributos
   Result                    := TEntidadeDTO.Create(Self);
   Result.NomeModulo         := edtNomeModulo.Text;
-  Result.NomeClasseSingular := edtNomeSingular.Text;
-  Result.NomeClassePlural   := edtNomePlural.Text;
+  REsult.NomeTabela         := edtNomeTabela.Text;
+  Result.NomeClasseSingular := edtNomeClasseSingular.Text;
+  Result.NomeClassePlural   := edtNomeClassePlural.Text;
+  Result.NomeClasseExibicao := edtNomeClasseExibicao.Text;
 
   //loop nos atributos
   try
@@ -1022,17 +1095,31 @@ begin
     Exit
   end;
 
-  if SameText(Trim(edtNomeSingular.Text), EmptyStr) then
+  if SameText(Trim(edtNomeTabela.Text), EmptyStr) then
   begin
-    ShowMessage('Nome da classe no singular é obrigatório');
-    edtNomeSingular.SetFocus();
+    ShowMessage('Nome da tabela é obrigatório');
+    edtNomeTabela.SetFocus();
     Exit
   end;
 
-  if SameText(Trim(edtNomePlural.Text), EmptyStr) then
+  if SameText(Trim(edtNomeClasseSingular.Text), EmptyStr) then
+  begin
+    ShowMessage('Nome da classe no singular é obrigatório');
+    edtNomeClasseSingular.SetFocus();
+    Exit
+  end;
+
+  if SameText(Trim(edtNomeClassePlural.Text), EmptyStr) then
   begin
     ShowMessage('Nome da classe no plural é obrigatório');
-    edtNomePlural.SetFocus();
+    edtNomeClassePlural.SetFocus();
+    Exit
+  end;
+
+  if SameText(Trim(edtNomeClasseExibicao.Text), EmptyStr) then
+  begin
+    ShowMessage('Nome de exibição da classe é obrigatório');
+    edtNomeClasseExibicao.SetFocus();
     Exit
   end;
 
@@ -1149,9 +1236,11 @@ begin
   try
     FNextIdAtributo := 1;
 
-    edtNomeModulo.Text   := pEntidadeDTO.NomeModulo;
-    edtNomeSingular.Text := pEntidadeDTO.NomeClasseSingular;
-    edtNomePlural.Text   := pEntidadeDTO.NomeClassePlural;
+    edtNomeModulo.Text         := pEntidadeDTO.NomeModulo;
+    edtNomeTabela.Text         := pEntidadeDTO.NomeTabela;
+    edtNomeClasseSingular.Text := pEntidadeDTO.NomeClasseSingular;
+    edtNomeClassePlural.Text   := pEntidadeDTO.NomeClassePlural;
+    edtNomeClasseExibicao.Text := pEntidadeDTO.NomeClasseExibicao;
 
     FClientDataSetAtributos.Close();
     FClientDataSetAtributos.Open();
@@ -1299,13 +1388,9 @@ begin
   end;
 end;
 
-procedure TDotNetGeneratorSourceCodeFrame.PopularNomeClasse();
-var
-  t_NomeClasse: string;
+procedure TDotNetGeneratorSourceCodeFrame.PopularNomeTabela();
 begin
-  t_NomeClasse := UpperCase(Copy(cmbTabelas.Text, 1, 1)) + LowerCase(Copy(cmbTabelas.Text, 2, Length(cmbTabelas.Text)));
-
-  edtNomeSingular.Text := t_NomeClasse;
+  edtNomeTabela.Text := cmbTabelas.Text;
 end;
 
 

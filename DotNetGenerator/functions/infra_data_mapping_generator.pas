@@ -47,7 +47,7 @@ begin
     t_arquivo.Add('    {');
     t_arquivo.Add(Format('        public void Configure(EntityTypeBuilder<%s> builder)', [pEntidade.NomeClasseSingular]));
     t_arquivo.Add('        {');
-    t_arquivo.Add(Format('            builder.ToTable("%s");', [LowerCase(pEntidade.NomeClassePlural)]));
+    t_arquivo.Add(Format('            builder.ToTable("%s");', [LowerCase(pEntidade.NomeTabela)]));
     t_arquivo.Add('');
     t_arquivo.Add(Format('            builder.Property(%s => %s.Id)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular)]));
     t_arquivo.Add('                   .HasColumnName("id");');
@@ -127,12 +127,12 @@ begin
     t_arquivo.Add(Format('            builder.Property(%s => %s.UsuarioId)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular)]));
     t_arquivo.Add('                .HasColumnName("usuario_id");');
     t_arquivo.Add('');
-//    t_arquivo.Add(Format('            builder.HasOne(grupoempresarial => grupoempresarial.Usuario)');
-//    t_arquivo.Add(Format('                .WithMany(usuario => usuario.GruposEmpresariais)');
-//    t_arquivo.Add(Format('                .HasForeignKey(grupoempresarial => grupoempresarial.UsuarioId)');
-//    t_arquivo.Add(Format('                .HasConstraintName("fk_usuario_id_grupo_empresarial")');
-//    t_arquivo.Add(Format('                .OnDelete(DeleteBehavior.Restrict);');
-//    t_arquivo.Add('');
+    t_arquivo.Add(Format('            builder.HasOne(%s => %s.Usuario)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular)]));
+    t_arquivo.Add(Format('                .WithMany(usuario => usuario.GruposEmpresariais)', [pEntidade.NomeClassePlural]));
+    t_arquivo.Add(Format('                .HasForeignKey(%s => %s.UsuarioId)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular)]));
+    t_arquivo.Add(Format('                .HasConstraintName("fk_usuario_id_%s")', [LowerCase(pEntidade.NomeClasseSingular)]));
+    t_arquivo.Add('                .OnDelete(DeleteBehavior.Restrict);');
+    t_arquivo.Add('');
     t_arquivo.Add(Format('            builder.Ignore(%s => %s.ValidationResult);', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular)]));
     t_arquivo.Add(Format('            builder.Ignore(%s => %s.CascadeMode);', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular)]));
     t_arquivo.Add('        }');

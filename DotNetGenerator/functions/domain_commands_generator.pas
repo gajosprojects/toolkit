@@ -98,6 +98,7 @@ var
   t_nome_plural_classe: string;
   t_nome_singular_snk_classe: string;
   t_nome_plural_snk_classe: string;
+  t_nome_exibicao_classe: string;
   t_nome_atributo: string;
   t_parametros_new_entidade: string;
   t_parametros_update_entidade: string;
@@ -113,6 +114,7 @@ begin
     t_nome_plural_classe := pEntidade.nomeClassePlural;
     t_nome_singular_snk_classe := LowerCase(Copy(t_nome_singular_classe, 1, 1)) + Copy(t_nome_singular_classe, 2, Length(t_nome_singular_classe));
     t_nome_plural_snk_classe := LowerCase(Copy(t_nome_plural_classe, 1, 1)) + Copy(t_nome_plural_classe, 2, Length(t_nome_plural_classe));
+    t_nome_exibicao_classe := LowerCase(pEntidade.nomeClasseExibicao);
 
     t_arquivo := TStringList.Create();
     t_parametros_new_entidade := EmptyStr;
@@ -201,7 +203,7 @@ begin
     t_arquivo.Add('');
     t_arquivo.Add(Format('            if (%sExistente == null)', [t_nome_singular_snk_classe]));
     t_arquivo.Add('            {');
-    t_arquivo.Add(Format('                _mediator.RaiseEvent(new DomainNotification(request.MessageType, "Este %s não existe"));', [LowerCase(t_nome_singular_classe)]));
+    t_arquivo.Add(Format('                _mediator.RaiseEvent(new DomainNotification(request.MessageType, "Este %s não existe"));', [t_nome_exibicao_classe]));
     t_arquivo.Add('                return Task.FromResult(false);');
     t_arquivo.Add('            }');
     t_arquivo.Add('            else');
@@ -232,7 +234,7 @@ begin
     t_arquivo.Add('');
     t_arquivo.Add(Format('            if (%sExistente == null)', [t_nome_singular_snk_classe]));
     t_arquivo.Add('            {');
-    t_arquivo.Add(Format('                _mediator.RaiseEvent(new DomainNotification(request.MessageType, "Este %s não existe"));', [LowerCase(t_nome_singular_classe)]));
+    t_arquivo.Add(Format('                _mediator.RaiseEvent(new DomainNotification(request.MessageType, "Este %s não existe"));', [t_nome_exibicao_classe]));
     t_arquivo.Add('                return Task.FromResult(false);');
     t_arquivo.Add('            }');
     t_arquivo.Add('            else');

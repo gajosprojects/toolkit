@@ -47,6 +47,7 @@ begin
     t_arquivo.Add('using System;');
     t_arquivo.Add('using System.Collections.Generic;');
     t_arquivo.Add('using ERP.Domain.Core.Models;');
+    t_arquivo.Add('using ERP.Gerencial.Domain.Usuarios;');
     t_arquivo.Add('using FluentValidation;');
     t_arquivo.Add('');
     t_arquivo.Add(Format('namespace ERP.%s.Domain.%s', [pEntidade.NomeModulo, pEntidade.NomeClassePlural]));
@@ -63,6 +64,7 @@ begin
       t_arquivo.Add(Format('        public %s %s { get; private set; }', [t_tipo_atributo, t_nome_atributo]));
     end;
 
+    t_arquivo.Add('        public virtual Usuario Usuario { get; private set; }');
     t_arquivo.Add('');
     t_arquivo.Add(Format('        private %s() { }', [pEntidade.NomeClasseSingular]));
     t_arquivo.Add('');
