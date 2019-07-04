@@ -3,173 +3,187 @@ unit domain_entity_generator;
 interface
 
 uses
-  uEntidadeDTO;
+  uEntidadeDTO, uArquivoDTO;
 
 type
   TDomainEntityGenerator = class
 
+  private
+    function getFileName(const pEntidade: TEntidadeDTO): string;
+    function getFileDirectory(const pEntidade: TEntidadeDTO): string;
+    function getFileContent(const pEntidade: TEntidadeDTO): WideString;
+
   public
-    procedure generate(var pEntidade: TEntidadeDTO);
+    function getFile(const pEntidade: TEntidadeDTO): TArquivoDTO;
 
   end;
 
 implementation
 
 uses
-  System.Classes, System.SysUtils;
+  System.Classes, System.Contnrs, System.SysUtils, uAtributoDTO;
 
 { TDomainEntityGenerator }
 
-procedure TDomainEntityGenerator.generate(var pEntidade: TEntidadeDTO);
+function TDomainEntityGenerator.getFileContent(const pEntidade: TEntidadeDTO): WideString;
 var
-  t_arquivo: TStringList;
-  t_aux: Integer;
-  t_nome_atributo: string;
-  t_nome_snk_atributo: string;
-  t_tipo_atributo: string;
-  t_nome_exibicao_atributo: string;
-  t_validacao_atributo: TStringList;
-  t_atributo_aux: string;
-  t_parametros_construtor: string;
-  t_corpo_construtor: TStringList;
-  t_diretorio: string;
-  t_nome_snk_entidade: string;
+  t_Arquivo: TStringList;
+  t_Aux: Integer;
+  t_NomeAtributo: string;
+  t_NomeSnkAtributo: string;
+  t_TipoAtributo: string;
+  t_NomeExibicaoAtributo: string;
+  t_ValidacaoAtributo: TStringList;
+  t_AtributoAux: string;
+  t_ParametrosConstrutor: string;
+  t_CorpoConstrutor: TStringList;
+  t_CorpoConstrutorAux: string;
+  t_Diretorio: string;
+  t_NomeSnkEntidade: string;
+  t_AtributoDTO: TAtributoDTO;
 begin
   try
-    t_diretorio := EmptyStr;
+    t_Diretorio := EmptyStr;
 
-    t_arquivo := TStringList.Create();
+    t_NomeSnkEntidade := LowerCase(Copy(pEntidade.NomeClasseSingular, 1, 1)) + Copy(pEntidade.NomeClasseSingular, 2, Length(pEntidade.NomeClasseSingular));
 
-    t_arquivo.Add('using System;');
-    t_arquivo.Add('using System.Collections.Generic;');
-    t_arquivo.Add('using ERP.Domain.Core.Models;');
-    t_arquivo.Add('using FluentValidation;');
-    t_arquivo.Add('');
-    t_arquivo.Add(Format('namespace ERP.%s.Domain.%s', [pEntidade.NomeModulo, pEntidade.NomeClassePlural]));
-    t_arquivo.Add('{');
-    t_arquivo.Add(Format('    public class %s : Entity<%s>', [pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular]));
-    t_arquivo.Add('    {');
+    t_Arquivo := TStringList.Create();
 
-    for t_aux := 0 to pEntidade.Atributos.Count - 1 do
+    t_Arquivo.Add('using System;');
+    t_Arquivo.Add('using System.Collections.Generic;');
+    t_Arquivo.Add('using ERP.Domain.Core.Models;');
+    t_Arquivo.Add('using ERP.Gerencial.Domain.Usuarios;');
+    t_Arquivo.Add('using FluentValidation;');
+    t_Arquivo.Add('');
+    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s', [pEntidade.NomeModulo, pEntidade.NomeClassePlural]));
+    t_Arquivo.Add('{');
+    t_Arquivo.Add(Format('    public class %s : Entity<%s>', [pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular]));
+    t_Arquivo.Add('    {');
+
+    for t_Aux := 0 to pEntidade.Atributos.Count - 1 do
     begin
-      t_nome_atributo := pEntidade.Atributos.Items[t_aux].Nome;
-      t_tipo_atributo := pEntidade.Atributos.Items[t_aux].Tipo;
+      t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
+      t_NomeAtributo := t_AtributoDTO.Nome;
+      t_TipoAtributo := t_AtributoDTO.Tipo;
 
-      t_arquivo.Add(Format('        public %s %s { get; private set; }', [t_tipo_atributo, t_nome_atributo]));
+      t_Arquivo.Add(Format('        public %s %s { get; private set; }', [t_TipoAtributo, t_NomeAtributo]));
     end;
 
-    t_arquivo.Add('');
-    t_arquivo.Add(Format('        private %s() { }', [pEntidade.NomeClasseSingular]));
-    t_arquivo.Add('');
-    t_arquivo.Add('        public override bool IsValid()');
-    t_arquivo.Add('        {');
+    t_Arquivo.Add('        public virtual Usuario Usuario { get; private set; }');
+    t_Arquivo.Add('');
+    t_Arquivo.Add(Format('        private %s() { }', [pEntidade.NomeClasseSingular]));
+    t_Arquivo.Add('');
+    t_Arquivo.Add('        public override bool IsValid()');
+    t_Arquivo.Add('        {');
 
-    for t_aux := 0 to pEntidade.Atributos.Count - 1 do
+    for t_Aux := 0 to pEntidade.Atributos.Count - 1 do
     begin
-      t_nome_atributo          := pEntidade.Atributos.Items[t_aux].Nome;
-      t_nome_exibicao_atributo := pEntidade.Atributos.Items[t_aux].NomeExibicao;
+      t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
+      t_NomeAtributo := t_AtributoDTO.Nome;
+      t_NomeExibicaoAtributo := t_AtributoDTO.NomeExibicao;
 
       try
-        t_validacao_atributo := TStringList.Create();
+        t_ValidacaoAtributo := TStringList.Create();
 
-        t_validacao_atributo.Add(Format('            RuleFor(%s => %s.%s)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular), t_nome_atributo]));
+        t_ValidacaoAtributo.Add(Format('            RuleFor(%s => %s.%s)', [t_NomeSnkEntidade, t_NomeSnkEntidade, t_NomeAtributo]));
 
-        if (pEntidade.Atributos.Items[t_aux].Requerido) then
+        if (t_AtributoDTO.Requerido) then
         begin
-          t_validacao_atributo.Add(Format('                .NotEmpty().WithMessage("%s obrigatório(a)"))', [t_nome_exibicao_atributo]));
+          t_ValidacaoAtributo.Add(Format('                .NotEmpty().WithMessage("%s obrigatório(a)")', [t_NomeExibicaoAtributo]));
         end;
 
-  //      if (False) then
-  //      begin
-  //        t_validacao_atributo.Add(Format('                .MinimumLength(1).WithMessage("Tamanho mínimo requerido de 1 caracter")', []));
-  //        t_validacao_atributo.Add(Format('                .MaximumLength(255).WithMessage("Limite máximo de 255 caracteres atingido");', []));
-  //      end;
+        //if (False) then
+        //begin
+        //  t_ValidacaoAtributo.Add(Format('                .MinimumLength(1).WithMessage("Tamanho mínimo requerido de 1 caracter")', []));
+        //  t_ValidacaoAtributo.Add(Format('                .MaximumLength(255).WithMessage("Limite máximo de 255 caracteres atingido");', []));
+        //end;
 
-        if (t_validacao_atributo.Count > 1) then
+        if (t_ValidacaoAtributo.Count > 1) then
         begin
-          t_atributo_aux := t_validacao_atributo.Text;
-          //remover quebra de linha no final do stringlist
-          Delete(t_atributo_aux, Length(t_atributo_aux) - 1, 2);
-          t_arquivo.Add(t_atributo_aux + ';');
-//          t_arquivo.Add(t_validacao_atributo.Text + ';');
+          t_AtributoAux := t_ValidacaoAtributo.Text;
+          Delete(t_AtributoAux, Length(t_AtributoAux) - 1, 2);
+          t_Arquivo.Add(t_AtributoAux + ';');
         end;
       finally
-        FreeAndNil(t_validacao_atributo);
+        FreeAndNil(t_ValidacaoAtributo);
       end;
     end;
 
-    t_arquivo.Add('');
-    t_arquivo.Add('            ValidationResult = Validate(this);');
-    t_arquivo.Add('            return ValidationResult.IsValid;');
-    t_arquivo.Add('        }');
-    t_arquivo.Add('');
-    t_arquivo.Add(Format('        public static class %sFactory', [pEntidade.NomeClasseSingular]));
-    t_arquivo.Add('        {');
+    t_Arquivo.Add('');
+    t_Arquivo.Add('            ValidationResult = Validate(this);');
+    t_Arquivo.Add('            return ValidationResult.IsValid;');
+    t_Arquivo.Add('        }');
+    t_Arquivo.Add('');
+    t_Arquivo.Add(Format('        public static class %sFactory', [pEntidade.NomeClasseSingular]));
+    t_Arquivo.Add('        {');
 
-    //construtor
     try
-      t_parametros_construtor := EmptyStr;
-      t_corpo_construtor := TStringList.Create();
+      t_ParametrosConstrutor := EmptyStr;
+      t_CorpoConstrutor := TStringList.Create();
 
-      t_parametros_construtor := Format('Guid id', [t_tipo_atributo, t_nome_snk_atributo]);
-      t_corpo_construtor.Add(Format('                    Id = id,', [t_nome_atributo, t_nome_snk_atributo]));
+      t_ParametrosConstrutor := 'Guid id';
+      t_CorpoConstrutor.Add('                    Id = id,');
 
-      for t_aux := 0 to pEntidade.Atributos.Count - 1 do
+      for t_Aux := 0 to pEntidade.Atributos.Count - 1 do
       begin
-        t_nome_atributo := pEntidade.Atributos.Items[t_aux].Nome;
-        t_nome_snk_atributo := LowerCase(Copy(t_nome_atributo, 1, 1)) + Copy(t_nome_atributo, 2, Length(t_nome_atributo));
+        t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
+	      t_NomeAtributo := t_AtributoDTO.Nome;
+        t_NomeSnkAtributo := LowerCase(Copy(t_NomeAtributo, 1, 1)) + Copy(t_NomeAtributo, 2, Length(t_NomeAtributo));
+        t_TipoAtributo := t_AtributoDTO.Tipo;
 
-        t_tipo_atributo := pEntidade.Atributos.Items[t_aux].Tipo;
+        t_ParametrosConstrutor := t_ParametrosConstrutor + Format(', %s %s', [t_TipoAtributo, t_NomeSnkAtributo]);
 
-        t_parametros_construtor := t_parametros_construtor + Format(', %s %s', [t_tipo_atributo, t_nome_snk_atributo]);
-
-        if (t_aux < pEntidade.Atributos.Count - 1) then
-        begin
-          t_corpo_construtor.Add(Format('                    %s = %s,', [t_nome_atributo, t_nome_snk_atributo]));
-        end
-        else
-        begin
-          t_corpo_construtor.Add(Format('                    %s = %s', [t_nome_atributo, t_nome_snk_atributo]));
-        end;
+        t_CorpoConstrutor.Add(Format('                    %s = %s,', [t_NomeAtributo, t_NomeSnkAtributo]));
       end;
 
-      t_nome_snk_entidade := LowerCase(Copy(pEntidade.NomeClasseSingular, 1, 1)) + Copy(pEntidade.NomeClasseSingular, 2, Length(pEntidade.NomeClasseSingular));
+      t_ParametrosConstrutor := t_ParametrosConstrutor + ', DateTime dataCadastro, DateTime dataUltimaAtualizacao, Guid usuarioId';
 
-      t_arquivo.Add(Format('            public static %s New%s(%s)', [pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular, t_parametros_construtor]));
-      t_arquivo.Add('            {');
-      t_arquivo.Add(Format('                var %s = new %s()', [t_nome_snk_entidade, pEntidade.NomeClasseSingular]));
-      t_arquivo.Add('                {');
-      t_arquivo.Add(Format('%s', [t_corpo_construtor.Text]));
-      t_arquivo.Add('                };');
-      t_arquivo.Add('');
-      t_arquivo.Add(Format('                return %s;', [t_nome_snk_entidade]));
-      t_arquivo.Add('            }');
+      t_CorpoConstrutor.Add('                    DataCadastro = dataCadastro,');
+      t_CorpoConstrutor.Add('                    DataUltimaAtualizacao = dataUltimaAtualizacao,');
+      t_CorpoConstrutor.Add('                    UsuarioId = usuarioId');
+
+      t_CorpoConstrutorAux := t_CorpoConstrutor.Text;
+      Delete(t_CorpoConstrutorAux, Length(t_CorpoConstrutorAux) - 1, 2);
     finally
-      FreeAndNil(t_corpo_construtor);
+      FreeAndNil(t_CorpoConstrutor);
     end;
 
-    t_arquivo.Add('        }');
-    t_arquivo.Add('    }');
-    t_arquivo.Add('}');
+    t_Arquivo.Add(Format('            public static %s New%s(%s)', [pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular, t_ParametrosConstrutor]));
+    t_Arquivo.Add('            {');
+    t_Arquivo.Add(Format('                var %s = new %s()', [t_NomeSnkEntidade, pEntidade.NomeClasseSingular]));
+    t_Arquivo.Add('                {');
+    t_Arquivo.Add(Format('%s', [t_CorpoConstrutorAux]));
+    t_Arquivo.Add('                };');
+    t_Arquivo.Add('');
+    t_Arquivo.Add(Format('                return %s;', [t_NomeSnkEntidade]));
+    t_Arquivo.Add('            }');
+    t_Arquivo.Add('        }');
+    t_Arquivo.Add('    }');
+    t_Arquivo.Add('}');
 
-    t_diretorio := GetCurrentDir() + Format('\ERP.%s.Domain', [pEntidade.NomeModulo]);
-
-    if (not DirectoryExists(t_diretorio)) then
-    begin
-      ForceDirectories(t_diretorio);
-    end;
-
-    t_diretorio := Format('%s\%s', [t_diretorio, pEntidade.NomeClassePlural]);
-
-    if (not DirectoryExists(t_diretorio)) then
-    begin
-      ForceDirectories(t_diretorio);
-    end;
-
-    t_arquivo.SaveToFile(Format('%s\%s.cs', [t_diretorio, pEntidade.NomeClasseSingular]));
+    Result := t_Arquivo.Text;
   finally
-    FreeAndNil(t_arquivo);
+    FreeAndNil(t_Arquivo);
   end;
+end;
+
+function TDomainEntityGenerator.getFileDirectory(const pEntidade: TEntidadeDTO): string;
+begin
+  Result := Format('ERP.%s.Domain\%s\', [pEntidade.NomeModulo, pEntidade.NomeClassePlural]);
+end;
+
+function TDomainEntityGenerator.getFileName(const pEntidade: TEntidadeDTO): string;
+begin
+  Result := Format('%s.cs', [pEntidade.NomeClasseSingular]);
+end;
+
+function TDomainEntityGenerator.getFile(const pEntidade: TEntidadeDTO): TArquivoDTO;
+begin
+  Result := TArquivoDTO.Create();
+
+  Result.Diretorio := getFileDirectory(pEntidade);
+  Result.Nome      := getFileName(pEntidade);
+  Result.Conteudo  := getFileContent(pEntidade);
 end;
 
 end.

@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Menus, Vcl.ExtCtrls,
-  dxGDIPlusClasses;
+  dxGDIPlusClasses, Vcl.ComCtrls;
 
 type
   TNotifyEventWrapper = class(TComponent)
@@ -19,18 +19,27 @@ end;
 
 type
   TMainForm = class(TForm)
-    imgMarcaDagua: TImage;
+    StatusBar1: TStatusBar;
 
   private
     { Private declarations }
     FMainMenu: TMainMenu;
     FFrame: TFrame;
 
+    FStatusBar: TStatusBar;
+    FProgressBar: TProgressBar;
+
+    FPanelProgressBarIndex: Integer;
+
     function AnonimousProcedureToNotifyEvent(pOwner: TComponent; pProcedure: TProc<TObject>): TNotifyEvent;
     function CreateMenu(p_Caption: string; p_Procedure: TProc<TObject>): TMenuItem;
     function CreateSubMenu(p_MenuOwner: TMenuItem; p_Caption: string; p_Procedure: TProc<TObject>): TMenuItem;
 
+    procedure CreateStatusBarColumns();
     procedure CreateMenuGenerator();
+
+    procedure ConfigureProgressBar();
+    procedure StatusBarDrawPanel(StatusBar: TStatusBar; Panel: TStatusPanel; const Rect: TRect);
 
   public
     { Public declarations }
@@ -76,6 +85,9 @@ begin
 
   FMainMenu := TMainMenu.Create(Self);
 
+  FStatusBar := TStatusBar.Create(Self);
+  FProgressBar := TProgressBar.Create(Self);
+
   MainForm.InicializeComponents();
 end;
 
@@ -86,6 +98,31 @@ begin
 
   if Assigned(p_Procedure) then
     Result.OnClick := AnonimousProcedureToNotifyEvent(Result, p_Procedure);
+end;
+
+procedure TMainForm.CreateStatusBarColumns();
+var
+  t_StatusPanel: TStatusPanel;
+begin
+  Self.Caption := '';
+
+  FStatusBar.Align := alBottom;
+  FStatusBar.Parent := MainForm;
+  FStatusBar.OnDrawPanel := StatusBarDrawPanel;
+
+  t_StatusPanel := FStatusBar.Panels.Add();
+  t_StatusPanel.Text := ' ' + FormatDateTime('dddd", "dd" de "mmmm" de "yyyy', Now);
+  t_StatusPanel.Width := 200;
+
+  t_StatusPanel := FStatusBar.Panels.Add();
+  t_StatusPanel.Width := 624;
+
+  t_StatusPanel := FStatusBar.Panels.Add();
+  t_StatusPanel.Width := 200;
+  t_StatusPanel.Style := psOwnerDraw;
+
+  ConfigureProgressBar();
+  FPanelProgressBarIndex := t_StatusPanel.Index;
 end;
 
 function TMainForm.CreateSubMenu(p_MenuOwner: TMenuItem; p_Caption: string; p_Procedure: TProc<TObject>): TMenuItem;
@@ -117,26 +154,63 @@ begin
                                                            FFrame        := TDotNetGeneratorSourceCodeFrame.Create(nil);
                                                            FFrame.Align  := alClient;
                                                            FFrame.Parent := MainForm;
-                                                           FFrame.Show();
+                                                           TDotNetGeneratorSourceCodeFrame(FFrame).ExibirFrame(FProgressBar);
                                                            MainForm.Caption := 'Gajos Project - Tookit - .NET Source Generator';
                                                          end);
 
   t_Menu.Add(t_SubMenu);
 end;
 
+procedure TMainForm.ConfigureProgressBar();
+var
+  t_ProgressBarStyle: Integer;
+begin
+  FProgressBar.Parent := FStatusBar;
+
+  t_ProgressBarStyle := GetWindowLong(FProgressBar.Handle, GWL_EXSTYLE);
+  t_ProgressBarStyle := t_ProgressBarStyle - WS_EX_STATICEDGE;
+
+  SetWindowLong(FProgressBar.Handle, GWL_EXSTYLE, t_ProgressBarStyle);
+end;
+
 destructor TMainForm.Destroy();
 begin
   if Assigned(FFrame) then
     FreeAndNil(FFrame);
+
+  if Assigned(FProgressBar) then
+    FreeAndNil(FProgressBar);
+
+  if Assigned(FStatusBar) then
+    FreeAndNil(FStatusBar);
+
+  if Assigned(FMainMenu) then
+    FreeAndNil(FMainMenu);
 end;
 
 procedure TMainForm.InicializeComponents();
 begin
   Self.Caption := '';
 
+  FProgressBar.Visible := True;
+
+  CreateStatusBarColumns();
   CreateMenuGenerator();
 
   MainForm.Caption := 'Gajos Project - Tookit';
+end;
+
+procedure TMainForm.StatusBarDrawPanel(StatusBar: TStatusBar; Panel: TStatusPanel; const Rect: TRect);
+begin
+  if (Panel = StatusBar.Panels[FPanelProgressBarIndex]) then
+  begin
+    FProgressBar.Top    := Rect.Top;
+    FProgressBar.Left   := Rect.Left + 2;
+    FProgressBar.Width  := (Rect.Right - Rect.Left - 4);
+    FProgressBar.Height := (Rect.Bottom - Rect.Top);
+
+    FProgressBar.PaintTo(FStatusBar.Canvas.Handle, Rect.Left, Rect.Top);
+  end;
 end;
 
 end.

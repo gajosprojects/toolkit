@@ -3,13 +3,18 @@ unit infra_data_repository_generator;
 interface
 
 uses
-  uEntidadeDTO;
+  uEntidadeDTO, uArquivoDTO;
 
 type
   TInfraDataRepositoryGenerator = class
 
+  private
+    function getFileName(const pEntidade: TEntidadeDTO): string;
+    function getFileDirectory(const pEntidade: TEntidadeDTO): string;
+    function getFileContent(const pEntidade: TEntidadeDTO): WideString;
+
   public
-    procedure generate(var pEntidade: TEntidadeDTO);
+    function getFile(const pEntidade: TEntidadeDTO): TArquivoDTO;
 
   end;
 
@@ -20,55 +25,66 @@ uses
 
 { TInfraDataRepositoryGenerator }
 
-procedure TInfraDataRepositoryGenerator.generate(var pEntidade: TEntidadeDTO);
-var
-  t_arquivo: TStringList;
-  t_nome_singular_classe: string;
-  t_nome_plural_classe: string;
-  t_nome_singular_snk_classe: string;
-  t_diretorio: string;
+{ TInfraDataRepositoryGenerator }
+
+function TInfraDataRepositoryGenerator.getFile(const pEntidade: TEntidadeDTO): TArquivoDTO;
 begin
+  Result := TArquivoDTO.Create();
+
+  Result.Diretorio := getFileDirectory(pEntidade);
+  Result.Nome      := getFileName(pEntidade);
+  Result.Conteudo  := getFileContent(pEntidade);
+end;
+
+function TInfraDataRepositoryGenerator.getFileContent(const pEntidade: TEntidadeDTO): WideString;
+var
+  t_Arquivo: TStringList;
+  t_NomeSingularClasse: string;
+  t_NomePluralClasse: string;
+  t_NomeSingularSnkClasse: string;
+begin
+  t_Arquivo := TStringList.Create();
+
   try
-    t_diretorio := EmptyStr;
+    t_NomeSingularClasse := pEntidade.nomeClasseSingular;
+    t_NomePluralClasse := pEntidade.nomeClassePlural;
+    t_NomeSingularSnkClasse := LowerCase(Copy(t_NomeSingularClasse, 1, 1)) + Copy(t_NomeSingularClasse, 2, Length(t_NomeSingularClasse));
 
-    t_nome_singular_classe := pEntidade.nomeClasseSingular;
-    t_nome_plural_classe := pEntidade.nomeClassePlural;
-    t_nome_singular_snk_classe := LowerCase(Copy(t_nome_singular_classe, 1, 1)) + Copy(t_nome_singular_classe, 2, Length(t_nome_singular_classe));
+    t_Arquivo.Add(Format('using ERP.%s.Domain.%s;', [pEntidade.NomeModulo, t_NomePluralClasse]));
+    t_Arquivo.Add(Format('using ERP.%s.Domain.%s.Repositories;', [pEntidade.NomeModulo, t_NomePluralClasse]));
+    t_Arquivo.Add('using ERP.Infra.Data.Context;');
+    t_Arquivo.Add('');
+    t_Arquivo.Add(Format('namespace ERP.Infra.Data.Repositories.%s', [pEntidade.NomeModulo]));
+    t_Arquivo.Add('{');
+    t_Arquivo.Add(Format('    public class %sRepository : Repository<%s>, I%sRepository', [t_NomePluralClasse, t_NomeSingularClasse, t_NomePluralClasse]));
+    t_Arquivo.Add('    {');
+    t_Arquivo.Add(Format('        public %sRepository(%sContext db) : base(db)', [t_NomePluralClasse, t_NomePluralClasse]));
+    t_Arquivo.Add('        {');
+    t_Arquivo.Add('        }');
+//    t_Arquivo.Add('');
+//    t_Arquivo.Add(Format('        public override void Delete(%s obj)', [t_NomeSingularClasse]));
+//    t_Arquivo.Add('        {');
+//    t_Arquivo.Add(Format('            var %s = GetById(obj.Id);', [t_NomeSingularSnkClasse]));
+//    t_Arquivo.Add(Format('            %s.Desativar();', [t_NomeSingularSnkClasse]));
+//    t_Arquivo.Add(Format('            Update(%s);', [t_NomeSingularSnkClasse]));
+//    t_Arquivo.Add('        }');
+    t_Arquivo.Add('    }');
+    t_Arquivo.Add('}');
 
-    t_arquivo := TStringList.Create();
-
-    t_arquivo.Add(Format('using ERP.%s.Domain.%s;', [pEntidade.NomeModulo, t_nome_plural_classe]));
-    t_arquivo.Add(Format('using ERP.%s.Domain.%s.Repositories;', [pEntidade.NomeModulo, t_nome_plural_classe]));
-    t_arquivo.Add('using ERP.Infra.Data.Context;');
-    t_arquivo.Add('');
-    t_arquivo.Add(Format('namespace ERP.Infra.Data.Repositories.%s', [pEntidade.NomeModulo]));
-    t_arquivo.Add('{');
-    t_arquivo.Add(Format('    public class %sRepository : Repository<%s>, I%sRepository', [t_nome_plural_classe, t_nome_singular_classe, t_nome_plural_classe]));
-    t_arquivo.Add('    {');
-    t_arquivo.Add(Format('        public %sRepository(%sContext db) : base(db)', [t_nome_plural_classe, t_nome_plural_classe]));
-    t_arquivo.Add('        {');
-    t_arquivo.Add('        }');
-    t_arquivo.Add('');
-    t_arquivo.Add(Format('        public override void Delete(%s obj)', [t_nome_singular_classe]));
-    t_arquivo.Add('        {');
-    t_arquivo.Add(Format('            var %s = GetById(obj.Id);', [t_nome_singular_snk_classe]));
-    t_arquivo.Add(Format('            %s.Desativar();', [t_nome_singular_snk_classe]));
-    t_arquivo.Add(Format('            Update(%s);', [t_nome_singular_snk_classe]));
-    t_arquivo.Add('        }');
-    t_arquivo.Add('    }');
-    t_arquivo.Add('}');
-
-    t_diretorio := GetCurrentDir() + '\ERP.Infra.Data\Repositories';
-
-    if (not DirectoryExists(t_diretorio)) then
-    begin
-      ForceDirectories(t_diretorio);
-    end;
-
-    t_arquivo.SaveToFile(Format('%s\%sRepository.cs', [t_diretorio, t_nome_plural_classe]));
+    Result := t_Arquivo.Text;
   finally
-    FreeAndNil(t_arquivo);
+    FreeAndNil(t_Arquivo);
   end;
+end;
+
+function TInfraDataRepositoryGenerator.getFileDirectory(const pEntidade: TEntidadeDTO): string;
+begin
+  Result := Format('\ERP.Infra.Data\Repositories\%s', [pEntidade.NomeModulo]);
+end;
+
+function TInfraDataRepositoryGenerator.getFileName(const pEntidade: TEntidadeDTO): string;
+begin
+  Result := Format('%sRepository.cs', [pEntidade.NomeClassePlural]);
 end;
 
 end.
