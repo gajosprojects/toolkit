@@ -160,7 +160,7 @@ end;
 
 function TInfraDataMappingGenerator.getFileDirectory(const pEntidade: TEntidadeDTO): string;
 begin
-  Result := Format('\ERP.Infra.Data\Mappings\%s', [pEntidade.NomeModulo]);
+  Result := Format('\ERP.Infra.Data\Mappings\%s\', [pEntidade.NomeModulo]);
 end;
 
 function TInfraDataMappingGenerator.getFileName(const pEntidade: TEntidadeDTO): string;

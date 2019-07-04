@@ -114,7 +114,7 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
       Top = 18
       Width = 1014
       Height = 693
-      ActivePage = tsPreview
+      ActivePage = tsDadosClasse
       Align = alClient
       TabOrder = 0
       object tsConexao: TTabSheet

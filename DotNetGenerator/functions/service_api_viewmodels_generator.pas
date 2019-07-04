@@ -145,7 +145,7 @@ end;
 
 function TServiceApiViewModelsGenerator.getFileDirectory(const pEntidade: TEntidadeDTO): string;
 begin
-  Result := Format('ERP.Services.API\ViewModels\%s\%s', [pEntidade.NomeModulo, pEntidade.NomeClasseSingular]);
+  Result := Format('ERP.Services.API\ViewModels\%s\%s\', [pEntidade.NomeModulo, pEntidade.NomeClasseSingular]);
 end;
 
 function TServiceApiViewModelsGenerator.getSaveFile(const pEntidade: TEntidadeDTO): TArquivoDTO;

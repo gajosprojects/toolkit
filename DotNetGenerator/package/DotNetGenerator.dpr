@@ -16,9 +16,10 @@ uses
   uMainForm in '..\uMainForm.pas' {MainForm},
   uDotNetGeneratorSourceCodeFrame in '..\uDotNetGeneratorSourceCodeFrame.pas' {DotNetGeneratorSourceCodeFrame: TFrame},
   uMainDataModule in '..\uMainDataModule.pas' {MainDataModule: TDataModule},
-  uConstantes in '..\uConstantes.pas' {$R *.res},
+  uConstantes in '..\uConstantes.pas',
   uSerializadorXML in '..\uSerializadorXML.pas',
-  uArquivoDTO in '..\dtos\uArquivoDTO.pas';
+  uArquivoDTO in '..\dtos\uArquivoDTO.pas',
+  MSXML2_TLB in '..\MSXML2_TLB.pas';
 
 {$R *.res}
 
