@@ -91,6 +91,7 @@ type
   private
     FNextIdAtributo: Integer;
     FUltimoArquivoCarregado: string;
+    FOrigemItemIndex: Integer;
 
     FClientDataSetAtributos: TClientDataSet;
     FDataSourceAtributos: TDataSource;
@@ -192,6 +193,8 @@ begin
   tlAtributos.DataController.ParentField := 'ParentId';
 
   FNextIdAtributo := 1;
+
+  FOrigemItemIndex := cOrigemManual;
 
   cmbOrigemClasseChange(nil);
 end;
@@ -419,6 +422,8 @@ begin
         cmbOrigemClasse.ItemIndex := t_Indice;
         cmbOrigemClasseChange(nil);
 
+        FOrigemItemIndex := cmbOrigemClasse.ItemIndex;
+
         Break;
       end;
     end;
@@ -567,45 +572,52 @@ procedure TDotNetGeneratorSourceCodeFrame.cmbOrigemClasseChange(Sender: TObject)
 var
   t_resposta: Boolean;
 begin
-  edtInstanciaSQLServer.Clear();
-  edtUsuarioSQLServer.Clear();
-  edtSenhaSQLServer.Clear();
-
-  cmbBaseDados.Clear();
-  cmbSchema.Clear();
-  cmbTabelas.Clear();
-
-  cmbBaseDados.Enabled := False;
-  cmbSchema.Enabled    := False;
-  cmbTabelas.Enabled   := False;
-
-//  HabilitarBotaoCarregarXML();
-  HabilitarBotaoConectar();
-  HabilitarBotaoCarregarAtributos();
-
   case cmbOrigemClasse.ItemIndex of
 
     cOrigemManual:
     begin
-      tsConexao.TabVisible      := False;
-      tsInstrucaoSQL.TabVisible := False;
-      tsDadosClasse.TabVisible  := True;
-      tsPreview.TabVisible      := False;
-
-      pgcGenerator.ActivePage := tsDadosClasse;
-
-      edtNomeModulo.Text         := EmptyStr;
-      edtNomeTabela.Text         := EmptyStr;
-      edtNomeClasseSingular.Text := EmptyStr;
-      edtNomeClassePlural.Text   := EmptyStr;
-      edtNomeClasseExibicao.Text := EmptyStr;
+      t_resposta := True;
 
       if (FClientDataSetAtributos.Active) then
       begin
-        FClientDataSetAtributos.EmptyDataSet();
-      end
-      else
+        if (FClientDataSetAtributos.RecordCount > 0) then
+        begin
+          t_resposta := (MessageDlg(Format('Os atributos existentes serão perdidos.%sDeseja continuar?', [sLineBreak]),
+                                  mtWarning, [mbYes,mbNo], 0, mbNo) = mrYes);
+        end;
+      end;
+
+      if t_resposta then
       begin
+        edtInstanciaSQLServer.Clear();
+        edtUsuarioSQLServer.Clear();
+        edtSenhaSQLServer.Clear();
+
+        cmbBaseDados.Clear();
+        cmbSchema.Clear();
+        cmbTabelas.Clear();
+
+        cmbBaseDados.Enabled := False;
+        cmbSchema.Enabled    := False;
+        cmbTabelas.Enabled   := False;
+
+      //  HabilitarBotaoCarregarXML();
+        HabilitarBotaoConectar();
+        HabilitarBotaoCarregarAtributos();
+
+        tsConexao.TabVisible      := False;
+        tsInstrucaoSQL.TabVisible := False;
+        tsDadosClasse.TabVisible  := True;
+        tsPreview.TabVisible      := False;
+
+        pgcGenerator.ActivePage := tsDadosClasse;
+
+        edtNomeModulo.Text         := EmptyStr;
+        edtNomeTabela.Text         := EmptyStr;
+        edtNomeClasseSingular.Text := EmptyStr;
+        edtNomeClassePlural.Text   := EmptyStr;
+        edtNomeClasseExibicao.Text := EmptyStr;
+
         FClientDataSetAtributos.Close();
         FClientDataSetAtributos.FieldDefs.Clear();
         FClientDataSetAtributos.FieldDefs.Add('Id', ftInteger);
@@ -619,32 +631,71 @@ begin
         FClientDataSetAtributos.FieldDefs.Add('Requerido', ftWideString, 1);
         FClientDataSetAtributos.CreateDataSet();
         FClientDataSetAtributos.Open();
-      end;
 
-      //TransformarColunaTipoAtributoEmComboBox();
+        FOrigemItemIndex := cmbOrigemClasse.ItemIndex;
+      end
+      else
+      begin
+        cmbOrigemClasse.OnChange := nil;
+        cmbOrigemClasse.ItemIndex := FOrigemItemIndex;
+        cmbOrigemClasse.OnChange := cmbOrigemClasseChange;
+      end;
     end;
 
     cOrigemTabela:
     begin
-      tsConexao.TabVisible      := True;
-      tsInstrucaoSQL.TabVisible := False;
-      tsDadosClasse.TabVisible  := True;
-      tsPreview.TabVisible      := False;
-
-      pgcGenerator.ActivePage := tsConexao;
-
       t_resposta := True;
 
-      if (FClientDataSetAtributos.RecordCount > 0) then
+      if (FClientDataSetAtributos.Active) then
       begin
-        t_resposta := (MessageDlg(Format('Os atributos existentes serão perdidos.%sDeseja continuar?', [sLineBreak]),
-                                mtWarning, [mbYes,mbNo], 0, mbNo) = mrYes);
+        if (FClientDataSetAtributos.RecordCount > 0) then
+        begin
+          t_resposta := (MessageDlg(Format('Os atributos existentes serão perdidos.%sDeseja continuar?', [sLineBreak]),
+                                  mtWarning, [mbYes,mbNo], 0, mbNo) = mrYes);
+        end;
       end;
 
       if t_resposta then
       begin
+        edtInstanciaSQLServer.Clear();
+        edtUsuarioSQLServer.Clear();
+        edtSenhaSQLServer.Clear();
+
+        cmbBaseDados.Clear();
+        cmbSchema.Clear();
+        cmbTabelas.Clear();
+
+        cmbBaseDados.Enabled := False;
+        cmbSchema.Enabled    := False;
+        cmbTabelas.Enabled   := False;
+
+      //  HabilitarBotaoCarregarXML();
+        HabilitarBotaoConectar();
+        HabilitarBotaoCarregarAtributos();
+
+        tsConexao.TabVisible      := True;
+        tsInstrucaoSQL.TabVisible := False;
+        tsDadosClasse.TabVisible  := True;
+        tsPreview.TabVisible      := False;
+
+        pgcGenerator.ActivePage := tsConexao;
+
+        edtNomeModulo.Text         := EmptyStr;
+        edtNomeTabela.Text         := EmptyStr;
+        edtNomeClasseSingular.Text := EmptyStr;
+        edtNomeClassePlural.Text   := EmptyStr;
+        edtNomeClasseExibicao.Text := EmptyStr;
+
         FClientDataSetAtributos.EmptyDataSet();
         FClientDataSetAtributos.Close();
+
+        FOrigemItemIndex := cmbOrigemClasse.ItemIndex;
+      end
+      else
+      begin
+        cmbOrigemClasse.OnChange := nil;
+        cmbOrigemClasse.ItemIndex := FOrigemItemIndex;
+        cmbOrigemClasse.OnChange := cmbOrigemClasseChange;
       end;
     end;
 

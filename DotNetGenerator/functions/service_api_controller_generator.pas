@@ -136,7 +136,7 @@ end;
 
 function TServiceApiControllerGenerator.getFileDirectory(const pEntidade: TEntidadeDTO): string;
 begin
-  Result := Format('ERP.Services.API\Controllers\%s', [pEntidade.NomeModulo]);
+  Result := Format('ERP.Services.API\Controllers\%s\', [pEntidade.NomeModulo]);
 end;
 
 function TServiceApiControllerGenerator.getFileName(const pEntidade: TEntidadeDTO): string;

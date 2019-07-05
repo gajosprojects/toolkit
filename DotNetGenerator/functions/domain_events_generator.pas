@@ -163,7 +163,7 @@ end;
 
 function TDomainEventsGenerator.getDeleteFileName(const pEntidade: TEntidadeDTO): string;
 begin
-  Result := Format('Delete%sEvent.cs', [pEntidade.NomeClasseSingular]);
+  Result := Format('Deleted%sEvent.cs', [pEntidade.NomeClasseSingular]);
 end;
 
 function TDomainEventsGenerator.getFileDirectory(const pEntidade: TEntidadeDTO): string;
@@ -287,7 +287,7 @@ end;
 
 function TDomainEventsGenerator.getSaveFileName(const pEntidade: TEntidadeDTO): string;
 begin
-  Result := Format('Save%sEvent.cs', [pEntidade.NomeClasseSingular]);
+  Result := Format('Saved%sEvent.cs', [pEntidade.NomeClasseSingular]);
 end;
 
 function TDomainEventsGenerator.getUpdateFileContent(const pEntidade: TEntidadeDTO): WideString;
@@ -357,7 +357,7 @@ end;
 
 function TDomainEventsGenerator.getUpdateFileName(const pEntidade: TEntidadeDTO): string;
 begin
-  Result := Format('Update%sEvent.cs', [pEntidade.NomeClasseSingular]);
+  Result := Format('Updated%sEvent.cs', [pEntidade.NomeClasseSingular]);
 end;
 
 end.
