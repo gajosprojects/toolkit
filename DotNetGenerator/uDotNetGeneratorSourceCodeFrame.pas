@@ -14,9 +14,6 @@ uses
 
 type
   TDotNetGeneratorSourceCodeFrame = class(TFrame)
-    gbxOrigem: TGroupBox;
-    cmbOrigemClasse: TComboBox;
-    btnGerar: TButton;
     gbxGenerator: TGroupBox;
     pgcGenerator: TPageControl;
     tsConexao: TTabSheet;
@@ -52,8 +49,6 @@ type
     tlAtributosChavePrimaria: TcxDBTreeListColumn;
     tlAtributosChaveUnica: TcxDBTreeListColumn;
     tlAtributosRequerido: TcxDBTreeListColumn;
-    btnExportarXML: TButton;
-    btnCarregarXML: TButton;
     gbxNomeTabela: TGroupBox;
     edtNomeTabela: TEdit;
     gbxNomeClasseExibicao: TGroupBox;
@@ -64,14 +59,29 @@ type
     tsPreview: TTabSheet;
     tvArquivos: TTreeView;
     edtConteudo: TMemo;
-    btnPreview: TSpeedButton;
     pnlAtualizarPreview: TPanel;
     btnAtualizar: TButton;
     Splitter: TSplitter;
+    pnlParametros: TPanel;
+    gbxTop: TGroupBox;
+    btnParametros: TSpeedButton;
+    btnCarregarXML: TSpeedButton;
+    btnExportarXML: TSpeedButton;
+    btnPreview: TSpeedButton;
+    btnGerar: TSpeedButton;
+    pnlOrigem: TPanel;
+    gbxOrigem: TGroupBox;
+    pnlDiretorio: TPanel;
+    gbxDiretorioArquivos: TGroupBox;
+    btnSelecionarDiretorioArquivosDotnet: TSpeedButton;
+    edtDiretorioArquivosDotNet: TEdit;
+    cmbOrigemClasse: TComboBox;
+    gbxDiretorioXML: TGroupBox;
+    btnSelecionarDiretorioXML: TSpeedButton;
+    edtDiretorioXML: TEdit;
 
     procedure btnCarregarAtributosClick(Sender: TObject);
     procedure btnConectarSQLServerClick(Sender: TObject);
-    procedure btnGerarClick(Sender: TObject);
     procedure cmbBaseDadosSelect(Sender: TObject);
     procedure cmbOrigemClasseChange(Sender: TObject);
     procedure cmbSchemaSelect(Sender: TObject);
@@ -80,18 +90,25 @@ type
     procedure edtSenhaSQLServerChange(Sender: TObject);
     procedure edtUsuarioSQLServerChange(Sender: TObject);
     procedure tlAtributosNavigatorButtonsButtonClick(Sender: TObject; AButtonIndex: Integer; var ADone: Boolean);
-    procedure btnExportarXMLClick(Sender: TObject);
-    procedure btnCarregarXMLClick(Sender: TObject);
     procedure tvArquivosChange(Sender: TObject; Node: TTreeNode);
     procedure btnPreviewClick(Sender: TObject);
     procedure btnAtualizarClick(Sender: TObject);
     procedure tvArquivosCustomDrawItem(Sender: TCustomTreeView; Node: TTreeNode;
       State: TCustomDrawState; var DefaultDraw: Boolean);
+    procedure btnCarregarXMLClick(Sender: TObject);
+    procedure btnExportarXMLClick(Sender: TObject);
+    procedure btnGerarClick(Sender: TObject);
+    procedure btnParametrosClick(Sender: TObject);
+    procedure btnSelecionarDiretorioXMLClick(Sender: TObject);
+    procedure btnSelecionarDiretorioArquivosDotnetClick(Sender: TObject);
 
   private
     FNextIdAtributo: Integer;
     FUltimoArquivoCarregado: string;
     FOrigemItemIndex: Integer;
+    FDiretorioXML: string;
+    FDiretorioArquivosDotNet: string;
+    FPreviewClicked: Boolean;
 
     FClientDataSetAtributos: TClientDataSet;
     FDataSourceAtributos: TDataSource;
@@ -162,7 +179,7 @@ uses
   infra_data_repository_generator, infra_data_mapping_generator, infra_data_context_generator,
   domain_entity_generator, domain_commands_generator, domain_events_generator, domain_repository_generator,
   System.UITypes, uMainDataModule, uConstantes, cxNavigator, System.IniFiles, uSerializadorXML,
-  System.Contnrs;
+  System.Contnrs, Vcl.FileCtrl;
 
 {$R *.dfm}
 
@@ -196,6 +213,16 @@ begin
 
   FOrigemItemIndex := cOrigemManual;
 
+  FDiretorioXML := GetCurrentDir();
+  edtDiretorioXML.Text := FDiretorioXML;
+
+  FDiretorioArquivosDotNet := GetCurrentDir();
+  edtDiretorioArquivosDotNet.Text := FDiretorioArquivosDotNet;
+
+  FPreviewClicked := False;
+
+  btnParametrosClick(nil);
+
   cmbOrigemClasseChange(nil);
 end;
 
@@ -206,24 +233,24 @@ begin
 end;
 
 procedure TDotNetGeneratorSourceCodeFrame.btnAtualizarClick(Sender: TObject);
-var
-  t_Node: TTreeNode;
-  t_NodeText: string;
+//var
+//  t_Node: TTreeNode;
+//  t_NodeText: string;
 begin
-  t_NodeText := EmptyStr;
+//  t_NodeText := EmptyStr;
 
-  if Assigned(tvArquivos.Selected) then
-  begin
-    t_NodeText := tvArquivos.Selected.Text;
-  end;
+//  if Assigned(tvArquivos.Selected) then
+//  begin
+//    t_NodeText := tvArquivos.Selected.Text;
+//  end;
 
   try
     GerarArquivos();
     PopularTreeViewPreview();
   finally
-    t_Node := RetornarNoPorTexto(tvArquivos.Selected, t_NodeText, False);
+//    t_Node := RetornarNoPorTexto(tvArquivos.Selected, t_NodeText, False);
 
-    t_Node.Selected := True;
+//    t_Node.Selected := True;
   end;
 end;
 
@@ -270,16 +297,22 @@ begin
 //  if (cmbOrigemClasse.ItemIndex <> cOrigemTabela) then
 //  begin
 //    ShowMessage('A origem da entidade deve ser Manual');
-//    cmbOrigemClasse.SetFocus();
+//
+//    if cmbOrigemClasse.CanFocus() then
+//      cmbOrigemClasse.SetFocus();
+//
 //    Exit
 //  end;
 
   t_resposta := True;
 
-  if (FClientDataSetAtributos.RecordCount > 0) then
+  if (FClientDataSetAtributos.Active) then
   begin
-    t_resposta := (MessageDlg(Format('Os atributos existentes serão perdidos.%sDeseja continuar?', [sLineBreak]),
-                              mtWarning, [mbYes,mbNo], 0, mbNo) = mrYes);
+    if (FClientDataSetAtributos.RecordCount > 0) then
+    begin
+      t_resposta := (MessageDlg(Format('Os atributos existentes serão perdidos.%sDeseja continuar?', [sLineBreak]),
+                                mtWarning, [mbYes,mbNo], 0, mbNo) = mrYes);
+    end;
   end;
 
   if t_resposta then
@@ -361,40 +394,97 @@ begin
 
   if IsValidacaoOk() then
   begin
-    GerarArquivos();
-    SalvarArquivos();
-    ShowMessage('Arquivos gerados com sucesso!');
+    if SelectDirectory('Selecione o diretório', 'C:\', FDiretorioArquivosDotNet) then
+    begin
+      GerarArquivos();
+      SalvarArquivos();
+      ShowMessage('Arquivos gerados com sucesso!');
+    end;
   end;
 end;
 
-procedure TDotNetGeneratorSourceCodeFrame.btnPreviewClick(Sender: TObject);
+procedure TDotNetGeneratorSourceCodeFrame.btnParametrosClick(Sender: TObject);
 begin
-  if(btnPreview.AllowAllUp) then
+  if (btnParametros.AllowAllUp) then
   begin
-    btnPreview.AllowAllUp := False;
-    btnPreview.Down := True;
-    btnPreview.Font.Style := [fsStrikeOut];
+    btnParametros.AllowAllUp := False;
+    btnParametros.Down := True;
+    btnParametros.Font.Style := [fsItalic];
   end else
+  begin
+    btnParametros.AllowAllUp := True;
+    btnParametros.Down := False;
+    btnParametros.Font.Style := [];
+  end;
+
+  pnlParametros.Visible := btnParametros.Down;
+end;
+
+procedure TDotNetGeneratorSourceCodeFrame.btnPreviewClick(Sender: TObject);
+var
+  t_PodeContinuar: Boolean;
+begin
+  if (not FPreviewClicked) then
+  begin
+    if (tlAtributos.IsEditing) then
+      tlAtributos.Post();
+
+    t_PodeContinuar := IsValidacaoOk()
+  end
+  else
+    t_PodeContinuar := True;
+
+  if t_PodeContinuar then
+  begin
+    if (not FPreviewClicked) then
+    begin
+      GerarArquivos();
+      PopularTreeViewPreview();
+
+      pgcGenerator.ActivePage := tsPreview;
+      tsPreview.TabVisible := True;
+
+      btnPreview.AllowAllUp := False;
+      btnPreview.Down := True;
+      btnPreview.Font.Style := [fsItalic];
+
+      FPreviewClicked := True;
+    end
+    else
+    begin
+      edtConteudo.Clear();
+      tvArquivos.Items.Clear();
+      tsPreview.TabVisible := False;
+      FListaArquivos.Clear();
+
+      btnPreview.AllowAllUp := True;
+      btnPreview.Down := False;
+      btnPreview.Font.Style := [];
+
+      FPreviewClicked := False;
+    end;
+  end
+  else
   begin
     btnPreview.AllowAllUp := True;
     btnPreview.Down := False;
     btnPreview.Font.Style := [];
   end;
+end;
 
-  if btnPreview.Down then
+procedure TDotNetGeneratorSourceCodeFrame.btnSelecionarDiretorioArquivosDotnetClick(Sender: TObject);
+begin
+  if SelectDirectory('Selecione o diretório', 'C:\', FDiretorioArquivosDotNet) then
   begin
-    GerarArquivos();
-    PopularTreeViewPreview();
+    edtDiretorioArquivosDotNet.Text := FDiretorioArquivosDotNet;
+  end;
+end;
 
-    pgcGenerator.ActivePage := tsPreview;
-    tsPreview.TabVisible := True;
-  end
-  else
+procedure TDotNetGeneratorSourceCodeFrame.btnSelecionarDiretorioXMLClick(Sender: TObject);
+begin
+  if SelectDirectory('Selecione o diretório', 'C:\', FDiretorioXML) then
   begin
-    edtConteudo.Clear();
-    tvArquivos.Items.Clear();
-    tsPreview.TabVisible := False;
-    FListaArquivos.Clear();
+    edtDiretorioXML.Text := FDiretorioXML;
   end;
 end;
 
@@ -428,6 +518,74 @@ begin
       end;
     end;
 
+    edtDiretorioArquivosDotNet.Text := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroDiretorioArquivosDotNet, EmptyStr);
+
+    if (not SameText(edtDiretorioArquivosDotNet.Text, EmptyStr)) then
+    begin
+      FDiretorioArquivosDotNet := edtDiretorioArquivosDotNet.Text;
+    end;
+
+    edtDiretorioXML.Text := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroDiretorioXML, EmptyStr);
+
+    if (not SameText(edtDiretorioXML.Text, EmptyStr)) then
+    begin
+      FDiretorioXML := edtDiretorioXML.Text;
+    end;
+
+    edtInstanciaSQLServer.Text := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroInstancia, EmptyStr);
+    edtUsuarioSQLServer.Text   := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroUsuario, EmptyStr);
+    edtSenhaSQLServer.Text     := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroSenha, EmptyStr);
+
+    if (btnConectarSQLServer.Enabled) then
+    begin
+      btnConectarSQLServerClick(nil);
+
+      t_BaseDadosAux := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroBaseDados, EmptyStr);
+
+      for t_Indice := 0 to cmbBaseDados.Items.Count -1 do
+      begin
+        if SameText(cmbBaseDados.Items[t_Indice], t_BaseDadosAux) then
+        begin
+          cmbBaseDados.ItemIndex := t_Indice;
+          cmbBaseDadosSelect(nil);
+
+          Break;
+        end;
+      end;
+
+      if (cmbSchema.Enabled) then
+      begin
+        t_SchemasAux := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroSchema, EmptyStr);
+
+        for t_Indice := 0 to cmbSchema.Items.Count -1 do
+        begin
+          if SameText(cmbSchema.Items[t_Indice], t_SchemasAux) then
+          begin
+            cmbSchema.ItemIndex := t_Indice;
+            cmbSchemaSelect(nil);
+
+            Break;
+          end;
+        end;
+      end;
+
+      if (cmbTabelas.Enabled) then
+      begin
+        t_TabelassAux := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroTabela, EmptyStr);
+
+        for t_Indice := 0 to cmbTabelas.Items.Count -1 do
+        begin
+          if SameText(cmbTabelas.Items[t_Indice], t_TabelassAux) then
+          begin
+            cmbTabelas.ItemIndex := t_Indice;
+            cmbTabelasSelect(nil);
+
+            Break;
+          end;
+        end;
+      end;
+    end;
+
     case (cmbOrigemClasse.ItemIndex) of
       cOrigemManual:
       begin
@@ -441,59 +599,7 @@ begin
 
       cOrigemTabela:
       begin
-        edtInstanciaSQLServer.Text := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroInstancia, EmptyStr);
-        edtUsuarioSQLServer.Text   := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroUsuario, EmptyStr);
-        edtSenhaSQLServer.Text     := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroSenha, EmptyStr);
-
-        if (btnConectarSQLServer.Enabled) then
-        begin
-          btnConectarSQLServerClick(nil);
-
-          t_BaseDadosAux := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroBaseDados, EmptyStr);
-
-          for t_Indice := 0 to cmbBaseDados.Items.Count -1 do
-          begin
-            if SameText(cmbBaseDados.Items[t_Indice], t_BaseDadosAux) then
-            begin
-              cmbBaseDados.ItemIndex := t_Indice;
-              cmbBaseDadosSelect(nil);
-
-              Break;
-            end;
-          end;
-
-          if (cmbSchema.Enabled) then
-          begin
-            t_SchemasAux := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroSchema, EmptyStr);
-
-            for t_Indice := 0 to cmbSchema.Items.Count -1 do
-            begin
-              if SameText(cmbSchema.Items[t_Indice], t_SchemasAux) then
-              begin
-                cmbSchema.ItemIndex := t_Indice;
-                cmbSchemaSelect(nil);
-
-                Break;
-              end;
-            end;
-          end;
-
-          if (cmbTabelas.Enabled) then
-          begin
-            t_TabelassAux := t_ArquivoIni.ReadString(cModuloDotNetGenerator, cParametroTabela, EmptyStr);
-
-            for t_Indice := 0 to cmbTabelas.Items.Count -1 do
-            begin
-              if SameText(cmbTabelas.Items[t_Indice], t_TabelassAux) then
-              begin
-                cmbTabelas.ItemIndex := t_Indice;
-                cmbTabelasSelect(nil);
-
-                Break;
-              end;
-            end;
-          end;
-        end;
+        //
       end;
     end;
   finally
@@ -589,17 +695,17 @@ begin
 
       if t_resposta then
       begin
-        edtInstanciaSQLServer.Clear();
-        edtUsuarioSQLServer.Clear();
-        edtSenhaSQLServer.Clear();
+//        edtInstanciaSQLServer.Clear();
+//        edtUsuarioSQLServer.Clear();
+//        edtSenhaSQLServer.Clear();
 
-        cmbBaseDados.Clear();
-        cmbSchema.Clear();
-        cmbTabelas.Clear();
+//        cmbBaseDados.Clear();
+//        cmbSchema.Clear();
+//        cmbTabelas.Clear();
 
-        cmbBaseDados.Enabled := False;
-        cmbSchema.Enabled    := False;
-        cmbTabelas.Enabled   := False;
+//        cmbBaseDados.Enabled := False;
+//        cmbSchema.Enabled    := False;
+//        cmbTabelas.Enabled   := False;
 
       //  HabilitarBotaoCarregarXML();
         HabilitarBotaoConectar();
@@ -657,17 +763,17 @@ begin
 
       if t_resposta then
       begin
-        edtInstanciaSQLServer.Clear();
-        edtUsuarioSQLServer.Clear();
-        edtSenhaSQLServer.Clear();
+//        edtInstanciaSQLServer.Clear();
+//        edtUsuarioSQLServer.Clear();
+//        edtSenhaSQLServer.Clear();
 
-        cmbBaseDados.Clear();
-        cmbSchema.Clear();
-        cmbTabelas.Clear();
+//        cmbBaseDados.Clear();
+//        cmbSchema.Clear();
+//        cmbTabelas.Clear();
 
-        cmbBaseDados.Enabled := False;
-        cmbSchema.Enabled    := False;
-        cmbTabelas.Enabled   := False;
+//        cmbBaseDados.Enabled := False;
+//        cmbSchema.Enabled    := False;
+//        cmbTabelas.Enabled   := False;
 
       //  HabilitarBotaoCarregarXML();
         HabilitarBotaoConectar();
@@ -1208,42 +1314,60 @@ begin
   if SameText(Trim(edtNomeModulo.Text), EmptyStr) then
   begin
     ShowMessage('Nome do módulo é obrigatório');
-    edtNomeModulo.SetFocus();
+
+    if edtNomeModulo.CanFocus() then
+      edtNomeModulo.SetFocus();
+
     Exit
   end;
 
   if SameText(Trim(edtNomeTabela.Text), EmptyStr) then
   begin
     ShowMessage('Nome da tabela é obrigatório');
-    edtNomeTabela.SetFocus();
+
+    if edtNomeTabela.CanFocus() then
+      edtNomeTabela.SetFocus();
+
     Exit
   end;
 
   if SameText(Trim(edtNomeClasseSingular.Text), EmptyStr) then
   begin
     ShowMessage('Nome da classe no singular é obrigatório');
-    edtNomeClasseSingular.SetFocus();
+
+    if edtNomeClasseSingular.CanFocus() then
+      edtNomeClasseSingular.SetFocus();
+
     Exit
   end;
 
   if SameText(Trim(edtNomeClassePlural.Text), EmptyStr) then
   begin
     ShowMessage('Nome da classe no plural é obrigatório');
-    edtNomeClassePlural.SetFocus();
+
+    if edtNomeClassePlural.CanFocus() then
+      edtNomeClassePlural.SetFocus();
+
     Exit
   end;
 
   if SameText(Trim(edtNomeClasseExibicao.Text), EmptyStr) then
   begin
     ShowMessage('Nome de exibição da classe é obrigatório');
-    edtNomeClasseExibicao.SetFocus();
+
+    if edtNomeClasseExibicao.CanFocus() then
+      edtNomeClasseExibicao.SetFocus();
+
     Exit
   end;
 
   if (FClientDataSetAtributos.RecordCount = 0) then
   begin
     ShowMessage('Ao menos um atributo é obrigatório');
-    tlAtributos.SetFocus();
+
+    if tlAtributos.CanFocus() then
+      tlAtributos.SetFocus();
+
     Exit
   end;
 
@@ -1283,21 +1407,31 @@ begin
   if (t_Selecionado = 0) then
   begin
     ShowMessage('Ao menos um atributo deve ser selecionado');
-    tlAtributos.SetFocus();
+
+    if tlAtributos.CanFocus() then
+      tlAtributos.SetFocus();
+
     Exit
   end;
 
 //  if (t_Pks = 0) then
 //  begin
 //    ShowMessage('Ao menos um atributo deve ser chave primária');
-//    tlAtributos.SetFocus();
+//
+//    if tlAtributos.CanFocus() then
+//      tlAtributos.SetFocus();
+//
 //    Exit
+//
 //  end;
 
   if (t_TipoNaoInformado > 0) then
   begin
     ShowMessage('Existe(m) atributo(s) sem tipo informado');
-    tlAtributos.SetFocus();
+
+    if tlAtributos.CanFocus() then
+      tlAtributos.SetFocus();
+
     Exit
   end;
 
@@ -1520,6 +1654,8 @@ var
   t_RootNode: TTreeNode;
   t_Node: TTreeNode;
 begin
+  t_RootNode := nil;
+
   tvArquivos.Items.Clear();
 
   for t_Arquivo in FListaArquivos do
@@ -1574,7 +1710,7 @@ begin
         end;
       end;
 
-      t_Node := tvArquivos.Items.AddChildObject(tvArquivos.Selected, t_Arquivo.Nome, t_Arquivo);
+      tvArquivos.Items.AddChildObject(tvArquivos.Selected, t_Arquivo.Nome, t_Arquivo);
     finally
       FreeAndNil(t_Aux);
     end;
@@ -1660,8 +1796,6 @@ end;
 
 function TDotNetGeneratorSourceCodeFrame.RetornarNoPorTexto(pNode: TTreeNode; pTexto:String; pInclusive: Boolean): TTreeNode;
 var
-  t_Indice: Integer;
-  t_TextoNo: string;
   t_TestNode: TTreeNode;
 begin
   Result := nil;
@@ -1733,7 +1867,7 @@ begin
     try
       t_SaveFile.Add(t_Arquivo.Conteudo);
 
-      t_Diretorio := Format('%s\%s', [GetCurrentDir(), t_Arquivo.Diretorio]);
+      t_Diretorio := Format('%s\%s', [FDiretorioArquivosDotNet, t_Arquivo.Diretorio]);
 
       if (not DirectoryExists(t_Diretorio)) then
       begin
@@ -1764,6 +1898,8 @@ begin
     t_ArquivoIni.WriteString(cModuloDotNetGenerator, cParametroSchema, cmbSchema.Text);
     t_ArquivoIni.WriteString(cModuloDotNetGenerator, cParametroTabela, cmbTabelas.Text);
     t_ArquivoIni.WriteString(cModuloDotNetGenerator, cParametroUltimoXMLCarregado, FUltimoArquivoCarregado);
+    t_ArquivoIni.WriteString(cModuloDotNetGenerator, cParametroDiretorioXML, FDiretorioXML);
+    t_ArquivoIni.WriteString(cModuloDotNetGenerator, cParametroDiretorioArquivosDotNet, FDiretorioArquivosDotNet);
   finally
     // Liberar a referência do arquivo da memória
     t_ArquivoIni.Free;

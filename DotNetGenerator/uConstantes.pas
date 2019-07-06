@@ -26,6 +26,8 @@ const
   cParametroSchema = 'Schema';
   cParametroTabela = 'Tabela';
   cParametroUltimoXMLCarregado = 'UltimoXMLCarregado';
+  cParametroDiretorioXML = 'DiretorioXML';
+  cParametroDiretorioArquivosDotNet = 'DiretorioArquivosDotNet';
 
 implementation
 
