@@ -1,4 +1,4 @@
-unit domain_commands_generator;
+Ôªøunit domain_commands_generator;
 
 interface
 
@@ -101,7 +101,7 @@ begin
     t_Arquivo.Add('using System;');
     t_Arquivo.Add('using ERP.Domain.Core.Commands;');
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Commands', [pEntidade.NomeModulo, pEntidade.NomeClassePlural]));
+    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Commands', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]));
     t_Arquivo.Add('{');
     t_Arquivo.Add(Format('    public class Base%sCommand : Command', [pEntidade.NomeClasseSingular]));
     t_Arquivo.Add('    {');
@@ -111,7 +111,7 @@ begin
     for t_Aux := 0 to pEntidade.Atributos.Count - 1 do
     begin
       t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
-      t_NomeAtributo := t_AtributoDTO.Nome;
+      t_NomeAtributo := t_AtributoDTO.NomeAtributo;
       t_TipoAtributo := t_AtributoDTO.Tipo;
 
       t_Arquivo.Add(Format('        public %s %s { get; protected set; }', [t_TipoAtributo, t_NomeAtributo]));
@@ -143,7 +143,7 @@ begin
   try
     t_Arquivo.Add('using System;');
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Commands', [pEntidade.NomeModulo, pEntidade.NomeClassePlural]));
+    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Commands', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]));
     t_Arquivo.Add('{');
     t_Arquivo.Add(Format('    public class Delete%sCommand : Base%sCommand', [pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular]));
     t_Arquivo.Add('    {');
@@ -170,7 +170,7 @@ end;
 
 function TDomainCommandsGenerator.getFileDirectory(const pEntidade: TEntidadeDTO): string;
 begin
-  Result := Format('\ERP.%s.Domain\%s\Commands\', [pEntidade.NomeModulo, pEntidade.NomeClassePlural]);
+  Result := Format('\ERP.%s.Domain\%s\Commands\', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]);
 end;
 
 function TDomainCommandsGenerator.getHandlerFileContent(const pEntidade: TEntidadeDTO): WideString;
@@ -203,15 +203,15 @@ begin
 
     t_Arquivo.Add('using System.Threading;');
     t_Arquivo.Add('using System.Threading.Tasks;');
-    t_Arquivo.Add(Format('using ERP.%s.Domain.%s.Events;', [pEntidade.NomeModulo, t_NomePluralClasse]));
-    t_Arquivo.Add(Format('using ERP.%s.Domain.%s.Repositories;', [pEntidade.NomeModulo, t_NomePluralClasse]));
+    t_Arquivo.Add(Format('using ERP.%s.Domain.%s.Events;', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]));
+    t_Arquivo.Add(Format('using ERP.%s.Domain.%s.Repositories;', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]));
     t_Arquivo.Add('using ERP.Domain.Core.Bus;');
     t_Arquivo.Add('using ERP.Domain.Core.Commands;');
     t_Arquivo.Add('using ERP.Domain.Core.Contracts;');
     t_Arquivo.Add('using ERP.Domain.Core.Notifications;');
     t_Arquivo.Add('using MediatR;');
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Commands', [pEntidade.NomeModulo, t_NomePluralClasse]));
+    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Commands', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]));
     t_Arquivo.Add('{');
     t_Arquivo.Add(Format('    public class %sCommandHandler : CommandHandler, IRequestHandler<Save%sCommand, bool>, IRequestHandler<Update%sCommand, bool>, IRequestHandler<Delete%sCommand, bool>', [t_NomeSingularClasse, t_NomeSingularClasse, t_NomeSingularClasse, t_NomeSingularClasse]));
     t_Arquivo.Add('    {');
@@ -244,7 +244,7 @@ begin
     for t_Aux := 0 to pEntidade.Atributos.Count - 1 do
     begin
       t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
-      t_NomeAtributo := t_AtributoDTO.Nome;
+      t_NomeAtributo := t_AtributoDTO.NomeAtributo;
 
       t_ParametrosNewEntidade := t_ParametrosNewEntidade + Format(', request.%s', [t_NomeAtributo]);
       t_ParametrosUpdateEntidade := t_ParametrosUpdateEntidade + Format(', request.%s', [t_NomeAtributo]);
@@ -259,7 +259,7 @@ begin
     t_ParametrosSavedEntidadeEvent := t_ParametrosSavedEntidadeEvent + Format(', %s.DataCadastro, %s.DataUltimaAtualizacao', [t_NomeSingularSnkClasse, t_NomeSingularSnkClasse]);
     t_ParametrosUpdatedEntidadeEvent := t_ParametrosUpdatedEntidadeEvent + Format(', %s.DataUltimaAtualizacao', [t_NomeSingularSnkClasse]);
 
-    t_Arquivo.Add(Format('            var %s = %s.%sFactory.New%s(%s);', [t_NomeSingularSnkClasse, t_NomeSingularClasse, t_NomeSingularClasse, t_NomeSingularClasse, t_ParametrosNewEntidade, t_ParametrosSavedEntidadeEvent]));
+    t_Arquivo.Add(Format('            var %s = %s.%sFactory.New%s(%s);', [t_NomeSingularSnkClasse, t_NomeSingularClasse, t_NomeSingularClasse, t_NomeSingularClasse, t_ParametrosNewEntidade]));
     t_Arquivo.Add('');
     t_Arquivo.Add(Format('            if (IsValid(%s))', [t_NomeSingularSnkClasse]));
     t_Arquivo.Add('            {');
@@ -284,7 +284,7 @@ begin
     t_Arquivo.Add('');
     t_Arquivo.Add(Format('            if (%sExistente == null)', [t_NomeSingularSnkClasse]));
     t_Arquivo.Add('            {');
-    t_Arquivo.Add(Format('                _mediator.RaiseEvent(new DomainNotification(request.MessageType, "Este %s n„o existe"));', [t_NomeExibicaoClasse]));
+    t_Arquivo.Add(Format('                _mediator.RaiseEvent(new DomainNotification(request.MessageType, "Este %s n√£o existe"));', [t_NomeExibicaoClasse]));
     t_Arquivo.Add('                return Task.FromResult(false);');
     t_Arquivo.Add('            }');
     t_Arquivo.Add('            else');
@@ -315,7 +315,7 @@ begin
     t_Arquivo.Add('');
     t_Arquivo.Add(Format('            if (%sExistente == null)', [t_NomeSingularSnkClasse]));
     t_Arquivo.Add('            {');
-    t_Arquivo.Add(Format('                _mediator.RaiseEvent(new DomainNotification(request.MessageType, "Este %s n„o existe"));', [t_NomeExibicaoClasse]));
+    t_Arquivo.Add(Format('                _mediator.RaiseEvent(new DomainNotification(request.MessageType, "Este %s n√£o existe"));', [t_NomeExibicaoClasse]));
     t_Arquivo.Add('                return Task.FromResult(false);');
     t_Arquivo.Add('            }');
     t_Arquivo.Add('            else');
@@ -362,7 +362,7 @@ begin
   try
     t_Arquivo.Add('using System;');
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Commands', [pEntidade.NomeModulo, pEntidade.NomeClassePlural]));
+    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Commands', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]));
     t_Arquivo.Add('{');
     t_Arquivo.Add(Format('    public class Save%sCommand : Base%sCommand', [pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular]));
     t_Arquivo.Add('    {');
@@ -373,7 +373,7 @@ begin
       for t_Aux := 0 to pEntidade.Atributos.Count - 1 do
       begin
         t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
-        t_NomeAtributo := t_AtributoDTO.Nome;
+        t_NomeAtributo := t_AtributoDTO.NomeAtributo;
         t_NomeSnkAtributo := LowerCase(Copy(t_NomeAtributo, 1, 1)) + Copy(t_NomeAtributo, 2, Length(t_NomeAtributo));
         t_TipoAtributo := t_AtributoDTO.Tipo;
 
@@ -435,7 +435,7 @@ begin
   try
     t_Arquivo.Add('using System;');
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Commands', [pEntidade.NomeModulo, pEntidade.NomeClassePlural]));
+    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Commands', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]));
     t_Arquivo.Add('{');
     t_Arquivo.Add(Format('    public class Update%sCommand : Base%sCommand', [pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular]));
     t_Arquivo.Add('    {');
@@ -450,7 +450,7 @@ begin
       for t_Aux := 0 to pEntidade.Atributos.Count - 1 do
       begin
         t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
-	      t_NomeAtributo := t_AtributoDTO.Nome;
+	      t_NomeAtributo := t_AtributoDTO.NomeAtributo;
         t_NomeSnkAtributo := LowerCase(Copy(t_NomeAtributo, 1, 1)) + Copy(t_NomeAtributo, 2, Length(t_NomeAtributo));
         t_TipoAtributo := t_AtributoDTO.Tipo;
 

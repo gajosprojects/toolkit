@@ -1,4 +1,4 @@
-unit service_api_viewmodels_generator;
+锘縰nit service_api_viewmodels_generator;
 
 interface
 
@@ -48,6 +48,7 @@ begin
 
   try
     t_Arquivo.Add('using ERP.Services.API.ViewModels.Gerencial.Usuario;');
+    //se tiver chave estrangeira, incluir o uses da classe
     t_Arquivo.Add('using System;');
     t_Arquivo.Add('');
     t_Arquivo.Add(Format('namespace ERP.Services.API.ViewModels.%s.%s', [pEntidade.nomeModulo, pEntidade.NomeClasseSingular]));
@@ -62,17 +63,19 @@ begin
     for t_Aux := 0 to pEntidade.Atributos.Count - 1 do
     begin
       t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
-
-      t_Arquivo.Add(Format('        public %s %s { get; set; }', [t_AtributoDTO.Tipo, TAtributoDTO(pEntidade.Atributos.Items[t_Aux]).Nome]));
+      //se for chave estrangeira, incluir o objeto e nao o atributo, igual ao UsuarioViewModel abaixo
+      t_Arquivo.Add(Format('        public %s %s { get; set; }', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo]));
     end;
 
     t_Arquivo.Add('        public DateTime DataCadastro { get; set; }');
     t_Arquivo.Add('        public DateTime DataUltimaAtualizacao { get; set; }');
     t_Arquivo.Add('        public bool Desativado { get; set; }');
+    //se for chave estrangeira, incluir o objeto e nao o atributo, igual ao UsuarioViewModel abaixo
     t_Arquivo.Add('        public UsuarioViewModel Usuario { get; set; }');
     t_Arquivo.Add('');
     t_Arquivo.Add(Format('    public %sViewModel()', [pEntidade.nomeClasseSingular]));
     t_Arquivo.Add('        {');
+    //se for chave estrangeira, incluir o objeto e nao o atributo, igual ao UsuarioViewModel abaixo
     t_Arquivo.Add('            Usuario = new UsuarioViewModel();');
     t_Arquivo.Add('        }');
     t_Arquivo.Add('    }');
@@ -115,10 +118,10 @@ begin
     t_Arquivo.Add('    {');
 
     //atributo identificador
-    t_Arquivo.Add('        [Required(ErrorMessage = "Campo obrigat髍io")]');
+    t_Arquivo.Add('        [Required(ErrorMessage = "Campo obrigat贸rio")]');
     t_Arquivo.Add('        public Guid Id { get; set; }');
     t_Arquivo.Add('');
-    t_Arquivo.Add('        [NotEmptyGuid(ErrorMessage = "Campo obrigat髍io")]');
+    t_Arquivo.Add('        [NotEmptyGuid(ErrorMessage = "Campo obrigat贸rio")]');
     t_Arquivo.Add('        public Guid UsuarioId { get; set; }');
     t_Arquivo.Add('    }');
     t_Arquivo.Add('}');
@@ -190,33 +193,22 @@ begin
       //requerimento de campo
       if (t_AtributoDTO.Requerido) then
       begin
-        t_Arquivo.Add('        [Required(ErrorMessage = "Campo obrigat髍io")]');
+        //se for chave estrangeira utilizar o NotEmptyGuid ao inves do Required
+        t_Arquivo.Add('        [Required(ErrorMessage = "Campo obrigat贸rio")]');
       end;
 
-      //validacao de tamanho de campo
-  //    if (False) then
-  //    begin
-  //      t_Arquivo.Add(Format('        [MinLength(1, ErrorMessage = "Tamanho m韓imo {%s} caracteres")]', [IntToChar(t_AtributoDTO.TamanhoMinimo)]));
-  //      t_Arquivo.Add(Format('        [MaxLength(7, ErrorMessage = "Tamanho m醲imo {%s} caracteres")]', [IntToChar(t_AtributoDTO.TamanhoMaximo)]));
-  //    end;
-
-      t_Arquivo.Add(Format('        public %s %s { get; set; }', [t_AtributoDTO.Tipo, TAtributoDTO(pEntidade.Atributos.Items[t_Aux]).Nome]));
+      t_Arquivo.Add(Format('        public %s %s { get; set; }', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo]));
       t_Arquivo.Add('');
     end;
 
     t_Arquivo.Add('        [Display(Name = "Data cadastro")]');
     t_Arquivo.Add('        public DateTime DataCadastro { get; set; }');
     t_Arquivo.Add('');
-    t_Arquivo.Add('        [Display(Name = "Data 鷏tima atualiza玢o")]');
+    t_Arquivo.Add('        [Display(Name = "Data 煤ltima atualiza莽茫o")]');
     t_Arquivo.Add('        public DateTime DataUltimaAtualizacao { get; set; }');
     t_Arquivo.Add('');
-    t_Arquivo.Add('        [NotEmptyGuid(ErrorMessage = "Campo obrigat髍io")]');
+    t_Arquivo.Add('        [NotEmptyGuid(ErrorMessage = "Campo obrigat贸rio")]');
     t_Arquivo.Add('        public Guid UsuarioId { get; set; }');
-    t_Arquivo.Add('');
-    t_Arquivo.Add(Format('    public Save%sViewModel()', [pEntidade.nomeClasseSingular]));
-    t_Arquivo.Add('        {');
-    t_Arquivo.Add('            Id = Guid.NewGuid();');
-    t_Arquivo.Add('        }');
     t_Arquivo.Add('    }');
     t_Arquivo.Add('}');
 
@@ -273,24 +265,18 @@ begin
       //requerimento de campo
       if (t_AtributoDTO.Requerido) then
       begin
-        t_Arquivo.Add('        [Required(ErrorMessage = "Campo obrigat髍io")]');
+        //se for chave estrangeira utilizar o NotEmptyGuid ao inves do Required
+        t_Arquivo.Add('        [Required(ErrorMessage = "Campo obrigat贸rio")]');
       end;
 
-      //validacao de tamanho de campo
-  //    if (False) then
-  //    begin
-  //      t_Arquivo.Add(Format('        [MinLength(1, ErrorMessage = "Tamanho m韓imo {%s} caracteres")]', [IntToChar(t_AtributoDTO.TamanhoMinimo)]));
-  //      t_Arquivo.Add(Format('        [MaxLength(7, ErrorMessage = "Tamanho m醲imo {%s} caracteres")]', [IntToChar(t_AtributoDTO.TamanhoMaximo)]));
-  //    end;
-
-      t_Arquivo.Add(Format('        public %s %s { get; set; }', [t_AtributoDTO.Tipo, TAtributoDTO(pEntidade.Atributos.Items[t_Aux]).Nome]));
+      t_Arquivo.Add(Format('        public %s %s { get; set; }', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo]));
       t_Arquivo.Add('');
     end;
 
-    t_Arquivo.Add('        [Display(Name = "Data 鷏tima atualiza玢o")]');
+    t_Arquivo.Add('        [Display(Name = "Data 煤ltima atualiza莽茫o")]');
     t_Arquivo.Add('        public DateTime DataUltimaAtualizacao { get; set; }');
     t_Arquivo.Add('');
-    t_Arquivo.Add('        [NotEmptyGuid(ErrorMessage = "Campo obrigat髍io")]');
+    t_Arquivo.Add('        [NotEmptyGuid(ErrorMessage = "Campo obrigat贸rio")]');
     t_Arquivo.Add('        public Guid UsuarioId { get; set; }');
     t_Arquivo.Add('    }');
     t_Arquivo.Add('}');

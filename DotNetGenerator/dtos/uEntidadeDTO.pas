@@ -14,6 +14,7 @@ type
   private
     FNomeModulo: string;
     FNomeTabela: string;
+    FNomeClasseAgregacao: string;
     FNomeClasseSingular: string;
     FNomeClassePlural: string;
     FNomeClasseExibicao: string;
@@ -26,6 +27,7 @@ type
   published
     property NomeModulo: string read FNomeModulo write FNomeModulo;
     property NomeTabela: string read FNomeTabela write FNomeTabela;
+    property NomeClasseAgregacao: string read FNomeClasseAgregacao write FNomeClasseAgregacao;
     property NomeClasseSingular: string read FNomeClasseSingular write FNomeClasseSingular;
     property NomeClassePlural: string read FNomeClassePlural write FNomeClassePlural;
     property NomeClasseExibicao: string read FNomeClasseExibicao write FNomeClasseExibicao;

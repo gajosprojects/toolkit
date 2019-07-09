@@ -163,62 +163,17 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
           Align = alTop
           BevelOuter = bvNone
           TabOrder = 0
-          object gbxNomeEntidade: TGroupBox
-            AlignWithMargins = True
-            Left = 411
-            Top = 3
-            Width = 382
-            Height = 66
-            Align = alClient
-            Caption = 'Nome da Entidade'
-            TabOrder = 2
-            DesignSize = (
-              382
-              66)
-            object lblNomeSingular: TLabel
-              Left = 8
-              Top = 20
-              Width = 38
-              Height = 13
-              Caption = 'Singular'
-            end
-            object lblNomePlural: TLabel
-              Left = 196
-              Top = 20
-              Width = 26
-              Height = 13
-              Caption = 'Plural'
-            end
-            object edtNomeClasseSingular: TEdit
-              Left = 8
-              Top = 37
-              Width = 180
-              Height = 21
-              Anchors = [akLeft, akTop, akRight]
-              TabOrder = 0
-              TextHint = 'Ex: GrupoEmpresarial'
-            end
-            object edtNomeClassePlural: TEdit
-              Left = 196
-              Top = 37
-              Width = 180
-              Height = 21
-              Anchors = [akLeft, akTop, akRight]
-              TabOrder = 1
-              TextHint = 'Ex: GruposEmpresariais'
-            end
-          end
           object gbxModulo: TGroupBox
             AlignWithMargins = True
             Left = 3
             Top = 3
-            Width = 198
+            Width = 327
             Height = 66
             Align = alLeft
             Caption = 'Nome do M'#243'dulo'
             TabOrder = 0
             DesignSize = (
-              198
+              327
               66)
             object lblNomeModulo: TLabel
               Left = 8
@@ -230,7 +185,7 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
             object edtNomeModulo: TEdit
               Left = 8
               Top = 37
-              Width = 180
+              Width = 309
               Height = 21
               Anchors = [akLeft, akTop, akRight]
               TabOrder = 0
@@ -239,15 +194,15 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
           end
           object gbxNomeTabela: TGroupBox
             AlignWithMargins = True
-            Left = 207
+            Left = 670
             Top = 3
-            Width = 198
+            Width = 327
             Height = 66
-            Align = alLeft
+            Align = alClient
             Caption = 'Nome da Tabela'
-            TabOrder = 1
+            TabOrder = 2
             DesignSize = (
-              198
+              327
               66)
             object lblNomeTabela: TLabel
               Left = 8
@@ -259,58 +214,58 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
             object edtNomeTabela: TEdit
               Left = 8
               Top = 37
-              Width = 180
+              Width = 309
               Height = 21
               Anchors = [akLeft, akTop, akRight]
               TabOrder = 0
               TextHint = 'Ex: grupos_empresariais'
             end
           end
-          object gbxNomeClasseExibicao: TGroupBox
+          object gbxNomeClasseAgregadora: TGroupBox
             AlignWithMargins = True
-            Left = 799
+            Left = 336
             Top = 3
-            Width = 198
+            Width = 328
             Height = 66
-            Align = alRight
-            Caption = 'Nome de Exibi'#231#227'o da Entidade'
-            TabOrder = 3
+            Align = alLeft
+            Caption = 'Nome da Entidade Agregadora'
+            TabOrder = 1
             DesignSize = (
-              198
+              328
               66)
-            object lblNomeClasseExibicao: TLabel
+            object lblNomeClasseAgregadora: TLabel
               Left = 8
               Top = 20
-              Width = 38
+              Width = 310
               Height = 13
-              Caption = 'Singular'
+              Caption = 'Plural (deixar em branco se a pr'#243'pria entidade for a agregadora)'
             end
-            object edtNomeClasseExibicao: TEdit
+            object edtNomeClasseAgregadora: TEdit
               Left = 8
               Top = 37
-              Width = 180
+              Width = 308
               Height = 21
               Anchors = [akLeft, akTop, akRight]
               TabOrder = 0
-              TextHint = 'Ex: Grupo Empresarial'
+              TextHint = 'Ex: GruposEmpresariais'
             end
           end
         end
         object gbxAtributos: TGroupBox
           AlignWithMargins = True
           Left = 3
-          Top = 81
+          Top = 159
           Width = 1000
-          Height = 464
+          Height = 386
           Align = alClient
           Caption = 'Atributos'
           TabOrder = 1
           object tlAtributos: TcxDBTreeList
             AlignWithMargins = True
             Left = 5
-            Top = 18
+            Top = 44
             Width = 990
-            Height = 441
+            Height = 337
             Align = alClient
             Bands = <
               item
@@ -337,6 +292,8 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
             Navigator.Buttons.GotoBookmark.Visible = False
             Navigator.Buttons.Filter.Visible = False
             Navigator.Visible = True
+            OptionsBehavior.Sorting = False
+            OptionsCustomizing.ColumnHiding = True
             OptionsData.Inserting = True
             RootValue = -1
             TabOrder = 0
@@ -346,6 +303,7 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
               Properties.ValueUnchecked = 'N'
               Caption.Text = ' '
               DataBinding.FieldName = 'Selecionado'
+              Options.Customizing = False
               Width = 30
               Position.ColIndex = 0
               Position.RowIndex = 0
@@ -353,11 +311,46 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
               Summary.FooterSummaryItems = <>
               Summary.GroupFooterSummaryItems = <>
             end
-            object tlAtributosNome: TcxDBTreeListColumn
-              Caption.AlignHorz = taCenter
-              DataBinding.FieldName = 'Nome'
-              Width = 150
+            object tlAtributosOrdem: TcxDBTreeListColumn
+              DataBinding.FieldName = 'Ordem'
+              Options.Customizing = False
+              Width = 53
               Position.ColIndex = 1
+              Position.RowIndex = 0
+              Position.BandIndex = 0
+              SortOrder = soAscending
+              SortIndex = 1
+              Summary.FooterSummaryItems = <>
+              Summary.GroupFooterSummaryItems = <>
+            end
+            object tlAtributosId: TcxDBTreeListColumn
+              Visible = False
+              DataBinding.FieldName = 'Id'
+              Options.Customizing = False
+              Width = 40
+              Position.ColIndex = 2
+              Position.RowIndex = 0
+              Position.BandIndex = 0
+              Summary.FooterSummaryItems = <>
+              Summary.GroupFooterSummaryItems = <>
+            end
+            object tlAtributosNomeCampo: TcxDBTreeListColumn
+              Caption.AlignHorz = taCenter
+              Caption.Text = 'Nome Campo'
+              DataBinding.FieldName = 'NomeCampo'
+              Width = 150
+              Position.ColIndex = 3
+              Position.RowIndex = 0
+              Position.BandIndex = 0
+              Summary.FooterSummaryItems = <>
+              Summary.GroupFooterSummaryItems = <>
+            end
+            object tlAtributosNomeAtributo: TcxDBTreeListColumn
+              Caption.AlignHorz = taCenter
+              Caption.Text = 'Nome Atributo'
+              DataBinding.FieldName = 'NomeAtributo'
+              Width = 150
+              Position.ColIndex = 4
               Position.RowIndex = 0
               Position.BandIndex = 0
               Summary.FooterSummaryItems = <>
@@ -368,7 +361,7 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
               Caption.Text = 'Nome Exibi'#231#227'o'
               DataBinding.FieldName = 'NomeExibicao'
               Width = 150
-              Position.ColIndex = 2
+              Position.ColIndex = 5
               Position.RowIndex = 0
               Position.BandIndex = 0
               Summary.FooterSummaryItems = <>
@@ -380,10 +373,17 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
                 'byte[]'
                 'byte'
                 'bool'
+                'char'
                 'decimal'
+                'double'
+                'float'
                 'int'
                 'long'
+                'short'
                 'string'
+                'uint'
+                'ulong'
+                'unshort'
                 ''
                 'Boolean'
                 'Byte'
@@ -404,7 +404,7 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
               Caption.AlignHorz = taCenter
               DataBinding.FieldName = 'Tipo'
               Width = 100
-              Position.ColIndex = 3
+              Position.ColIndex = 6
               Position.RowIndex = 0
               Position.BandIndex = 0
               Summary.FooterSummaryItems = <>
@@ -419,7 +419,7 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
               Caption.Text = 'Chave Prim'#225'ria'
               DataBinding.FieldName = 'ChavePrimaria'
               Width = 100
-              Position.ColIndex = 4
+              Position.ColIndex = 7
               Position.RowIndex = 0
               Position.BandIndex = 0
               Summary.FooterSummaryItems = <>
@@ -433,7 +433,7 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
               Caption.Text = 'Chave '#218'nica'
               DataBinding.FieldName = 'ChaveUnica'
               Width = 80
-              Position.ColIndex = 5
+              Position.ColIndex = 8
               Position.RowIndex = 0
               Position.BandIndex = 0
               Summary.FooterSummaryItems = <>
@@ -446,11 +446,193 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
               Caption.AlignHorz = taCenter
               DataBinding.FieldName = 'Requerido'
               Width = 80
-              Position.ColIndex = 6
+              Position.ColIndex = 9
               Position.RowIndex = 0
               Position.BandIndex = 0
               Summary.FooterSummaryItems = <>
               Summary.GroupFooterSummaryItems = <>
+            end
+          end
+          object pnlMoverNos: TPanel
+            Left = 2
+            Top = 15
+            Width = 996
+            Height = 26
+            Align = alTop
+            BevelOuter = bvNone
+            TabOrder = 1
+            object btnMoverParaBaixo: TSpeedButton
+              Left = 107
+              Top = 0
+              Width = 100
+              Height = 25
+              AllowAllUp = True
+              Caption = 'Para Baixo'
+              Glyph.Data = {
+                36040000424D3604000000000000360000002800000010000000100000000100
+                2000000000000004000000000000000000000000000000000000000000000000
+                0000000000000000000000000000000000000000000000000000000000000000
+                0000000000000000000000000000000000000000000000000000000000000000
+                0000000000000505051517171763272727A7343434DC3B3B3BFB343434DC2727
+                27A7171717630505051500000000000000000000000000000000000000000000
+                000010101043292929B03C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C
+                3CFF3C3C3CFF292929B010101043000000000000000000000000000000001010
+                10432F2F2FC93C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C
+                3CFF3C3C3CFF3C3C3CFF2F2F2FC9101010430000000000000000050505152929
+                29B03C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF1E1E1E813C3C3CFF3C3C
+                3CFF3C3C3CFF3C3C3CFF3C3C3CFF292929B00505051500000000171717633C3C
+                3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF1E1E1E81000000001E1E1E7E3C3C
+                3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF1717176300000000272727A73C3C
+                3CFF3C3C3CFF3C3C3CFF3C3C3CFF1E1E1E810000000000000000000000001E1E
+                1E7E3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF272727A700000000343434DC3C3C
+                3CFF3C3C3CFF3C3C3CFF1E1E1E81000000002D2D2DC1000000002D2D2DBF0000
+                00001E1E1E7E3C3C3CFF3C3C3CFF3C3C3CFF343434DC000000003B3B3BFB3C3C
+                3CFF3C3C3CFF3C3C3CFF000000002D2D2DC13C3C3CFF000000003C3C3CFF2D2D
+                2DBF000000003C3C3CFF3C3C3CFF3C3C3CFF3B3B3BFB00000000343434DC3C3C
+                3CFF3C3C3CFF3C3C3CFF2D2D2DC13C3C3CFF3C3C3CFF000000003C3C3CFF3C3C
+                3CFF2D2D2DC13C3C3CFF3C3C3CFF3C3C3CFF343434DC00000000272727A73C3C
+                3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF000000003C3C3CFF3C3C
+                3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF272727A700000000171717633C3C
+                3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF000000003C3C3CFF3C3C
+                3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF1717176300000000050505152929
+                29B03C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF000000003C3C3CFF3C3C
+                3CFF3C3C3CFF3C3C3CFF3C3C3CFF292929B00505051500000000000000001010
+                10432F2F2FC93C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C
+                3CFF3C3C3CFF3C3C3CFF2F2F2FC9101010430000000000000000000000000000
+                000010101043292929B03C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C
+                3CFF3C3C3CFF292929B010101043000000000000000000000000000000000000
+                0000000000000505051517171763272727A7343434DC3B3B3BFB343434DC2727
+                27A7171717630505051500000000000000000000000000000000}
+              OnClick = btnMoverParaBaixoClick
+            end
+            object btnMoverParaCima: TSpeedButton
+              Left = 3
+              Top = 0
+              Width = 100
+              Height = 25
+              AllowAllUp = True
+              GroupIndex = 1
+              Caption = 'Para Cima'
+              Glyph.Data = {
+                36040000424D3604000000000000360000002800000010000000100000000100
+                2000000000000004000000000000000000000000000000000000000000000000
+                0000000000000000000000000000000000000000000000000000000000000000
+                0000000000000000000000000000000000000000000000000000000000000000
+                0000000000000505051517171763272727A7343434DC3B3B3BFB343434DC2727
+                27A7171717630505051500000000000000000000000000000000000000000000
+                000010101043292929B03C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C
+                3CFF3C3C3CFF292929B010101043000000000000000000000000000000001010
+                10432F2F2FC93C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C
+                3CFF3C3C3CFF3C3C3CFF2F2F2FC9101010430000000000000000050505152929
+                29B03C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF000000003C3C3CFF3C3C
+                3CFF3C3C3CFF3C3C3CFF3C3C3CFF292929B00505051500000000171717633C3C
+                3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF000000003C3C3CFF3C3C
+                3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF1717176300000000272727A73C3C
+                3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF000000003C3C3CFF3C3C
+                3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF272727A700000000343434DC3C3C
+                3CFF3C3C3CFF3C3C3CFF2D2D2DC13C3C3CFF3C3C3CFF000000003C3C3CFF3C3C
+                3CFF2D2D2DC13C3C3CFF3C3C3CFF3C3C3CFF343434DC000000003B3B3BFB3C3C
+                3CFF3C3C3CFF3C3C3CFF000000002D2D2DC13C3C3CFF000000003C3C3CFF2D2D
+                2DBF000000003C3C3CFF3C3C3CFF3C3C3CFF3B3B3BFB00000000343434DC3C3C
+                3CFF3C3C3CFF3C3C3CFF1E1E1E81000000002D2D2DC1000000002D2D2DBF0000
+                00001E1E1E7E3C3C3CFF3C3C3CFF3C3C3CFF343434DC00000000272727A73C3C
+                3CFF3C3C3CFF3C3C3CFF3C3C3CFF1E1E1E810000000000000000000000001E1E
+                1E7E3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF272727A700000000171717633C3C
+                3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF1E1E1E81000000001E1E1E7E3C3C
+                3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF1717176300000000050505152929
+                29B03C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF1E1E1E813C3C3CFF3C3C
+                3CFF3C3C3CFF3C3C3CFF3C3C3CFF292929B00505051500000000000000001010
+                10432F2F2FC93C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C
+                3CFF3C3C3CFF3C3C3CFF2F2F2FC9101010430000000000000000000000000000
+                000010101043292929B03C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C
+                3CFF3C3C3CFF292929B010101043000000000000000000000000000000000000
+                0000000000000505051517171763272727A7343434DC3B3B3BFB343434DC2727
+                27A7171717630505051500000000000000000000000000000000}
+              OnClick = btnMoverParaCimaClick
+            end
+          end
+        end
+        object Panel1: TPanel
+          AlignWithMargins = True
+          Left = 3
+          Top = 81
+          Width = 1000
+          Height = 72
+          Align = alTop
+          BevelOuter = bvNone
+          TabOrder = 2
+          object gbxNomeEntidade: TGroupBox
+            AlignWithMargins = True
+            Left = 3
+            Top = 3
+            Width = 661
+            Height = 66
+            Align = alClient
+            Caption = 'Nome da Entidade'
+            TabOrder = 0
+            DesignSize = (
+              661
+              66)
+            object lblNomeSingular: TLabel
+              Left = 8
+              Top = 20
+              Width = 38
+              Height = 13
+              Caption = 'Singular'
+            end
+            object lblNomePlural: TLabel
+              Left = 341
+              Top = 20
+              Width = 26
+              Height = 13
+              Caption = 'Plural'
+            end
+            object edtNomeClasseSingular: TEdit
+              Left = 8
+              Top = 37
+              Width = 309
+              Height = 21
+              Anchors = [akLeft, akTop, akRight]
+              TabOrder = 0
+              TextHint = 'Ex: GrupoEmpresarial'
+            end
+            object edtNomeClassePlural: TEdit
+              Left = 341
+              Top = 37
+              Width = 308
+              Height = 21
+              Anchors = [akLeft, akTop, akRight]
+              TabOrder = 1
+              TextHint = 'Ex: GruposEmpresariais'
+            end
+          end
+          object gbxNomeClasseExibicao: TGroupBox
+            AlignWithMargins = True
+            Left = 670
+            Top = 3
+            Width = 327
+            Height = 66
+            Align = alRight
+            Caption = 'Nome de Exibi'#231#227'o da Entidade'
+            TabOrder = 1
+            DesignSize = (
+              327
+              66)
+            object lblNomeClasseExibicao: TLabel
+              Left = 8
+              Top = 20
+              Width = 38
+              Height = 13
+              Caption = 'Singular'
+            end
+            object edtNomeClasseExibicao: TEdit
+              Left = 8
+              Top = 37
+              Width = 309
+              Height = 21
+              Anchors = [akLeft, akTop, akRight]
+              TabOrder = 0
+              TextHint = 'Ex: Grupo Empresarial'
             end
           end
         end
@@ -692,51 +874,7 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
       Width = 100
       Height = 25
       AllowAllUp = True
-      Caption = 'Carregar XML'
-      Glyph.Data = {
-        36040000424D3604000000000000360000002800000010000000100000000100
-        2000000000000004000000000000000000000000000000000000000000000000
-        0000000000000000000000000000000000000000000000000000000000000000
-        0000000000000000000000000000000000000000000000000000000000000000
-        0000000000000505051517171763272727A7343434DC3B3B3BFB343434DC2727
-        27A7171717630505051500000000000000000000000000000000000000000000
-        000010101043292929B03C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C
-        3CFF3C3C3CFF292929B010101043000000000000000000000000000000001010
-        10432F2F2FC93C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C
-        3CFF3C3C3CFF3C3C3CFF2F2F2FC9101010430000000000000000050505152929
-        29B03C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF000000003C3C3CFF3C3C
-        3CFF3C3C3CFF3C3C3CFF3C3C3CFF292929B00505051500000000171717633C3C
-        3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF000000003C3C3CFF3C3C
-        3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF1717176300000000272727A73C3C
-        3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF000000003C3C3CFF3C3C
-        3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF272727A700000000343434DC3C3C
-        3CFF3C3C3CFF3C3C3CFF2D2D2DC13C3C3CFF3C3C3CFF000000003C3C3CFF3C3C
-        3CFF2D2D2DC13C3C3CFF3C3C3CFF3C3C3CFF343434DC000000003B3B3BFB3C3C
-        3CFF3C3C3CFF3C3C3CFF000000002D2D2DC13C3C3CFF000000003C3C3CFF2D2D
-        2DBF000000003C3C3CFF3C3C3CFF3C3C3CFF3B3B3BFB00000000343434DC3C3C
-        3CFF3C3C3CFF3C3C3CFF1E1E1E81000000002D2D2DC1000000002D2D2DBF0000
-        00001E1E1E7E3C3C3CFF3C3C3CFF3C3C3CFF343434DC00000000272727A73C3C
-        3CFF3C3C3CFF3C3C3CFF3C3C3CFF1E1E1E810000000000000000000000001E1E
-        1E7E3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF272727A700000000171717633C3C
-        3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF1E1E1E81000000001E1E1E7E3C3C
-        3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF1717176300000000050505152929
-        29B03C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF1E1E1E813C3C3CFF3C3C
-        3CFF3C3C3CFF3C3C3CFF3C3C3CFF292929B00505051500000000000000001010
-        10432F2F2FC93C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C
-        3CFF3C3C3CFF3C3C3CFF2F2F2FC9101010430000000000000000000000000000
-        000010101043292929B03C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C
-        3CFF3C3C3CFF292929B010101043000000000000000000000000000000000000
-        0000000000000505051517171763272727A7343434DC3B3B3BFB343434DC2727
-        27A7171717630505051500000000000000000000000000000000}
-      OnClick = btnCarregarXMLClick
-    end
-    object btnExportarXML: TSpeedButton
-      Left = 691
-      Top = 8
-      Width = 100
-      Height = 25
-      AllowAllUp = True
-      Caption = 'Exportar'
+      Caption = 'Carregar'
       Glyph.Data = {
         36040000424D3604000000000000360000002800000010000000100000000100
         2000000000000004000000000000000000000000000000000000000000000000
@@ -772,6 +910,50 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
         3CFF3C3C3CFF3C3C3CFF3C3C3CFF1E1E1E7E0000000000000000000000000000
         000000000000000000003C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C
         3CFF3C3C3CFF3C3C3CFF1E1E1E7E000000000000000000000000}
+      OnClick = btnCarregarXMLClick
+    end
+    object btnExportarXML: TSpeedButton
+      Left = 691
+      Top = 8
+      Width = 100
+      Height = 25
+      AllowAllUp = True
+      Caption = 'Exportar XML'
+      Glyph.Data = {
+        36040000424D3604000000000000360000002800000010000000100000000100
+        2000000000000004000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000000000002B2B
+        2BB73C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C
+        3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF2B2B2BB700000000000000003C3C
+        3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C
+        3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF00000000000000003C3C
+        3CFF3C3C3CFF0000000000000000000000000000000000000000000000000000
+        00000000000000000000000000003C3C3CFF3C3C3CFF00000000000000003C3C
+        3CFF3C3C3CFF0000000000000000000000000000000000000000000000000000
+        00000000000000000000000000003C3C3CFF3C3C3CFF00000000000000003C3C
+        3CFF3C3C3CFF0000000000000000000000000000000000000000000000000000
+        00000000000000000000000000003C3C3CFF3C3C3CFF00000000000000003C3C
+        3CFF3C3C3CFF0000000000000000000000000000000000000000000000000000
+        00000000000000000000000000003C3C3CFF3C3C3CFF00000000000000003C3C
+        3CFF3C3C3CFF0000000000000000000000000000000000000000000000000000
+        00000000000000000000000000003C3C3CFF3C3C3CFF00000000000000003C3C
+        3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C
+        3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF00000000000000003C3C
+        3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C
+        3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF00000000000000003C3C
+        3CFF3C3C3CFF3C3C3CFF00000000000000000000000000000000000000000000
+        000000000000000000003C3C3CFF3C3C3CFF3C3C3CFF00000000000000003C3C
+        3CFF3C3C3CFF3C3C3CFF000000003C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C
+        3CFF3C3C3CFF000000003C3C3CFF3C3C3CFF3C3C3CFF00000000000000003C3C
+        3CFF3C3C3CFF3C3C3CFF000000003C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF0000
+        00003C3C3CFF000000003C3C3CFF3C3C3CFF3C3C3CFF00000000000000003C3C
+        3CFF3C3C3CFF3C3C3CFF000000003C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF0000
+        00003C3C3CFF000000003C3C3CFF3C3C3CFF3C3C3CFF00000000000000002C2C
+        2CBD3C3C3CFF3C3C3CFF000000003C3C3CFF3C3C3CFF3C3C3CFF3C3C3CFF3C3C
+        3CFF3C3C3CFF000000003C3C3CFF3C3C3CFF2C2C2CBD00000000000000000000
+        0000000000000000000000000000000000000000000000000000000000000000
+        0000000000000000000000000000000000000000000000000000}
       OnClick = btnExportarXMLClick
     end
     object btnPreview: TSpeedButton

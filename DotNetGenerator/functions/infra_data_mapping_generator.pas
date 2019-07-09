@@ -50,7 +50,7 @@ begin
   try
     t_Arquivo.Add('');
 
-    t_Arquivo.Add(Format('using ERP.%s.Domain.%s;', [pEntidade.NomeModulo, pEntidade.NomeClassePlural]));
+    t_Arquivo.Add(Format('using ERP.%s.Domain.%s;', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]));
     t_Arquivo.Add('using Microsoft.EntityFrameworkCore;');
     t_Arquivo.Add('using Microsoft.EntityFrameworkCore.Metadata.Builders;');
     t_Arquivo.Add('');
@@ -72,13 +72,13 @@ begin
     for t_Aux := 0 to pEntidade.Atributos.Count - 1 do
     begin
       t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
-      t_NomeAtributo := t_AtributoDTO.Nome;
+      t_NomeAtributo := t_AtributoDTO.NomeAtributo;
 
       try
         t_BuilderAtributo := TStringList.Create();
 
         t_BuilderAtributo.Add(Format('            builder.Property(%s => %s.%s)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular), t_NomeAtributo]));
-        t_BuilderAtributo.Add(Format('                   .HasColumnName("%s")', [LowerCase(t_NomeAtributo)]));
+        t_BuilderAtributo.Add(Format('                   .HasColumnName("%s")', [LowerCase(t_AtributoDTO.NomeCampo)]));
 
         if (t_AtributoDTO.Requerido) then
         begin
@@ -109,7 +109,7 @@ begin
           t_BuilderAtributo.Add('');
           t_BuilderAtributo.Add(Format('            builder.HasIndex(%s => %s.%s)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular), t_NomeAtributo]));
           t_BuilderAtributo.Add('                   .IsUnique()');
-          t_BuilderAtributo.Add(Format('                   .HasName("uk_%s_%s")', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(t_NomeAtributo)]));
+          t_BuilderAtributo.Add(Format('                   .HasName("uk_%s_%s")', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(t_AtributoDTO.NomeCampo)]));
         end;
 
         if (t_BuilderAtributo.Count > 1) then
@@ -125,8 +125,8 @@ begin
       t_Arquivo.Add('');
     end;
 
-    t_Arquivo.Add(Format('            builder.Property(%s => %s.Desativado)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular)]));
-    t_Arquivo.Add('                   .HasColumnName("desativado")');
+    t_Arquivo.Add(Format('            builder.Property(%s => %s.Ativo)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular)]));
+    t_Arquivo.Add('                   .HasColumnName("ativo")');
     t_Arquivo.Add('                   .IsRequired()');
     t_Arquivo.Add('                   .HasDefaultValue(false);');
     t_Arquivo.Add('');
@@ -141,7 +141,7 @@ begin
     t_Arquivo.Add('                .HasColumnName("usuario_id");');
     t_Arquivo.Add('');
     t_Arquivo.Add(Format('            builder.HasOne(%s => %s.Usuario)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular)]));
-    t_Arquivo.Add(Format('                .WithMany(usuario => usuario.GruposEmpresariais)', [pEntidade.NomeClassePlural]));
+    t_Arquivo.Add(Format('                .WithMany(usuario => usuario.%s)', [pEntidade.NomeClassePlural]));
     t_Arquivo.Add(Format('                .HasForeignKey(%s => %s.UsuarioId)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular)]));
     t_Arquivo.Add(Format('                .HasConstraintName("fk_usuario_id_%s")', [LowerCase(pEntidade.NomeClasseSingular)]));
     t_Arquivo.Add('                .OnDelete(DeleteBehavior.Restrict);');

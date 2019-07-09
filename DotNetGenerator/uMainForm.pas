@@ -41,6 +41,9 @@ type
     procedure ConfigureProgressBar();
     procedure StatusBarDrawPanel(StatusBar: TStatusBar; Panel: TStatusPanel; const Rect: TRect);
 
+    function VersaoExe(): String;
+
+
   public
     { Public declarations }
     constructor Create(AOwner: TComponent); override;
@@ -115,7 +118,11 @@ begin
   t_StatusPanel.Width := 200;
 
   t_StatusPanel := FStatusBar.Panels.Add();
-  t_StatusPanel.Width := 624;
+  t_StatusPanel.Text := 'Versão: ' + VersaoExe();
+  t_StatusPanel.Width := 100;
+
+  t_StatusPanel := FStatusBar.Panels.Add();
+  t_StatusPanel.Width := 524;
 
   t_StatusPanel := FStatusBar.Panels.Add();
   t_StatusPanel.Width := 200;
@@ -211,6 +218,46 @@ begin
 
     FProgressBar.PaintTo(FStatusBar.Canvas.Handle, Rect.Left, Rect.Top);
   end;
+end;
+
+function TMainForm.VersaoExe: String;
+type
+   PFFI = ^vs_FixedFileInfo;
+var
+   F       : PFFI;
+   Handle  : Dword;
+   Len     : Longint;
+   Data    : Pchar;
+   Buffer  : Pointer;
+   Tamanho : Dword;
+   Parquivo: Pchar;
+   Arquivo : String;
+begin
+   Arquivo  := Application.ExeName;
+   Parquivo := StrAlloc(Length(Arquivo) + 1);
+   StrPcopy(Parquivo, Arquivo);
+   Len := GetFileVersionInfoSize(Parquivo, Handle);
+   Result := '';
+
+   if Len > 0 then
+   begin
+      Data:=StrAlloc(Len+1);
+      if GetFileVersionInfo(Parquivo,Handle,Len,Data) then
+      begin
+         VerQueryValue(Data, '',Buffer,Tamanho);
+         F := PFFI(Buffer);
+         Result := Format('%d.%d.%d.%d',
+                          [HiWord(F^.dwFileVersionMs),
+                           LoWord(F^.dwFileVersionMs),
+                           HiWord(F^.dwFileVersionLs),
+                           Loword(F^.dwFileVersionLs)]
+                         );
+      end;
+
+      StrDispose(Data);
+   end;
+
+   StrDispose(Parquivo);
 end;
 
 end.

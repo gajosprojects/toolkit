@@ -1,4 +1,4 @@
-unit domain_entity_generator;
+ï»¿unit domain_entity_generator;
 
 interface
 
@@ -55,7 +55,7 @@ begin
     t_Arquivo.Add('using ERP.Gerencial.Domain.Usuarios;');
     t_Arquivo.Add('using FluentValidation;');
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s', [pEntidade.NomeModulo, pEntidade.NomeClassePlural]));
+    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]));
     t_Arquivo.Add('{');
     t_Arquivo.Add(Format('    public class %s : Entity<%s>', [pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular]));
     t_Arquivo.Add('    {');
@@ -63,7 +63,7 @@ begin
     for t_Aux := 0 to pEntidade.Atributos.Count - 1 do
     begin
       t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
-      t_NomeAtributo := t_AtributoDTO.Nome;
+      t_NomeAtributo := t_AtributoDTO.NomeAtributo;
       t_TipoAtributo := t_AtributoDTO.Tipo;
 
       t_Arquivo.Add(Format('        public %s %s { get; private set; }', [t_TipoAtributo, t_NomeAtributo]));
@@ -79,7 +79,7 @@ begin
     for t_Aux := 0 to pEntidade.Atributos.Count - 1 do
     begin
       t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
-      t_NomeAtributo := t_AtributoDTO.Nome;
+      t_NomeAtributo := t_AtributoDTO.NomeAtributo;
       t_NomeExibicaoAtributo := t_AtributoDTO.NomeExibicao;
 
       try
@@ -89,20 +89,15 @@ begin
 
         if (t_AtributoDTO.Requerido) then
         begin
-          t_ValidacaoAtributo.Add(Format('                .NotEmpty().WithMessage("%s obrigatório(a)")', [t_NomeExibicaoAtributo]));
+          t_ValidacaoAtributo.Add(Format('                .NotEmpty().WithMessage("%s obrigatÃ³rio(a)")', [t_NomeExibicaoAtributo]));
         end;
-
-        //if (False) then
-        //begin
-        //  t_ValidacaoAtributo.Add(Format('                .MinimumLength(1).WithMessage("Tamanho mínimo requerido de 1 caracter")', []));
-        //  t_ValidacaoAtributo.Add(Format('                .MaximumLength(255).WithMessage("Limite máximo de 255 caracteres atingido");', []));
-        //end;
 
         if (t_ValidacaoAtributo.Count > 1) then
         begin
           t_AtributoAux := t_ValidacaoAtributo.Text;
           Delete(t_AtributoAux, Length(t_AtributoAux) - 1, 2);
           t_Arquivo.Add(t_AtributoAux + ';');
+          t_Arquivo.Add('');
         end;
       finally
         FreeAndNil(t_ValidacaoAtributo);
@@ -127,7 +122,7 @@ begin
       for t_Aux := 0 to pEntidade.Atributos.Count - 1 do
       begin
         t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
-	      t_NomeAtributo := t_AtributoDTO.Nome;
+	      t_NomeAtributo := t_AtributoDTO.NomeAtributo;
         t_NomeSnkAtributo := LowerCase(Copy(t_NomeAtributo, 1, 1)) + Copy(t_NomeAtributo, 2, Length(t_NomeAtributo));
         t_TipoAtributo := t_AtributoDTO.Tipo;
 
@@ -169,7 +164,7 @@ end;
 
 function TDomainEntityGenerator.getFileDirectory(const pEntidade: TEntidadeDTO): string;
 begin
-  Result := Format('ERP.%s.Domain\%s\', [pEntidade.NomeModulo, pEntidade.NomeClassePlural]);
+  Result := Format('ERP.%s.Domain\%s\', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]);
 end;
 
 function TDomainEntityGenerator.getFileName(const pEntidade: TEntidadeDTO): string;

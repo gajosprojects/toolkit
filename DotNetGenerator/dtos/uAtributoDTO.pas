@@ -10,7 +10,8 @@ type
   TAtributoDTO = class(TPersistent)
 
   private
-    FNome: string;
+    FNomeCampo: string;
+    FNomeAtributo: string;
     FNomeExibicao: string;
     FTipo: string;
 //    FChavePrimaria: Boolean;
@@ -18,17 +19,19 @@ type
     FRequerido: Boolean;
 
   published
-    property Nome: string read FNome write FNome;
+    property NomeCampo: string read FNomeCampo write FNomeCampo;
+    property NomeAtributo: string read FNomeAtributo write FNomeAtributo;
     property NomeExibicao: string read FNomeExibicao write FNomeExibicao;
     property Tipo: string read FTipo write FTipo;
 //    property ChavePrimaria: Boolean read FChavePrimaria write FChavePrimaria;
     property ChaveUnica: Boolean read FChaveUnica write FChaveUnica;
     property Requerido: Boolean read FRequerido write FRequerido;
 
-
   end;
 
 implementation
+
+{ TAtributoDTO }
 
 initialization
   RegisterClass(TAtributoDTO);

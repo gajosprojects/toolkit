@@ -54,8 +54,8 @@ begin
     t_Arquivo.Add('using ERP.Domain.Core.Bus;');
     t_Arquivo.Add('using ERP.Domain.Core.Contracts;');
     t_Arquivo.Add('using ERP.Domain.Core.Notifications;');
-    t_Arquivo.Add(Format('using ERP.%s.Domain.%s.Commands;', [pEntidade.NomeModulo, t_NomePluralClasse]));
-    t_Arquivo.Add(Format('using ERP.%s.Domain.%s.Repositories;', [pEntidade.NomeModulo, t_NomePluralClasse]));
+    t_Arquivo.Add(Format('using ERP.%s.Domain.%s.Commands;', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]));
+    t_Arquivo.Add(Format('using ERP.%s.Domain.%s.Repositories;', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]));
     t_Arquivo.Add(Format('using ERP.Services.API.ViewModels.%s.%s;', [pEntidade.NomeModulo, t_NomeSingularClasse]));
     t_Arquivo.Add('using MediatR;');
     t_Arquivo.Add('using Microsoft.AspNetCore.Authorization;');
@@ -63,7 +63,7 @@ begin
     t_Arquivo.Add('using System;');
     t_Arquivo.Add('using System.Collections.Generic;');
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('namespace ERP.Services.API.Controllers', [pEntidade.nomeModulo]));
+    t_Arquivo.Add(Format('namespace ERP.Services.API.Controllers.%s', [pEntidade.nomeModulo]));
     t_Arquivo.Add('{');
     t_Arquivo.Add(Format('    public class %sController: BaseController', [t_NomePluralClasse]));
     t_Arquivo.Add('    {');

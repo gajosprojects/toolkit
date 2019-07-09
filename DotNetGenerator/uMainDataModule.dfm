@@ -31,8 +31,12 @@ object MainDataModule: TMainDataModule
       Size = 1
     end
     object cdsAtributosNome: TWideStringField
-      FieldName = 'Nome'
+      FieldName = 'NomeCampo'
       Size = 100
+    end
+    object cdsAtributosNomeAtributo: TStringField
+      FieldName = 'NomeAtributo'
+      Size = 255
     end
     object cdsAtributosNomeExibicao: TWideStringField
       DisplayLabel = 'Nome Exibi'#231#227'o'

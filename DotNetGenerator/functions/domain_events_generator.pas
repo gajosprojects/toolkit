@@ -101,7 +101,7 @@ begin
     t_Arquivo.Add('using System;');
     t_Arquivo.Add('using ERP.Domain.Core.Events;');
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Events', [pEntidade.NomeModulo, pEntidade.NomeClassePlural]));
+    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Events', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]));
     t_Arquivo.Add('{');
     t_Arquivo.Add(Format('    public class Base%sEvent : Event', [pEntidade.NomeClasseSingular]));
     t_Arquivo.Add('    {');
@@ -111,7 +111,7 @@ begin
     for t_Aux := 0 to pEntidade.Atributos.Count - 1 do
     begin
       t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
-      t_NomeAtributo := t_AtributoDTO.Nome;
+      t_NomeAtributo := t_AtributoDTO.NomeAtributo;
       t_TipoAtributo := t_AtributoDTO.Tipo;
 
       t_Arquivo.Add(Format('        public %s %s { get; protected set; }', [t_TipoAtributo, t_NomeAtributo]));
@@ -143,7 +143,7 @@ begin
   try
     t_Arquivo.Add('using System;');
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Events', [pEntidade.NomeModulo, pEntidade.NomeClassePlural]));
+    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Events', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]));
     t_Arquivo.Add('{');
     t_Arquivo.Add(Format('    public class Deleted%sEvent : Base%sEvent', [pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular]));
     t_Arquivo.Add('    {');
@@ -168,7 +168,7 @@ end;
 
 function TDomainEventsGenerator.getFileDirectory(const pEntidade: TEntidadeDTO): string;
 begin
-  Result := Format('\ERP.%s.Domain\%s\Events\', [pEntidade.NomeModulo, pEntidade.NomeClassePlural]);
+  Result := Format('\ERP.%s.Domain\%s\Events\', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]);
 end;
 
 function TDomainEventsGenerator.getHandlerFileContent(const pEntidade: TEntidadeDTO): WideString;
@@ -187,7 +187,7 @@ begin
     t_Arquivo.Add('using System.Threading.Tasks;');
     t_Arquivo.Add('using MediatR;');
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Events', [pEntidade.NomeModulo, t_NomePluralClasse]));
+    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Events', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]));
     t_Arquivo.Add('{');
     t_Arquivo.Add(Format('    public class %sEventHandler : INotificationHandler<Saved%sEvent>, INotificationHandler<Updated%sEvent>, INotificationHandler<Deleted%sEvent>', [t_NomeSingularClasse, t_NomeSingularClasse, t_NomeSingularClasse, t_NomeSingularClasse]));
     t_Arquivo.Add('    {');
@@ -236,7 +236,7 @@ begin
   try
     t_Arquivo.Add('using System;');
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Events', [pEntidade.NomeModulo, pEntidade.NomeClassePlural]));
+    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Events', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]));
     t_Arquivo.Add('{');
     t_Arquivo.Add(Format('    public class Saved%sEvent : Base%sEvent', [pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular]));
     t_Arquivo.Add('    {');
@@ -251,7 +251,7 @@ begin
       for t_Aux := 0 to pEntidade.Atributos.Count - 1 do
       begin
         t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
-        t_NomeAtributo := t_AtributoDTO.Nome;
+        t_NomeAtributo := t_AtributoDTO.NomeAtributo;
         t_NomeSnkAtributo := LowerCase(Copy(t_NomeAtributo, 1, 1)) + Copy(t_NomeAtributo, 2, Length(t_NomeAtributo));
         t_TipoAtributo := t_AtributoDTO.Tipo;
 
@@ -307,7 +307,7 @@ begin
   try
     t_Arquivo.Add('using System;');
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Events', [pEntidade.NomeModulo, pEntidade.NomeClassePlural]));
+    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Events', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]));
     t_Arquivo.Add('{');
     t_Arquivo.Add(Format('    public class Updated%sEvent : Base%sEvent', [pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular]));
     t_Arquivo.Add('    {');
@@ -322,7 +322,7 @@ begin
       for t_Aux := 0 to pEntidade.Atributos.Count - 1 do
       begin
         t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
-        t_NomeAtributo := t_AtributoDTO.Nome;
+        t_NomeAtributo := t_AtributoDTO.NomeAtributo;
         t_NomeSnkAtributo := LowerCase(Copy(t_NomeAtributo, 1, 1)) + Copy(t_NomeAtributo, 2, Length(t_NomeAtributo));
         t_TipoAtributo := t_AtributoDTO.Tipo;
 

@@ -63,9 +63,10 @@
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
         <BT_BuildType>Debug</BT_BuildType>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.1;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
+        <VerInfo_Build>1</VerInfo_Build>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
         <DCC_UsePackage>DBXSqliteDriver;RESTComponents;dxFlowChartRS26;dxPSdxMapControlLnkRS26;DBXInterBaseDriver;vclactnband;dxBarRS26;vclFireDAC;dxPScxExtCommonRS26;dxFireDACEMFRS26;tethering;dxSpreadSheetInplaceRichEditRS26;FireDACADSDriver;dxRichEditCoreRS26;dxPSdxSpreadSheetLnkRS26;dxRichEditControlRS26;dxPScxVGridLnkRS26;vcltouch;dxorgcRS26;dxGaugeControlRS26;vcldb;bindcompfmx;inetdb;dxBarDBNavRS26;dxDBXServerModeRS26;dxGDIPlusRS26;fmx;FireDACIBDriver;fmxdae;dxServerModeRS26;dxWizardControlRS26;dxCloudServiceLibraryRS26;dxPSdxFCLnkRS26;dxTabbedMDIRS26;dxPSLnksRS26;dxPsPrVwAdvRS26;dbexpress;IndyCore;cxGridRS26;dxComnRS26;dxPDFViewerRS26;vclx;dxEMFRS26;dxPScxTLLnkRS26;dsnap;FireDACCommon;RESTBackendComponents;cxSchedulerTreeBrowserRS26;dxADOServerModeRS26;VCLRESTComponents;soapserver;cxPivotGridOLAPRS26;cxVerticalGridRS26;vclie;dxtrmdRS26;bindengine;DBXMySQLDriver;CloudService;dxmdsRS26;FireDACMySQLDriver;dxPSdxLCLnkRS26;cxSchedulerRS26;cxSchedulerWebServiceStorageRS26;dxdborRS26;FireDACCommonODBC;FireDACCommonDriver;dxMapControlRS26;inet;dxSpellCheckerRS26;dxFireDACServerModeRS26;IndyIPCommon;bindcompdbx;dxSpreadSheetCoreConditionalFormattingDialogsRS26;vcl;IndyIPServer;dxPSdxDBOCLnkRS26;cxPivotGridRS26;IndySystem;dxSpreadSheetReportDesignerRS26;cxTreeListdxBarPopupMenuRS26;dsnapcon;cxTreeListRS26;dxPScxPivotGridLnkRS26;dxPScxPCProdRS26;cxSchedulerRibbonStyleEventEditorRS26;dxPSCoreRS26;dxNavBarRS26;FireDACMSAccDriver;fmxFireDAC;dxCoreRS26;vclimg;dxSpreadSheetRS26;cxExportRS26;FireDAC;dxHttpIndyRequestRS26;dxBarExtItemsRS26;dxPSdxGaugeControlLnkRS26;dxPSPrVwRibbonRS26;FireDACSqliteDriver;FireDACPgDriver;dxPSRichEditControlLnkRS26;cxPivotGridChartRS26;dxdbtrRS26;dxRichEditControlCoreRS26;soaprtl;DbxCommonDriver;dxFlowChartAdvancedCustomizeFormRS26;dxDockingRS26;xmlrtl;soapmidas;dxPSdxDBTVLnkRS26;fmxobj;vclwinx;cxLibraryRS26;rtl;DbxClientDriver;dxTileControlRS26;dxSkinsCoreRS26;CustomIPTransport;vcldsnap;dxPScxSchedulerLnkRS26;dxSpreadSheetConditionalFormattingDialogsRS26;bindcomp;appanalytics;dxPSdxOCLnkRS26;dxRibbonCustomizationFormRS26;cxSchedulerGridRS26;IndyIPClient;bindcompvcl;dxADOEMFRS26;dbxcds;VclSmp;adortl;dxRibbonRS26;dxPScxCommonRS26;dxRichEditDocumentModelRS26;dxSpreadSheetCoreDialogsRS26;dxBarExtDBItemsRS26;dsnapxml;dbrtl;IndyProtocols;inetdbxpress;dxPSdxPDFViewerLnkRS26;dxRichEditInplaceRS26;dxPScxGridLnkRS26;dxFlowChartDesignerRS26;dxSpreadSheetCoreRS26;fmxase;$(DCC_UsePackage)</DCC_UsePackage>
@@ -86,6 +87,8 @@
         <DCC_UnitSearchPath>..\..\ZeosLib 7.3\src\component;..\..\ZeosLib 7.3\src\core;..\..\ZeosLib 7.3\src\dbc;..\..\ZeosLib 7.3\src\parsesql;..\..\ZeosLib 7.3\src\plain;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.1;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0</VerInfo_Keys>
+        <VerInfo_Build>1</VerInfo_Build>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -96,6 +99,11 @@
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
+        <VerInfo_Build>5</VerInfo_Build>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <VerInfo_Keys>FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.5;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0</VerInfo_Keys>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -153,8 +161,8 @@
                     <Source Name="MainSource">DotNetGenerator.dpr</Source>
                 </Source>
                 <Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k250.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
-                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp250.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k260.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp260.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="3">

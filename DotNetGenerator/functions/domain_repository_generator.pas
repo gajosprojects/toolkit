@@ -44,7 +44,7 @@ begin
     t_Arquivo.Add('using ERP.Domain.Core.Contracts;');
     t_Arquivo.Add('');
 
-    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Repositories', [pEntidade.NomeModulo, pEntidade.NomeClassePlural]));
+    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Repositories', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]));
     t_Arquivo.Add('{');
     t_Arquivo.Add(Format('    public interface I%sRepository : IRepository<%s>', [pEntidade.NomeClassePlural, pEntidade.NomeClasseSingular]));
     t_Arquivo.Add('    {');
@@ -60,7 +60,7 @@ end;
 
 function TDomainRepositoryGenerator.getFileDirectory(const pEntidade: TEntidadeDTO): string;
 begin
-  Result := Format('ERP.%s.Domain\%s\Repositories\', [pEntidade.NomeModulo, pEntidade.NomeClassePlural]);
+  Result := Format('ERP.%s.Domain\%s\Repositories\', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]);
 end;
 
 function TDomainRepositoryGenerator.getFileName(const pEntidade: TEntidadeDTO): string;

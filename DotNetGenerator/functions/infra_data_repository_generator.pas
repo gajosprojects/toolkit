@@ -50,15 +50,15 @@ begin
     t_NomePluralClasse := pEntidade.nomeClassePlural;
     t_NomeSingularSnkClasse := LowerCase(Copy(t_NomeSingularClasse, 1, 1)) + Copy(t_NomeSingularClasse, 2, Length(t_NomeSingularClasse));
 
-    t_Arquivo.Add(Format('using ERP.%s.Domain.%s;', [pEntidade.NomeModulo, t_NomePluralClasse]));
-    t_Arquivo.Add(Format('using ERP.%s.Domain.%s.Repositories;', [pEntidade.NomeModulo, t_NomePluralClasse]));
+    t_Arquivo.Add(Format('using ERP.%s.Domain.%s;', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]));
+    t_Arquivo.Add(Format('using ERP.%s.Domain.%s.Repositories;', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]));
     t_Arquivo.Add('using ERP.Infra.Data.Context;');
     t_Arquivo.Add('');
     t_Arquivo.Add(Format('namespace ERP.Infra.Data.Repositories.%s', [pEntidade.NomeModulo]));
     t_Arquivo.Add('{');
     t_Arquivo.Add(Format('    public class %sRepository : Repository<%s>, I%sRepository', [t_NomePluralClasse, t_NomeSingularClasse, t_NomePluralClasse]));
     t_Arquivo.Add('    {');
-    t_Arquivo.Add(Format('        public %sRepository(%sContext db) : base(db)', [t_NomePluralClasse, t_NomePluralClasse]));
+    t_Arquivo.Add(Format('        public %sRepository(%sContext db) : base(db)', [t_NomePluralClasse, pEntidade.NomeClasseAgregacao]));
     t_Arquivo.Add('        {');
     t_Arquivo.Add('        }');
 //    t_Arquivo.Add('');

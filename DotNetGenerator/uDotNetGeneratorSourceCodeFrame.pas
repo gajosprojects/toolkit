@@ -33,17 +33,12 @@ type
     tsInstrucaoSQL: TTabSheet;
     tsDadosClasse: TTabSheet;
     pnlEntidade: TPanel;
-    gbxNomeEntidade: TGroupBox;
-    lblNomeSingular: TLabel;
-    lblNomePlural: TLabel;
-    edtNomeClasseSingular: TEdit;
-    edtNomeClassePlural: TEdit;
     gbxModulo: TGroupBox;
     edtNomeModulo: TEdit;
     gbxAtributos: TGroupBox;
     tlAtributos: TcxDBTreeList;
     tlAtributosSelecionado: TcxDBTreeListColumn;
-    tlAtributosNome: TcxDBTreeListColumn;
+    tlAtributosNomeAtributo: TcxDBTreeListColumn;
     tlAtributosNomeExibicao: TcxDBTreeListColumn;
     tlAtributosTipo: TcxDBTreeListColumn;
     tlAtributosChavePrimaria: TcxDBTreeListColumn;
@@ -51,9 +46,6 @@ type
     tlAtributosRequerido: TcxDBTreeListColumn;
     gbxNomeTabela: TGroupBox;
     edtNomeTabela: TEdit;
-    gbxNomeClasseExibicao: TGroupBox;
-    edtNomeClasseExibicao: TEdit;
-    lblNomeClasseExibicao: TLabel;
     lblNomeModulo: TLabel;
     lblNomeTabela: TLabel;
     tsPreview: TTabSheet;
@@ -79,6 +71,24 @@ type
     gbxDiretorioXML: TGroupBox;
     btnSelecionarDiretorioXML: TSpeedButton;
     edtDiretorioXML: TEdit;
+    Panel1: TPanel;
+    gbxNomeEntidade: TGroupBox;
+    lblNomeSingular: TLabel;
+    lblNomePlural: TLabel;
+    edtNomeClasseSingular: TEdit;
+    edtNomeClassePlural: TEdit;
+    gbxNomeClasseExibicao: TGroupBox;
+    lblNomeClasseExibicao: TLabel;
+    edtNomeClasseExibicao: TEdit;
+    gbxNomeClasseAgregadora: TGroupBox;
+    lblNomeClasseAgregadora: TLabel;
+    edtNomeClasseAgregadora: TEdit;
+    tlAtributosNomeCampo: TcxDBTreeListColumn;
+    pnlMoverNos: TPanel;
+    btnMoverParaBaixo: TSpeedButton;
+    btnMoverParaCima: TSpeedButton;
+    tlAtributosId: TcxDBTreeListColumn;
+    tlAtributosOrdem: TcxDBTreeListColumn;
 
     procedure btnCarregarAtributosClick(Sender: TObject);
     procedure btnConectarSQLServerClick(Sender: TObject);
@@ -93,14 +103,15 @@ type
     procedure tvArquivosChange(Sender: TObject; Node: TTreeNode);
     procedure btnPreviewClick(Sender: TObject);
     procedure btnAtualizarClick(Sender: TObject);
-    procedure tvArquivosCustomDrawItem(Sender: TCustomTreeView; Node: TTreeNode;
-      State: TCustomDrawState; var DefaultDraw: Boolean);
+    procedure tvArquivosCustomDrawItem(Sender: TCustomTreeView; Node: TTreeNode; State: TCustomDrawState; var DefaultDraw: Boolean);
     procedure btnCarregarXMLClick(Sender: TObject);
     procedure btnExportarXMLClick(Sender: TObject);
     procedure btnGerarClick(Sender: TObject);
     procedure btnParametrosClick(Sender: TObject);
     procedure btnSelecionarDiretorioXMLClick(Sender: TObject);
     procedure btnSelecionarDiretorioArquivosDotnetClick(Sender: TObject);
+    procedure btnMoverParaBaixoClick(Sender: TObject);
+    procedure btnMoverParaCimaClick(Sender: TObject);
 
   private
     FNextIdAtributo: Integer;
@@ -260,14 +271,14 @@ var
 begin
   t_resposta := True;
 
-  if (FClientDataSetAtributos.Active) then
-  begin
-    if (FClientDataSetAtributos.RecordCount > 0) then
-    begin
-      t_resposta := (MessageDlg(Format('Os atributos existentes serão perdidos.%sDeseja continuar?', [sLineBreak]),
-                              mtWarning, [mbYes,mbNo], 0, mbNo) = mrYes);
-    end;
-  end;
+//  if (FClientDataSetAtributos.Active) then
+//  begin
+//    if (FClientDataSetAtributos.RecordCount > 0) then
+//    begin
+//      t_resposta := (MessageDlg(Format('Os atributos existentes serão perdidos.%sDeseja continuar?', [sLineBreak]),
+//                              mtWarning, [mbYes,mbNo], 0, mbNo) = mrYes);
+//    end;
+//  end;
 
   if t_resposta then
   begin
@@ -399,6 +410,106 @@ begin
       GerarArquivos();
       SalvarArquivos();
       ShowMessage('Arquivos gerados com sucesso!');
+    end;
+  end;
+end;
+
+procedure TDotNetGeneratorSourceCodeFrame.btnMoverParaBaixoClick(Sender: TObject);
+var
+  t_Id_Old: Integer;
+  t_Id_New: Integer;
+begin
+  if Assigned(tlAtributos.FocusedNode) and (not tlAtributos.FocusedNode.IsLast) then
+  begin
+    t_Id_Old := tlAtributos.FocusedNode.Values[tlAtributosId.ItemIndex];
+
+    try
+      FClientDataSetAtributos.DisableControls();
+      tlAtributos.BeginUpdate();
+
+      if tlAtributos.FocusedNode.GetNext.IsLast then
+      begin
+        t_Id_New := tlAtributos.LastNode.Values[tlAtributosId.ItemIndex];
+
+        if (FClientDataSetAtributos.Locate('Id', t_Id_Old, [])) then
+        begin
+          FClientDataSetAtributos.Edit();
+          FClientDataSetAtributos.FieldByName('Ordem').AsInteger := FClientDataSetAtributos.FieldByName('Ordem').AsInteger + 1;
+          FClientDataSetAtributos.Post();
+        end;
+
+        if (FClientDataSetAtributos.Locate('Id', t_Id_New, [])) then
+        begin
+          FClientDataSetAtributos.Edit();
+          FClientDataSetAtributos.FieldByName('Ordem').AsInteger := FClientDataSetAtributos.FieldByName('Ordem').AsInteger - 1;
+          FClientDataSetAtributos.Post();
+        end;
+
+        tlAtributos.FocusedNode.MoveTo(tlAtributos.LastNode,tlamAdd);
+      end
+      else
+      begin
+        t_Id_New := tlAtributos.FocusedNode.GetNext.Values[tlAtributosId.ItemIndex];
+
+        if (FClientDataSetAtributos.Locate('Id', t_Id_Old, [])) then
+        begin
+          FClientDataSetAtributos.Edit();
+          FClientDataSetAtributos.FieldByName('Ordem').AsInteger := FClientDataSetAtributos.FieldByName('Ordem').AsInteger + 1;
+          FClientDataSetAtributos.Post();
+        end;
+
+        if (FClientDataSetAtributos.Locate('Id', t_Id_New, [])) then
+        begin
+          FClientDataSetAtributos.Edit();
+          FClientDataSetAtributos.FieldByName('Ordem').AsInteger := FClientDataSetAtributos.FieldByName('Ordem').AsInteger - 1;
+          FClientDataSetAtributos.Post();
+        end;
+
+        tlAtributos.FocusedNode.MoveTo( tlAtributos.FocusedNode.GetNext.GetNext, tlamInsert);
+      end;
+
+    finally
+      FClientDataSetAtributos.Locate('Id', t_Id_Old, []);
+      tlAtributos.EndUpdate();
+      FClientDataSetAtributos.EnableControls();
+    end;
+  end;
+end;
+
+procedure TDotNetGeneratorSourceCodeFrame.btnMoverParaCimaClick(Sender: TObject);
+var
+  t_Id_Old: integer;
+  t_Id_New: integer;
+begin
+  if Assigned(tlAtributos.FocusedNode) then
+  begin
+    t_Id_Old := tlAtributos.FocusedNode.Values[tlAtributosId.ItemIndex];
+    t_Id_New := tlAtributos.FocusedNode.GetPrev.Values[tlAtributosId.ItemIndex];
+
+    try
+      FClientDataSetAtributos.DisableControls();
+      tlAtributos.BeginUpdate();
+
+      if (FClientDataSetAtributos.Locate('Id', t_Id_Old, [])) then
+      begin
+        FClientDataSetAtributos.Edit();
+        FClientDataSetAtributos.FieldByName('Ordem').AsInteger := FClientDataSetAtributos.FieldByName('Ordem').AsInteger - 1;
+        FClientDataSetAtributos.Post();
+      end;
+
+      if (FClientDataSetAtributos.Locate('Id', t_Id_New, [])) then
+      begin
+        FClientDataSetAtributos.Edit();
+        FClientDataSetAtributos.FieldByName('Ordem').AsInteger := FClientDataSetAtributos.FieldByName('Ordem').AsInteger + 1;
+        FClientDataSetAtributos.Post();
+      end;
+
+      tlAtributos.FocusedNode.MoveTo(tlAtributos.FocusedNode.getPrev, tlamInsert);
+
+    finally
+      FClientDataSetAtributos.Locate('Id', t_Id_Old, []);
+      tlAtributos.EndUpdate();
+      FClientDataSetAtributos.EnableControls();
     end;
   end;
 end;
@@ -718,24 +829,28 @@ begin
 
         pgcGenerator.ActivePage := tsDadosClasse;
 
-        edtNomeModulo.Text         := EmptyStr;
-        edtNomeTabela.Text         := EmptyStr;
-        edtNomeClasseSingular.Text := EmptyStr;
-        edtNomeClassePlural.Text   := EmptyStr;
-        edtNomeClasseExibicao.Text := EmptyStr;
+        edtNomeModulo.Text           := EmptyStr;
+        edtNomeTabela.Text           := EmptyStr;
+        edtNomeClasseAgregadora.Text := EmptyStr;
+        edtNomeClasseSingular.Text   := EmptyStr;
+        edtNomeClassePlural.Text     := EmptyStr;
+        edtNomeClasseExibicao.Text   := EmptyStr;
 
         FClientDataSetAtributos.Close();
         FClientDataSetAtributos.FieldDefs.Clear();
         FClientDataSetAtributos.FieldDefs.Add('Id', ftInteger);
         FClientDataSetAtributos.FieldDefs.Add('ParentId', ftInteger);
+        FClientDataSetAtributos.FieldDefs.Add('Ordem', ftInteger);
         FClientDataSetAtributos.FieldDefs.Add('Selecionado', ftWideString, 1);
-        FClientDataSetAtributos.FieldDefs.Add('Nome', ftWideString, 100);
+        FClientDataSetAtributos.FieldDefs.Add('NomeCampo', ftWideString, 100);
+        FClientDataSetAtributos.FieldDefs.Add('NomeAtributo', ftWideString, 100);
         FClientDataSetAtributos.FieldDefs.Add('NomeExibicao', ftWideString, 100);
         FClientDataSetAtributos.FieldDefs.Add('Tipo', ftWideString, 50);
         FClientDataSetAtributos.FieldDefs.Add('ChavePrimaria', ftWideString, 1);
         FClientDataSetAtributos.FieldDefs.Add('ChaveUnica', ftWideString, 1);
         FClientDataSetAtributos.FieldDefs.Add('Requerido', ftWideString, 1);
         FClientDataSetAtributos.CreateDataSet();
+        FClientDataSetAtributos.IndexFieldNames := 'Ordem';
         FClientDataSetAtributos.Open();
 
         FOrigemItemIndex := cmbOrigemClasse.ItemIndex;
@@ -786,11 +901,12 @@ begin
 
         pgcGenerator.ActivePage := tsConexao;
 
-        edtNomeModulo.Text         := EmptyStr;
-        edtNomeTabela.Text         := EmptyStr;
-        edtNomeClasseSingular.Text := EmptyStr;
-        edtNomeClassePlural.Text   := EmptyStr;
-        edtNomeClasseExibicao.Text := EmptyStr;
+        edtNomeModulo.Text           := EmptyStr;
+        edtNomeTabela.Text           := EmptyStr;
+        edtNomeClasseAgregadora.Text := EmptyStr;
+        edtNomeClasseSingular.Text   := EmptyStr;
+        edtNomeClassePlural.Text     := EmptyStr;
+        edtNomeClasseExibicao.Text   := EmptyStr;
 
         FClientDataSetAtributos.EmptyDataSet();
         FClientDataSetAtributos.Close();
@@ -1051,63 +1167,63 @@ function TDotNetGeneratorSourceCodeFrame.GetTipoAtributoDotNetFromSQLServer(pNom
 begin
   //ref: https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/sql-server-data-type-mappings
   if SameText(LowerCase(pNomeTipo), 'bigint') then
-    Result := 'Int64'
-  else if SameText(LowerCase(pNomeTipo), 'binary ') then
-    Result := '	Byte[]'
+    Result := 'long'
+  else if SameText(LowerCase(pNomeTipo), 'binary') then
+    Result := '	byte[]'
   else if SameText(LowerCase(pNomeTipo), 'bit') then
-    Result := 'Boolean'
+    Result := 'bool'
   else if SameText(LowerCase(pNomeTipo), 'char') then
-    Result := 'String'
+    Result := 'string'
   else if SameText(LowerCase(pNomeTipo), 'date') then
     Result := 'DateTime'
-  else if SameText(LowerCase(pNomeTipo), 'datetime ') then
+  else if SameText(LowerCase(pNomeTipo), 'datetime') then
     Result := 'DateTime'
   else if SameText(LowerCase(pNomeTipo), 'datetime2') then
     Result := 'DateTime'
-  else if SameText(LowerCase(pNomeTipo), 'datetimeoffset ') then
+  else if SameText(LowerCase(pNomeTipo), 'datetimeoffset') then
     Result := 'DateTimeOffset'
   else if SameText(LowerCase(pNomeTipo), 'decimal') then
-    Result := 'Decimal'
+    Result := 'decimal'
   else if SameText(LowerCase(pNomeTipo), 'float') then
-    Result := 'Double'
+    Result := 'double'
   else if SameText(LowerCase(pNomeTipo), 'image') then
-    Result := 'Byte[]'
+    Result := 'byte[]'
   else if SameText(LowerCase(pNomeTipo), 'int') then
-    Result := 'Int32'
+    Result := 'int'
   else if SameText(LowerCase(pNomeTipo), 'money') then
-    Result := 'Decimal'
+    Result := 'decimal'
   else if SameText(LowerCase(pNomeTipo), 'nchar') then
-    Result := 'String'
+    Result := 'string'
   else if SameText(LowerCase(pNomeTipo), 'ntext') then
-    Result := 'String'
+    Result := 'string'
   else if SameText(LowerCase(pNomeTipo), 'numeric') then
-    Result := 'Decimal'
-  else if SameText(LowerCase(pNomeTipo), 'nvarchar ') then
-    Result := 'String'
-  else if SameText(LowerCase(pNomeTipo), 'real ') then
+    Result := 'decimal'
+  else if SameText(LowerCase(pNomeTipo), 'nvarchar') then
+    Result := 'string'
+  else if SameText(LowerCase(pNomeTipo), 'real') then
     Result := 'Single'
   else if SameText(LowerCase(pNomeTipo), 'smalldatetime') then
     Result := 'DateTime'
-  else if SameText(LowerCase(pNomeTipo), 'smallint ') then
-    Result := 'Int16'
-  else if SameText(LowerCase(pNomeTipo), 'smallmoney ') then
-    Result := 'Decimal'
+  else if SameText(LowerCase(pNomeTipo), 'smallint') then
+    Result := 'short'
+  else if SameText(LowerCase(pNomeTipo), 'smallmoney') then
+    Result := 'decimal'
   else if SameText(LowerCase(pNomeTipo), 'sql_variant') then
     Result := 'Object'
-  else if SameText(LowerCase(pNomeTipo), 'text ') then
-    Result := 'String'
-  else if SameText(LowerCase(pNomeTipo), 'time ') then
+  else if SameText(LowerCase(pNomeTipo), 'text') then
+    Result := 'string'
+  else if SameText(LowerCase(pNomeTipo), 'time') then
     Result := 'TimeSpan'
   else if SameText(LowerCase(pNomeTipo), 'timestamp') then
-    Result := 'Byte[]'
+    Result := 'byte[]'
   else if SameText(LowerCase(pNomeTipo), 'tinyint') then
-    Result := 'Byte'
-  else if SameText(LowerCase(pNomeTipo), 'uniqueidentifier ') then
+    Result := 'byte'
+  else if SameText(LowerCase(pNomeTipo), 'uniqueidentifier') then
     Result := 'Guid'
   else if SameText(LowerCase(pNomeTipo), 'varbinary') then
-    Result := 'Byte[]'
+    Result := 'byte[]'
   else if SameText(LowerCase(pNomeTipo), 'varchar') then
-    Result := 'String'
+    Result := 'string'
   else if SameText(LowerCase(pNomeTipo), 'xml') then
     Result := 'Xml'
   else
@@ -1119,12 +1235,19 @@ var
   t_Atributo: TAtributoDTO;
 begin
   //preenchimento do objeto entidade e seus atributos
-  Result                    := TEntidadeDTO.Create(Self);
-  Result.NomeModulo         := edtNomeModulo.Text;
-  REsult.NomeTabela         := edtNomeTabela.Text;
-  Result.NomeClasseSingular := edtNomeClasseSingular.Text;
-  Result.NomeClassePlural   := edtNomeClassePlural.Text;
-  Result.NomeClasseExibicao := edtNomeClasseExibicao.Text;
+  Result                     := TEntidadeDTO.Create(Self);
+  Result.NomeModulo          := edtNomeModulo.Text;
+  Result.NomeTabela          := edtNomeTabela.Text;
+  Result.NomeClasseAgregacao := edtNomeClasseAgregadora.Text;
+  Result.NomeClasseSingular  := edtNomeClasseSingular.Text;
+  Result.NomeClassePlural    := edtNomeClassePlural.Text;
+  Result.NomeClasseExibicao  := edtNomeClasseExibicao.Text;
+
+  if (SameText(Trim(Result.NomeClasseAgregacao), EmptyStr)) then
+  begin
+    Result.NomeClasseAgregacao := Result.NomeClassePlural;
+  end;
+
 
   //loop nos atributos
   try
@@ -1139,7 +1262,8 @@ begin
 //        t_Atributo := Result.Atributos.Add();
         t_Atributo := TAtributoDTO.Create();
 
-        t_Atributo.Nome          := FClientDataSetAtributos.FieldByName('Nome').AsString;
+        t_Atributo.NomeCampo     := FClientDataSetAtributos.FieldByName('NomeCampo').AsString;
+        t_Atributo.NomeAtributo  := FClientDataSetAtributos.FieldByName('NomeAtributo').AsString;
         t_Atributo.NomeExibicao  := FClientDataSetAtributos.FieldByName('NomeExibicao').AsString;
         t_Atributo.Tipo          := FClientDataSetAtributos.FieldByName('Tipo').AsString;
 //        t_Atributo.ChavePrimaria := SameText(FClientDataSetAtributos.FieldByName('ChavePrimaria').AsString, cSim);
@@ -1481,17 +1605,17 @@ end;
 procedure TDotNetGeneratorSourceCodeFrame.PopularDadosEntidade(pEntidadeDTO: TEntidadeDTO);
 var
   t_Indice: Integer;
-  t_NomeAtributo: string;
   t_AtributoDTO: TAtributoDTO;
 begin
   try
     FNextIdAtributo := 1;
 
-    edtNomeModulo.Text         := pEntidadeDTO.NomeModulo;
-    edtNomeTabela.Text         := pEntidadeDTO.NomeTabela;
-    edtNomeClasseSingular.Text := pEntidadeDTO.NomeClasseSingular;
-    edtNomeClassePlural.Text   := pEntidadeDTO.NomeClassePlural;
-    edtNomeClasseExibicao.Text := pEntidadeDTO.NomeClasseExibicao;
+    edtNomeModulo.Text           := pEntidadeDTO.NomeModulo;
+    edtNomeTabela.Text           := pEntidadeDTO.NomeTabela;
+    edtNomeClasseAgregadora.Text := pEntidadeDTO.NomeClasseAgregacao;
+    edtNomeClasseSingular.Text   := pEntidadeDTO.NomeClasseSingular;
+    edtNomeClassePlural.Text     := pEntidadeDTO.NomeClassePlural;
+    edtNomeClasseExibicao.Text   := pEntidadeDTO.NomeClasseExibicao;
 
     FClientDataSetAtributos.Close();
     FClientDataSetAtributos.Open();
@@ -1504,13 +1628,13 @@ begin
 
       FClientDataSetAtributos.Append();
 
-      t_NomeAtributo := UpperCase(Copy(t_AtributoDTO.Nome, 1, 1)) + LowerCase(Copy(t_AtributoDTO.Nome, 2, Length(t_AtributoDTO.Nome)));
-
       FClientDataSetAtributos.FieldByName('Id').AsInteger := FNextIdAtributo;
+      FClientDataSetAtributos.FieldByName('Ordem').AsInteger := FNextIdAtributo;
       FClientDataSetAtributos.FieldByName('ParentId').AsInteger := 0;
       FClientDataSetAtributos.FieldByName('Selecionado').AsString := cSim;
-      FClientDataSetAtributos.FieldByName('Nome').AsString := t_NomeAtributo;
-      FClientDataSetAtributos.FieldByName('NomeExibicao').AsString := t_NomeAtributo;
+      FClientDataSetAtributos.FieldByName('NomeAtributo').AsString := t_AtributoDTO.NomeAtributo;
+      FClientDataSetAtributos.FieldByName('NomeExibicao').AsString := t_AtributoDTO.NomeExibicao;
+      FClientDataSetAtributos.FieldByName('NomeCampo').AsString := t_AtributoDTO.NomeCampo;
       FClientDataSetAtributos.FieldByName('Tipo').AsString := t_AtributoDTO.Tipo;
 //      FClientDataSetAtributos.FieldByName('ChavePrimaria').AsString := t_AtributoDTO.ChavePrimaria;
 
@@ -1616,6 +1740,7 @@ begin
         FClientDataSetAtributos.FieldByName('Selecionado').AsString := cSim;
         FClientDataSetAtributos.FieldByName('Nome').AsString := t_NomeAtributo;
         FClientDataSetAtributos.FieldByName('NomeExibicao').AsString := t_NomeAtributo;
+        FClientDataSetAtributos.FieldByName('NomeBaseDados').AsString := t_cds.FieldByName('Nome').AsString;
         FClientDataSetAtributos.FieldByName('Tipo').AsString := GetTipoAtributoDotNetFromSQLServer(t_cds.FieldByName('Tipo').AsString);
 //        FClientDataSetAtributos.FieldByName('ChavePrimaria').AsString := t_cds.FieldByName('ChavePrimaria').AsString;
         FClientDataSetAtributos.FieldByName('ChaveUnica').AsString := t_cds.FieldByName('ChaveUnica').AsString;
@@ -1913,6 +2038,7 @@ begin
   begin
     FClientDataSetAtributos.Append();
     FClientDataSetAtributos.FieldByName('Id').AsInteger := FNextIdAtributo;
+    FClientDataSetAtributos.FieldByName('Ordem').AsInteger := FNextIdAtributo;
     FClientDataSetAtributos.FieldByName('ParentId').AsInteger := 0;
     FClientDataSetAtributos.FieldByName('Selecionado').AsString := cSim;
     FClientDataSetAtributos.FieldByName('ChavePrimaria').AsString := cNao;
