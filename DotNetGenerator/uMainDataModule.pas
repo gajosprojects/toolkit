@@ -38,6 +38,9 @@ type
     dspAux: TDataSetProvider;
     qryAux: TZReadOnlyQuery;
     cdsAtributosNomeAtributo: TStringField;
+    cdsAtributosLista: TWideStringField;
+    cdsAtributosChaveEstrangeira: TWideStringField;
+    cdsAtributosTipoChaveEstrangeira: TWideStringField;
   private
     { Private declarations }
   public
@@ -131,11 +134,14 @@ begin
   qryAux.SQL.Add(Format('  and tc.table_name = %s;', [QuotedStr(pNomeTabela)]));
   qryAux.SQL.Add('');
   qryAux.SQL.Add('select');
-  qryAux.SQL.Add('	col.column_name as nomecampo,');
+  qryAux.SQL.Add('	col.column_name as nome,');
   qryAux.SQL.Add('	col.type_name as tipo,');
   qryAux.SQL.Add(Format('	 (case len(coalesce(colpk.column_name, %s)) when 0 then cast(%s as char(1)) else cast(%s as char(1)) end) as chaveprimaria,', [QuotedStr(EmptyStr), QuotedStr(cNao), QuotedStr(cSim)]));
   qryAux.SQL.Add(Format('  (case len(coalesce(coluk.column_name, %s)) when 0 then cast(%s as char(1)) else cast(%s as char(1)) end) as chaveunica,', [QuotedStr(EmptyStr), QuotedStr(cNao), QuotedStr(cSim)]));
-  qryAux.SQL.Add(Format('	 (case col.is_nullable when 0 then cast(%s as char(1)) else cast(%s as char(1)) end) as requerido', [QuotedStr(cSim), QuotedStr(cNao)]));
+  qryAux.SQL.Add(Format('	 (case col.is_nullable when 0 then cast(%s as char(1)) else cast(%s as char(1)) end) as requerido,', [QuotedStr(cSim), QuotedStr(cNao)]));
+  qryAux.SQL.Add(Format('	 cast(%s as char(1)) as chaveestrangeira,', [QuotedStr(cNao)]));
+  qryAux.SQL.Add(Format('	 cast(%s as char(1)) as lista,', [QuotedStr(cNao)]));
+qryAux.SQL.Add(Format('  %s as tipochaveestrangeira', [QuotedStr(EmptyStr)]));
   qryAux.SQL.Add('from @Colunas col');
   qryAux.SQL.Add('left join @ColunasPK colpk on colpk.column_name = col.column_name');
   qryAux.SQL.Add('left join @ColunasUK coluk on coluk.column_name = col.column_name');

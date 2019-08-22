@@ -301,6 +301,7 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
               PropertiesClassName = 'TcxCheckBoxProperties'
               Properties.ValueChecked = 'S'
               Properties.ValueUnchecked = 'N'
+              Caption.MultiLine = True
               Caption.Text = ' '
               DataBinding.FieldName = 'Selecionado'
               Options.Customizing = False
@@ -312,9 +313,13 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
               Summary.GroupFooterSummaryItems = <>
             end
             object tlAtributosOrdem: TcxDBTreeListColumn
+              PropertiesClassName = 'TcxTextEditProperties'
+              Properties.ReadOnly = True
+              Caption.AlignHorz = taCenter
+              Caption.MultiLine = True
               DataBinding.FieldName = 'Ordem'
               Options.Customizing = False
-              Width = 53
+              Width = 60
               Position.ColIndex = 1
               Position.RowIndex = 0
               Position.BandIndex = 0
@@ -325,6 +330,7 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
             end
             object tlAtributosId: TcxDBTreeListColumn
               Visible = False
+              Caption.MultiLine = True
               DataBinding.FieldName = 'Id'
               Options.Customizing = False
               Width = 40
@@ -335,7 +341,9 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
               Summary.GroupFooterSummaryItems = <>
             end
             object tlAtributosNomeCampo: TcxDBTreeListColumn
+              PropertiesClassName = 'TcxTextEditProperties'
               Caption.AlignHorz = taCenter
+              Caption.MultiLine = True
               Caption.Text = 'Nome Campo'
               DataBinding.FieldName = 'NomeCampo'
               Width = 150
@@ -346,7 +354,9 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
               Summary.GroupFooterSummaryItems = <>
             end
             object tlAtributosNomeAtributo: TcxDBTreeListColumn
+              PropertiesClassName = 'TcxTextEditProperties'
               Caption.AlignHorz = taCenter
+              Caption.MultiLine = True
               Caption.Text = 'Nome Atributo'
               DataBinding.FieldName = 'NomeAtributo'
               Width = 150
@@ -357,7 +367,9 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
               Summary.GroupFooterSummaryItems = <>
             end
             object tlAtributosNomeExibicao: TcxDBTreeListColumn
+              PropertiesClassName = 'TcxTextEditProperties'
               Caption.AlignHorz = taCenter
+              Caption.MultiLine = True
               Caption.Text = 'Nome Exibi'#231#227'o'
               DataBinding.FieldName = 'NomeExibicao'
               Width = 150
@@ -402,9 +414,24 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
                 'TimeSpan'
                 'Xml')
               Caption.AlignHorz = taCenter
+              Caption.MultiLine = True
               DataBinding.FieldName = 'Tipo'
-              Width = 100
+              Width = 130
               Position.ColIndex = 6
+              Position.RowIndex = 0
+              Position.BandIndex = 0
+              Summary.FooterSummaryItems = <>
+              Summary.GroupFooterSummaryItems = <>
+            end
+            object tlAtributosLista: TcxDBTreeListColumn
+              PropertiesClassName = 'TcxCheckBoxProperties'
+              Properties.ValueChecked = 'S'
+              Properties.ValueUnchecked = 'N'
+              Caption.AlignHorz = taCenter
+              Caption.MultiLine = True
+              DataBinding.FieldName = 'Lista'
+              Width = 50
+              Position.ColIndex = 7
               Position.RowIndex = 0
               Position.BandIndex = 0
               Summary.FooterSummaryItems = <>
@@ -414,12 +441,27 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
               PropertiesClassName = 'TcxCheckBoxProperties'
               Properties.ValueChecked = 'S'
               Properties.ValueUnchecked = 'N'
-              Visible = False
               Caption.AlignHorz = taCenter
-              Caption.Text = 'Chave Prim'#225'ria'
+              Caption.MultiLine = True
+              Caption.Text = 'PK'
               DataBinding.FieldName = 'ChavePrimaria'
-              Width = 100
-              Position.ColIndex = 7
+              Width = 40
+              Position.ColIndex = 8
+              Position.RowIndex = 0
+              Position.BandIndex = 0
+              Summary.FooterSummaryItems = <>
+              Summary.GroupFooterSummaryItems = <>
+            end
+            object tlAtributosChaveEstrangeira: TcxDBTreeListColumn
+              PropertiesClassName = 'TcxCheckBoxProperties'
+              Properties.ValueChecked = 'S'
+              Properties.ValueUnchecked = 'N'
+              Caption.AlignHorz = taCenter
+              Caption.MultiLine = True
+              Caption.Text = 'FK'
+              DataBinding.FieldName = 'ChaveEstrangeira'
+              Width = 40
+              Position.ColIndex = 9
               Position.RowIndex = 0
               Position.BandIndex = 0
               Summary.FooterSummaryItems = <>
@@ -430,10 +472,11 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
               Properties.ValueChecked = 'S'
               Properties.ValueUnchecked = 'N'
               Caption.AlignHorz = taCenter
-              Caption.Text = 'Chave '#218'nica'
+              Caption.MultiLine = True
+              Caption.Text = 'UK'
               DataBinding.FieldName = 'ChaveUnica'
-              Width = 80
-              Position.ColIndex = 8
+              Width = 40
+              Position.ColIndex = 10
               Position.RowIndex = 0
               Position.BandIndex = 0
               Summary.FooterSummaryItems = <>
@@ -444,9 +487,25 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
               Properties.ValueChecked = 'S'
               Properties.ValueUnchecked = 'N'
               Caption.AlignHorz = taCenter
+              Caption.MultiLine = True
+              Caption.Text = 'Not Null'
               DataBinding.FieldName = 'Requerido'
-              Width = 80
-              Position.ColIndex = 9
+              Width = 50
+              Position.ColIndex = 11
+              Position.RowIndex = 0
+              Position.BandIndex = 0
+              Summary.FooterSummaryItems = <>
+              Summary.GroupFooterSummaryItems = <>
+            end
+            object tlAtributosEntidadeBase: TcxDBTreeListColumn
+              PropertiesClassName = 'TcxCheckBoxProperties'
+              Properties.ValueChecked = 'S'
+              Properties.ValueUnchecked = 'N'
+              Caption.AlignHorz = taCenter
+              Caption.Text = 'Base'
+              DataBinding.FieldName = 'EntidadeBase'
+              Width = 40
+              Position.ColIndex = 12
               Position.RowIndex = 0
               Position.BandIndex = 0
               Summary.FooterSummaryItems = <>

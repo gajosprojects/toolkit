@@ -47,10 +47,22 @@ object MainDataModule: TMainDataModule
       FieldName = 'Tipo'
       Size = 50
     end
+    object cdsAtributosLista: TWideStringField
+      FieldName = 'Lista'
+      Size = 1
+    end
     object cdsAtributosChavePrimaria: TWideStringField
       DisplayLabel = 'Chave Prim'#225'ria'
       FieldName = 'ChavePrimaria'
       Size = 1
+    end
+    object cdsAtributosChaveEstrangeira: TWideStringField
+      FieldName = 'ChaveEstrangeira'
+      Size = 1
+    end
+    object cdsAtributosTipoChaveEstrangeira: TWideStringField
+      FieldName = 'TipoChaveEstrangeira'
+      Size = 255
     end
     object cdsAtributosChaveUnica: TWideStringField
       DisplayLabel = 'Chave '#218'nica'

@@ -10,7 +10,7 @@ uses
   cxStyles, cxTL, cxTLdxBarBuiltInMenu, cxDataControllerConditionalFormattingRulesManagerDialog, 
   dxSkinsCore, cxInplaceContainer, cxTLData, cxDBTL, cxMaskEdit, cxCheckBox, cxDropDownEdit,
   cxCustomData, Vcl.ExtDlgs, uArquivoDTO, System.Generics.Collections,
-  Vcl.Buttons;
+  Vcl.Buttons, cxTextEdit;
 
 type
   TDotNetGeneratorSourceCodeFrame = class(TFrame)
@@ -89,6 +89,9 @@ type
     btnMoverParaCima: TSpeedButton;
     tlAtributosId: TcxDBTreeListColumn;
     tlAtributosOrdem: TcxDBTreeListColumn;
+    tlAtributosLista: TcxDBTreeListColumn;
+    tlAtributosChaveEstrangeira: TcxDBTreeListColumn;
+    tlAtributosEntidadeBase: TcxDBTreeListColumn;
 
     procedure btnCarregarAtributosClick(Sender: TObject);
     procedure btnConectarSQLServerClick(Sender: TObject);
@@ -130,6 +133,9 @@ type
     { Private declarations }
     procedure InicializarFormulario();
 
+    procedure CarregarComboTiposDotNet();
+    procedure CarregarComboTiposXML();
+
     //CONFIGURACAO
     procedure SalvarConfiguracao();
     procedure CarregarConfiguracao();
@@ -159,6 +165,8 @@ type
     procedure HabilitarBotaoCarregarAtributos();
 
     procedure AtualizarStatusBar();
+
+    procedure CriarEstruturaDataSetAtributos();
 
     //CONVERSAO
     function GetTipoAtributoDotNetFromSQLServer(pNomeTipo: string): string;
@@ -208,6 +216,29 @@ begin
   InicializarFormulario();
 
   CarregarConfiguracao();
+  CarregarComboTiposDotNet();
+  CarregarComboTiposXML();
+end;
+
+procedure TDotNetGeneratorSourceCodeFrame.CriarEstruturaDataSetAtributos();
+begin
+  FClientDataSetAtributos.FieldDefs.Clear();
+  FClientDataSetAtributos.FieldDefs.Add('Id', ftInteger);
+  FClientDataSetAtributos.FieldDefs.Add('ParentId', ftInteger);
+  FClientDataSetAtributos.FieldDefs.Add('Ordem', ftInteger);
+  FClientDataSetAtributos.FieldDefs.Add('Selecionado', ftWideString, 1);
+  FClientDataSetAtributos.FieldDefs.Add('NomeCampo', ftWideString, 100);
+  FClientDataSetAtributos.FieldDefs.Add('NomeAtributo', ftWideString, 100);
+  FClientDataSetAtributos.FieldDefs.Add('NomeExibicao', ftWideString, 100);
+  FClientDataSetAtributos.FieldDefs.Add('Tipo', ftWideString, 50);
+  FClientDataSetAtributos.FieldDefs.Add('Lista', ftWideString, 1);
+  FClientDataSetAtributos.FieldDefs.Add('ChavePrimaria', ftWideString, 1);
+  FClientDataSetAtributos.FieldDefs.Add('ChaveEstrangeira', ftWideString, 1);
+  FClientDataSetAtributos.FieldDefs.Add('ChaveUnica', ftWideString, 1);
+  FClientDataSetAtributos.FieldDefs.Add('Requerido', ftWideString, 1);
+  FClientDataSetAtributos.FieldDefs.Add('EntidadeBase', ftWideString, 1);
+  FClientDataSetAtributos.CreateDataSet();
+  FClientDataSetAtributos.IndexFieldNames := 'Ordem';
 end;
 
 procedure TDotNetGeneratorSourceCodeFrame.InicializarFormulario();
@@ -244,24 +275,12 @@ begin
 end;
 
 procedure TDotNetGeneratorSourceCodeFrame.btnAtualizarClick(Sender: TObject);
-//var
-//  t_Node: TTreeNode;
-//  t_NodeText: string;
 begin
-//  t_NodeText := EmptyStr;
-
-//  if Assigned(tvArquivos.Selected) then
-//  begin
-//    t_NodeText := tvArquivos.Selected.Text;
-//  end;
-
   try
     GerarArquivos();
     PopularTreeViewPreview();
   finally
-//    t_Node := RetornarNoPorTexto(tvArquivos.Selected, t_NodeText, False);
 
-//    t_Node.Selected := True;
   end;
 end;
 
@@ -270,15 +289,6 @@ var
   t_resposta: Boolean;
 begin
   t_resposta := True;
-
-//  if (FClientDataSetAtributos.Active) then
-//  begin
-//    if (FClientDataSetAtributos.RecordCount > 0) then
-//    begin
-//      t_resposta := (MessageDlg(Format('Os atributos existentes serão perdidos.%sDeseja continuar?', [sLineBreak]),
-//                              mtWarning, [mbYes,mbNo], 0, mbNo) = mrYes);
-//    end;
-//  end;
 
   if t_resposta then
   begin
@@ -305,16 +315,6 @@ var
   t_resposta: Boolean;
   t_OpenXMLDialog: TOpenDialog;
 begin
-//  if (cmbOrigemClasse.ItemIndex <> cOrigemTabela) then
-//  begin
-//    ShowMessage('A origem da entidade deve ser Manual');
-//
-//    if cmbOrigemClasse.CanFocus() then
-//      cmbOrigemClasse.SetFocus();
-//
-//    Exit
-//  end;
-
   t_resposta := True;
 
   if (FClientDataSetAtributos.Active) then
@@ -360,8 +360,6 @@ begin
     HabilitarComboSchemas();
     HabilitarComboTabelas();
     HabilitarBotaoCarregarAtributos();
-//    cmbSchema.Enabled    := False;
-//    cmbTabelas.Enabled   := False
   except
     on E: Exception do
       ShowMessage(E.Message);
@@ -389,11 +387,12 @@ begin
       begin
         ExportarArquivo(t_SaveXMLDialog.FileName);
 
+        CarregarComboTiposXML();
+
         ShowMessage('Arquivo exportado com sucesso!');
       end;
     finally
-      if Assigned(t_SaveXMLDialog) then
-        FreeAndNil(t_SaveXMLDialog);
+      FreeAndNil(t_SaveXMLDialog);
     end;
   end;
 end;
@@ -596,6 +595,91 @@ begin
   if SelectDirectory('Selecione o diretório', 'C:\', FDiretorioXML) then
   begin
     edtDiretorioXML.Text := FDiretorioXML;
+    CarregarComboTiposXML();
+  end;
+end;
+
+procedure TDotNetGeneratorSourceCodeFrame.CarregarComboTiposDotNet();
+var
+  t_SearchResult : TSearchRec;
+  t_Arquivo: TStringList;
+  t_Serializador: TSerializadorXML;
+  t_Entidade: TEntidadeDTO;
+begin
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Clear();
+
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('');
+
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('byte[]');
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('byte');
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('bool');
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('char');
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('decimal');
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('double');
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('float');
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('int');
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('long');
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('short');
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('string');
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('uint');
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('ulong');
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('unshort');
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('');
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('Boolean');
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('Byte');
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('Byte[]');
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('DateTime');
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('DateTimeOffset');
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('Decimal');
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('Double');
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('Guid');
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('Int16');
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('Int32');
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('Int64');
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('Object');
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('Single');
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('String');
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('TimeSpan');
+  TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('Xml');
+
+  CarregarComboTiposXML()
+end;
+
+procedure TDotNetGeneratorSourceCodeFrame.CarregarComboTiposXML();
+var
+  t_SearchResult : TSearchRec;
+  t_Arquivo: TStringList;
+  t_Serializador: TSerializadorXML;
+  t_Entidade: TEntidadeDTO;
+begin
+  if FindFirst(Format('%s\*.xml', [FDiretorioXML]), faAnyFile, t_SearchResult) = 0 then
+  begin
+    TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add('');
+
+    repeat
+      t_Arquivo := TStringList.Create();
+      t_Serializador := TSerializadorXML.Create();
+      t_Entidade := TEntidadeDTO.Create();
+
+      try
+        try
+          t_Arquivo.LoadFromFile(Format('%s\%s', [FDiretorioXML, t_SearchResult.Name]));
+
+          t_Serializador.FromXML(t_Entidade, t_Arquivo.Text);
+
+          TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Add(t_Entidade.NomeClasseSingular);
+        except
+          //
+        end;
+      finally
+        FreeAndNil(t_Entidade);
+        FreeAndNil(t_Serializador);
+        FreeAndNil(t_Arquivo);
+      end;
+    until FindNext(t_SearchResult) <> 0;
+
+    // Must free up resources used by these successful finds
+    FindClose(t_SearchResult);
   end;
 end;
 
@@ -777,7 +861,6 @@ begin
 
   ListarTabelasBaseDadosSQLServer();
 
-//  cmbSchema.Enabled    := (cmbOrigemClasse.ItemIndex = cOrigemTabela); e banco Postgres
   cmbTabelas.Enabled   := (cmbOrigemClasse.ItemIndex = cOrigemTabela);
 
   HabilitarComboSchemas();
@@ -806,19 +889,6 @@ begin
 
       if t_resposta then
       begin
-//        edtInstanciaSQLServer.Clear();
-//        edtUsuarioSQLServer.Clear();
-//        edtSenhaSQLServer.Clear();
-
-//        cmbBaseDados.Clear();
-//        cmbSchema.Clear();
-//        cmbTabelas.Clear();
-
-//        cmbBaseDados.Enabled := False;
-//        cmbSchema.Enabled    := False;
-//        cmbTabelas.Enabled   := False;
-
-      //  HabilitarBotaoCarregarXML();
         HabilitarBotaoConectar();
         HabilitarBotaoCarregarAtributos();
 
@@ -837,20 +907,7 @@ begin
         edtNomeClasseExibicao.Text   := EmptyStr;
 
         FClientDataSetAtributos.Close();
-        FClientDataSetAtributos.FieldDefs.Clear();
-        FClientDataSetAtributos.FieldDefs.Add('Id', ftInteger);
-        FClientDataSetAtributos.FieldDefs.Add('ParentId', ftInteger);
-        FClientDataSetAtributos.FieldDefs.Add('Ordem', ftInteger);
-        FClientDataSetAtributos.FieldDefs.Add('Selecionado', ftWideString, 1);
-        FClientDataSetAtributos.FieldDefs.Add('NomeCampo', ftWideString, 100);
-        FClientDataSetAtributos.FieldDefs.Add('NomeAtributo', ftWideString, 100);
-        FClientDataSetAtributos.FieldDefs.Add('NomeExibicao', ftWideString, 100);
-        FClientDataSetAtributos.FieldDefs.Add('Tipo', ftWideString, 50);
-        FClientDataSetAtributos.FieldDefs.Add('ChavePrimaria', ftWideString, 1);
-        FClientDataSetAtributos.FieldDefs.Add('ChaveUnica', ftWideString, 1);
-        FClientDataSetAtributos.FieldDefs.Add('Requerido', ftWideString, 1);
-        FClientDataSetAtributos.CreateDataSet();
-        FClientDataSetAtributos.IndexFieldNames := 'Ordem';
+        CriarEstruturaDataSetAtributos();
         FClientDataSetAtributos.Open();
 
         FOrigemItemIndex := cmbOrigemClasse.ItemIndex;
@@ -878,19 +935,6 @@ begin
 
       if t_resposta then
       begin
-//        edtInstanciaSQLServer.Clear();
-//        edtUsuarioSQLServer.Clear();
-//        edtSenhaSQLServer.Clear();
-
-//        cmbBaseDados.Clear();
-//        cmbSchema.Clear();
-//        cmbTabelas.Clear();
-
-//        cmbBaseDados.Enabled := False;
-//        cmbSchema.Enabled    := False;
-//        cmbTabelas.Enabled   := False;
-
-      //  HabilitarBotaoCarregarXML();
         HabilitarBotaoConectar();
         HabilitarBotaoCarregarAtributos();
 
@@ -920,32 +964,6 @@ begin
         cmbOrigemClasse.OnChange := cmbOrigemClasseChange;
       end;
     end;
-
-//    cOrigemInstrucaoSQL:
-//    begin
-//      btnCarregar.Caption := 'Avançar';
-//
-//      tsConexao.TabVisible      := True;
-//      tsInstrucaoSQL.TabVisible := True;
-//      tsDadosClasse.TabVisible  := True;
-//      tsPreview.TabVisible      := False;
-//
-//      pgcGenerator.ActivePage := tsConexao;
-//
-//      t_resposta := True;
-//
-//      if (FClientDataSetAtributos.RecordCount > 0) then
-//      begin
-//        t_resposta := (MessageDlg(Format('Os atributos existentes serão perdidos.%sDeseja continuar?', [sLineBreak]),
-//                                mtWarning, [mbYes,mbNo], 0, mbNo) = mrYes);
-//      end;
-//
-//      if t_resposta then
-//      begin
-//        FClientDataSetAtributos.EmptyDataSet();
-//        FClientDataSetAtributos.Close();
-//      end;
-//    end;
   else
     begin
       //colocar tudo readonly
@@ -1235,7 +1253,7 @@ var
   t_Atributo: TAtributoDTO;
 begin
   //preenchimento do objeto entidade e seus atributos
-  Result                     := TEntidadeDTO.Create(Self);
+  Result                     := TEntidadeDTO.Create();
   Result.NomeModulo          := edtNomeModulo.Text;
   Result.NomeTabela          := edtNomeTabela.Text;
   Result.NomeClasseAgregacao := edtNomeClasseAgregadora.Text;
@@ -1248,7 +1266,6 @@ begin
     Result.NomeClasseAgregacao := Result.NomeClassePlural;
   end;
 
-
   //loop nos atributos
   try
     FClientDataSetAtributos.DisableControls();
@@ -1259,16 +1276,19 @@ begin
     begin
       if (SameText(FClientDataSetAtributos.FieldByName('Selecionado').AsString, cSim)) then
       begin
-//        t_Atributo := Result.Atributos.Add();
         t_Atributo := TAtributoDTO.Create();
 
-        t_Atributo.NomeCampo     := FClientDataSetAtributos.FieldByName('NomeCampo').AsString;
-        t_Atributo.NomeAtributo  := FClientDataSetAtributos.FieldByName('NomeAtributo').AsString;
-        t_Atributo.NomeExibicao  := FClientDataSetAtributos.FieldByName('NomeExibicao').AsString;
-        t_Atributo.Tipo          := FClientDataSetAtributos.FieldByName('Tipo').AsString;
-//        t_Atributo.ChavePrimaria := SameText(FClientDataSetAtributos.FieldByName('ChavePrimaria').AsString, cSim);
-        t_Atributo.ChaveUnica    := SameText(FClientDataSetAtributos.FieldByName('ChaveUnica').AsString, cSim);
-        t_Atributo.Requerido     := SameText(FClientDataSetAtributos.FieldByName('Requerido').AsString, cSim);
+        t_Atributo.Ordem                := FClientDataSetAtributos.FieldByName('Ordem').AsInteger;
+        t_Atributo.NomeCampo            := FClientDataSetAtributos.FieldByName('NomeCampo').AsString;
+        t_Atributo.NomeAtributo         := FClientDataSetAtributos.FieldByName('NomeAtributo').AsString;
+        t_Atributo.NomeExibicao         := FClientDataSetAtributos.FieldByName('NomeExibicao').AsString;
+        t_Atributo.Tipo                 := FClientDataSetAtributos.FieldByName('Tipo').AsString;
+        t_Atributo.Lista                := SameText(FClientDataSetAtributos.FieldByName('Lista').AsString, cSim);
+        t_Atributo.ChavePrimaria        := SameText(FClientDataSetAtributos.FieldByName('ChavePrimaria').AsString, cSim);
+        t_Atributo.ChaveEstrangeira     := SameText(FClientDataSetAtributos.FieldByName('ChaveEstrangeira').AsString, cSim);
+        t_Atributo.ChaveUnica           := SameText(FClientDataSetAtributos.FieldByName('ChaveUnica').AsString, cSim);
+        t_Atributo.Requerido            := SameText(FClientDataSetAtributos.FieldByName('Requerido').AsString, cSim);
+        t_Atributo.EntidadeBase         := SameText(FClientDataSetAtributos.FieldByName('EntidadeBase').AsString, cSim);
 
         Result.Atributos.Add(t_Atributo);
       end;
@@ -1430,7 +1450,7 @@ end;
 function TDotNetGeneratorSourceCodeFrame.IsValidacaoOk(): Boolean;
 var
   t_Selecionado: Integer;
-//  t_Pks: Integer;
+  t_Pks: Integer;
   t_TipoNaoInformado: Integer;
 begin
   Result := False;
@@ -1496,7 +1516,7 @@ begin
   end;
 
   t_Selecionado := 0;
-//  t_Pks := 0;
+  t_Pks := 0;
   t_TipoNaoInformado := 0;
 
   try
@@ -1510,10 +1530,10 @@ begin
         Inc(t_Selecionado);
       end;
 
-//      if SameText(FClientDataSetAtributos.FieldByName('ChavePrimaria').AsString, cSim) then
-//      begin
-//        Inc(t_Pks);
-//      end;
+      if SameText(FClientDataSetAtributos.FieldByName('ChavePrimaria').AsString, cSim) then
+      begin
+        Inc(t_Pks);
+      end;
 
       if SameText(Trim(FClientDataSetAtributos.FieldByName('Tipo').AsString), EmptyStr) then
       begin
@@ -1538,16 +1558,15 @@ begin
     Exit
   end;
 
-//  if (t_Pks = 0) then
-//  begin
-//    ShowMessage('Ao menos um atributo deve ser chave primária');
-//
-//    if tlAtributos.CanFocus() then
-//      tlAtributos.SetFocus();
-//
-//    Exit
-//
-//  end;
+  if (t_Pks = 0) then
+  begin
+    ShowMessage('Ao menos um atributo deve ser chave primária');
+
+    if tlAtributos.CanFocus() then
+      tlAtributos.SetFocus();
+
+    Exit
+  end;
 
   if (t_TipoNaoInformado > 0) then
   begin
@@ -1629,14 +1648,28 @@ begin
       FClientDataSetAtributos.Append();
 
       FClientDataSetAtributos.FieldByName('Id').AsInteger := FNextIdAtributo;
-      FClientDataSetAtributos.FieldByName('Ordem').AsInteger := FNextIdAtributo;
+      FClientDataSetAtributos.FieldByName('Ordem').AsInteger := t_AtributoDTO.Ordem;
       FClientDataSetAtributos.FieldByName('ParentId').AsInteger := 0;
       FClientDataSetAtributos.FieldByName('Selecionado').AsString := cSim;
       FClientDataSetAtributos.FieldByName('NomeAtributo').AsString := t_AtributoDTO.NomeAtributo;
       FClientDataSetAtributos.FieldByName('NomeExibicao').AsString := t_AtributoDTO.NomeExibicao;
       FClientDataSetAtributos.FieldByName('NomeCampo').AsString := t_AtributoDTO.NomeCampo;
       FClientDataSetAtributos.FieldByName('Tipo').AsString := t_AtributoDTO.Tipo;
-//      FClientDataSetAtributos.FieldByName('ChavePrimaria').AsString := t_AtributoDTO.ChavePrimaria;
+
+      if (t_AtributoDTO.Lista) then
+        FClientDataSetAtributos.FieldByName('Lista').AsString := cSim
+      else
+        FClientDataSetAtributos.FieldByName('Lista').AsString := cNao;
+
+      if (t_AtributoDTO.ChavePrimaria) then
+        FClientDataSetAtributos.FieldByName('ChavePrimaria').AsString := cSim
+      else
+        FClientDataSetAtributos.FieldByName('ChavePrimaria').AsString := cNao;
+
+      if (t_AtributoDTO.ChaveEstrangeira) then
+        FClientDataSetAtributos.FieldByName('ChaveEstrangeira').AsString := cSim
+      else
+        FClientDataSetAtributos.FieldByName('ChaveEstrangeira').AsString := cNao;
 
       if (t_AtributoDTO.ChaveUnica) then
         FClientDataSetAtributos.FieldByName('ChaveUnica').AsString := cSim
@@ -1647,6 +1680,11 @@ begin
         FClientDataSetAtributos.FieldByName('Requerido').AsString := cSim
       else
         FClientDataSetAtributos.FieldByName('Requerido').AsString := cNao;
+
+      if (t_AtributoDTO.EntidadeBase) then
+        FClientDataSetAtributos.FieldByName('EntidadeBase').AsString := cSim
+      else
+        FClientDataSetAtributos.FieldByName('EntidadeBase').AsString := cNao;
 
       FClientDataSetAtributos.Post();
 
@@ -1736,16 +1774,20 @@ begin
         t_NomeAtributo := UpperCase(Copy(t_cds.FieldByName('Nome').AsString, 1, 1)) + LowerCase(Copy(t_cds.FieldByName('Nome').AsString, 2, Length(t_cds.FieldByName('Nome').AsString)));
 
         FClientDataSetAtributos.FieldByName('Id').AsInteger := FNextIdAtributo;
+        FClientDataSetAtributos.FieldByName('Ordem').AsInteger := FNextIdAtributo;
         FClientDataSetAtributos.FieldByName('ParentId').AsInteger := 0;
         FClientDataSetAtributos.FieldByName('Selecionado').AsString := cSim;
-        FClientDataSetAtributos.FieldByName('Nome').AsString := t_NomeAtributo;
+        FClientDataSetAtributos.FieldByName('NomeCampo').AsString := t_cds.FieldByName('Nome').AsString;
+        FClientDataSetAtributos.FieldByName('NomeAtributo').AsString := t_NomeAtributo;
         FClientDataSetAtributos.FieldByName('NomeExibicao').AsString := t_NomeAtributo;
-        FClientDataSetAtributos.FieldByName('NomeBaseDados').AsString := t_cds.FieldByName('Nome').AsString;
         FClientDataSetAtributos.FieldByName('Tipo').AsString := GetTipoAtributoDotNetFromSQLServer(t_cds.FieldByName('Tipo').AsString);
-//        FClientDataSetAtributos.FieldByName('ChavePrimaria').AsString := t_cds.FieldByName('ChavePrimaria').AsString;
+        FClientDataSetAtributos.FieldByName('Lista').AsString := t_cds.FieldByName('Lista').AsString;
+        FClientDataSetAtributos.FieldByName('ChavePrimaria').AsString := t_cds.FieldByName('ChavePrimaria').AsString;
+        FClientDataSetAtributos.FieldByName('ChaveEstrangeira').AsString := t_cds.FieldByName('ChaveEstrangeira').AsString;
+        FClientDataSetAtributos.FieldByName('TipoChaveEstrangeira').AsString := t_cds.FieldByName('TipoChaveEstrangeira').AsString;
         FClientDataSetAtributos.FieldByName('ChaveUnica').AsString := t_cds.FieldByName('ChaveUnica').AsString;
         FClientDataSetAtributos.FieldByName('Requerido').AsString := t_cds.FieldByName('Requerido').AsString;
-
+        FClientDataSetAtributos.FieldByName('EntidadeBase').AsString := t_cds.FieldByName('EntidadeBase').AsString;
         FClientDataSetAtributos.Post();
 
         Inc(FNextIdAtributo);
@@ -1768,7 +1810,6 @@ procedure TDotNetGeneratorSourceCodeFrame.PopularNomeTabela();
 begin
   edtNomeTabela.Text := cmbTabelas.Text;
 end;
-
 
 procedure TDotNetGeneratorSourceCodeFrame.PopularTreeViewPreview();
 var
@@ -1848,75 +1889,6 @@ begin
   end;
 
   edtConteudo.Clear();
-//var
-//  t_Arquivo: TArquivoDTO;
-//  t_Aux: TStringList;
-//  t_Indice: Integer;
-//  t_Node: TTreeNode;
-//  t_FirstNode: TTreeNode;
-//begin
-//  t_FirstNode := nil;
-//
-//  tvArquivos.Items.Clear();
-//
-//  for t_Arquivo in FListaArquivos do
-//  begin
-//    t_Aux := TStringList.Create();
-//
-//    try
-//      t_Aux.Delimiter := '\';
-//      t_Aux.DelimitedText := t_arquivo.Diretorio;
-//
-//      for t_Indice := 0 to t_Aux.Count -1 do
-//      begin
-//        if (not Assigned(tvArquivos.Selected)) then
-//        begin
-//          if (not SameText(Trim(t_Aux[t_Indice]), EmptyStr)) then
-//          begin
-//            t_Node := RetornarNoPorTexto(nil, t_Aux[t_Indice], False);
-//
-//            if (not Assigned(t_Node)) then
-//            begin
-//              t_Node := tvArquivos.Items.Add(t_FirstNode, t_Aux[t_Indice]);
-//              t_Node.Selected := True;
-//
-//              if not Assigned(t_FirstNode) then
-//              begin
-//                t_FirstNode := RetornarNoPorTexto(tvArquivos.Selected, t_Aux[t_Indice], False);
-//              end;
-//            end;
-//          end;
-//        end
-//        else
-//        begin
-//          if (not SameText(Trim(t_Aux[t_Indice]), EmptyStr)) then
-//          begin
-//            t_Node := RetornarNoPorTexto(tvArquivos.Selected, t_Aux[t_Indice], False);
-//
-//            if (not Assigned(t_Node)) then
-//            begin
-//              t_Node := tvArquivos.Items.AddChild(tvArquivos.Selected, t_Aux[t_Indice]);
-//            end;
-//
-//            t_Node.Selected := True;
-//          end;
-//        end;
-//      end;
-//
-//      t_Node := tvArquivos.Items.AddChildObject(tvArquivos.Selected, t_Arquivo.Nome, t_Arquivo);
-//      t_Node.MakeVisible();
-//    finally
-//      FreeAndNil(t_Aux);
-//    end;
-//  end;
-//
-//  for t_Indice := 0 to tvArquivos.Items.Count - 1 do
-//  begin
-//    tvArquivos.Items.Item[t_Indice].Collapse(True);
-//    tvArquivos.Items.Item[t_Indice].Selected := False;
-//  end;
-//
-//  edtConteudo.Clear();
 end;
 
 function TDotNetGeneratorSourceCodeFrame.RetornarNoPorTexto(pNode: TTreeNode; pTexto:String; pInclusive: Boolean): TTreeNode;
@@ -1966,17 +1938,6 @@ begin
       end;
     until (t_TestNode = nil);
   end;
-
-//  for t_Indice := 0 to tvArquivos.Items.Count - 1 do
-//  begin
-//    t_TextoNo := tvArquivos.Items[t_Indice].Text;
-//
-//    if SameText(pTexto, t_TextoNo) then
-//    begin
-//      Result := tvArquivos.Items[t_Indice];
-//      Exit;
-//    end;
-//  end;
 end;
 
 procedure TDotNetGeneratorSourceCodeFrame.SalvarArquivos();
@@ -2041,9 +2002,12 @@ begin
     FClientDataSetAtributos.FieldByName('Ordem').AsInteger := FNextIdAtributo;
     FClientDataSetAtributos.FieldByName('ParentId').AsInteger := 0;
     FClientDataSetAtributos.FieldByName('Selecionado').AsString := cSim;
+    FClientDataSetAtributos.FieldByName('Lista').AsString := cNao;
     FClientDataSetAtributos.FieldByName('ChavePrimaria').AsString := cNao;
+    FClientDataSetAtributos.FieldByName('ChaveEstrangeira').AsString := cNao;
     FClientDataSetAtributos.FieldByName('ChaveUnica').AsString := cNao;
     FClientDataSetAtributos.FieldByName('Requerido').AsString := cNao;
+    FClientDataSetAtributos.FieldByName('EntidadeBase').AsString := cNao;
 
     Inc(FNextIdAtributo);
 

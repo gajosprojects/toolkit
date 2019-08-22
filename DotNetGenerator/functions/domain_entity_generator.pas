@@ -29,15 +29,16 @@ function TDomainEntityGenerator.getFileContent(const pEntidade: TEntidadeDTO): W
 var
   t_Arquivo: TStringList;
   t_Aux: Integer;
-  t_NomeAtributo: string;
   t_NomeSnkAtributo: string;
-  t_TipoAtributo: string;
   t_NomeExibicaoAtributo: string;
   t_ValidacaoAtributo: TStringList;
   t_AtributoAux: string;
-  t_ParametrosConstrutor: string;
-  t_CorpoConstrutor: TStringList;
-  t_CorpoConstrutorAux: string;
+  t_ParametrosNewConstrutor: string;
+  t_ParametrosUpdateConstrutor: string;
+  t_CorpoNewConstrutor: TStringList;
+  t_CorpoUpdateConstrutor: TStringList;
+  t_CorpoNewConstrutorAux: string;
+  t_CorpoUpdateConstrutorAux: string;
   t_Diretorio: string;
   t_NomeSnkEntidade: string;
   t_AtributoDTO: TAtributoDTO;
@@ -63,13 +64,49 @@ begin
     for t_Aux := 0 to pEntidade.Atributos.Count - 1 do
     begin
       t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
-      t_NomeAtributo := t_AtributoDTO.NomeAtributo;
-      t_TipoAtributo := t_AtributoDTO.Tipo;
 
-      t_Arquivo.Add(Format('        public %s %s { get; private set; }', [t_TipoAtributo, t_NomeAtributo]));
+      if (not SameText(t_AtributoDTO.NomeCampo, EmptyStr)) then
+      begin
+        if (not t_AtributoDTO.EntidadeBase) then
+        begin
+          if (not t_AtributoDTO.ChaveEstrangeira) then
+          begin
+            t_Arquivo.Add(Format('        public %s %s { get; private set; }', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo]));
+          end
+          else
+          begin
+            if (not t_AtributoDTO.Lista) then
+            begin
+              t_Arquivo.Add(Format('        public virtual %s %s { get; private set; }', [t_AtributoDTO.Tipo, t_AtributoDTO.Tipo]));
+            end
+            else
+            begin
+              //tratar nome atributo no plural
+              t_Arquivo.Add(Format('        public virtual ICollection<%s> %s { get; private set; }', [t_AtributoDTO.Tipo, t_AtributoDTO.Tipo]));
+            end;
+          end;
+        end
+        else
+        begin
+          if (SameText(t_AtributoDTO.NomeCampo, 'usuario_id')) then
+          begin
+            t_Arquivo.Add(Format('        public virtual %s %s { get; private set; }', [t_AtributoDTO.Tipo, t_AtributoDTO.Tipo]));
+          end;
+        end;
+      end
+      else
+      begin
+        if (not t_AtributoDTO.Lista) then
+        begin
+          t_Arquivo.Add(Format('        public virtual %s %s { get; private set; }', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo]));
+        end
+        else
+        begin
+          t_Arquivo.Add(Format('        public virtual ICollection<%s> %s { get; private set; }', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo]));
+        end;
+      end;
     end;
 
-    t_Arquivo.Add('        public virtual Usuario Usuario { get; private set; }');
     t_Arquivo.Add('');
     t_Arquivo.Add(Format('        private %s() { }', [pEntidade.NomeClasseSingular]));
     t_Arquivo.Add('');
@@ -79,32 +116,30 @@ begin
     for t_Aux := 0 to pEntidade.Atributos.Count - 1 do
     begin
       t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
-      t_NomeAtributo := t_AtributoDTO.NomeAtributo;
-      t_NomeExibicaoAtributo := t_AtributoDTO.NomeExibicao;
 
-      try
-        t_ValidacaoAtributo := TStringList.Create();
+      if (not t_AtributoDTO.EntidadeBase) then
+      begin
+        t_NomeExibicaoAtributo := t_AtributoDTO.NomeExibicao;
 
-        t_ValidacaoAtributo.Add(Format('            RuleFor(%s => %s.%s)', [t_NomeSnkEntidade, t_NomeSnkEntidade, t_NomeAtributo]));
+        try
+          if (t_AtributoDTO.Requerido) then
+          begin
+            t_ValidacaoAtributo := TStringList.Create();
 
-        if (t_AtributoDTO.Requerido) then
-        begin
-          t_ValidacaoAtributo.Add(Format('                .NotEmpty().WithMessage("%s obrigatório(a)")', [t_NomeExibicaoAtributo]));
+            t_ValidacaoAtributo.Add(Format('            RuleFor(%s => %s.%s)', [t_NomeSnkEntidade, t_NomeSnkEntidade, t_AtributoDTO.NomeAtributo]));
+            t_ValidacaoAtributo.Add(Format('                .NotEmpty().WithMessage("%s obrigatório(a)")', [t_NomeExibicaoAtributo]));
+
+            t_AtributoAux := t_ValidacaoAtributo.Text;
+            Delete(t_AtributoAux, Length(t_AtributoAux) - 1, 2);
+            t_Arquivo.Add(t_AtributoAux + ';');
+            t_Arquivo.Add('');
+          end;
+        finally
+          FreeAndNil(t_ValidacaoAtributo);
         end;
-
-        if (t_ValidacaoAtributo.Count > 1) then
-        begin
-          t_AtributoAux := t_ValidacaoAtributo.Text;
-          Delete(t_AtributoAux, Length(t_AtributoAux) - 1, 2);
-          t_Arquivo.Add(t_AtributoAux + ';');
-          t_Arquivo.Add('');
-        end;
-      finally
-        FreeAndNil(t_ValidacaoAtributo);
       end;
     end;
 
-    t_Arquivo.Add('');
     t_Arquivo.Add('            ValidationResult = Validate(this);');
     t_Arquivo.Add('            return ValidationResult.IsValid;');
     t_Arquivo.Add('        }');
@@ -113,41 +148,69 @@ begin
     t_Arquivo.Add('        {');
 
     try
-      t_ParametrosConstrutor := EmptyStr;
-      t_CorpoConstrutor := TStringList.Create();
-
-      t_ParametrosConstrutor := 'Guid id';
-      t_CorpoConstrutor.Add('                    Id = id,');
+      t_ParametrosNewConstrutor := EmptyStr;
+      t_ParametrosUpdateConstrutor := EmptyStr;
+      t_CorpoNewConstrutor := TStringList.Create();
+      t_CorpoUpdateConstrutor := TStringList.Create();
 
       for t_Aux := 0 to pEntidade.Atributos.Count - 1 do
       begin
         t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
-	      t_NomeAtributo := t_AtributoDTO.NomeAtributo;
-        t_NomeSnkAtributo := LowerCase(Copy(t_NomeAtributo, 1, 1)) + Copy(t_NomeAtributo, 2, Length(t_NomeAtributo));
-        t_TipoAtributo := t_AtributoDTO.Tipo;
 
-        t_ParametrosConstrutor := t_ParametrosConstrutor + Format(', %s %s', [t_TipoAtributo, t_NomeSnkAtributo]);
+        if (not SameText(t_AtributoDTO.NomeCampo, EmptyStr)) then
+        begin
+          t_NomeSnkAtributo := LowerCase(Copy(t_AtributoDTO.NomeAtributo, 1, 1)) + Copy(t_AtributoDTO.NomeAtributo, 2, Length(t_AtributoDTO.NomeAtributo));
 
-        t_CorpoConstrutor.Add(Format('                    %s = %s,', [t_NomeAtributo, t_NomeSnkAtributo]));
+          if (not SameText(t_AtributoDTO.NomeCampo, 'ativo')) then
+          begin
+            if (SameText(t_ParametrosNewConstrutor, EmptyStr)) then
+              t_ParametrosNewConstrutor := Format('%s %s', [t_AtributoDTO.Tipo, t_NomeSnkAtributo])
+            else
+              t_ParametrosNewConstrutor := t_ParametrosNewConstrutor + Format(', %s %s', [t_AtributoDTO.Tipo, t_NomeSnkAtributo]);
+
+            if (t_CorpoNewConstrutor.Count = pEntidade.Atributos.Count) then
+              t_CorpoNewConstrutor.Add(Format('                    %s = %s', [t_AtributoDTO.NomeAtributo, t_NomeSnkAtributo]))
+            else
+              t_CorpoNewConstrutor.Add(Format('                    %s = %s,', [t_AtributoDTO.NomeAtributo, t_NomeSnkAtributo]));
+          end;
+
+          if (SameText(t_ParametrosUpdateConstrutor, EmptyStr)) then
+            t_ParametrosUpdateConstrutor := Format('%s %s', [t_AtributoDTO.Tipo, t_NomeSnkAtributo])
+          else
+            t_ParametrosUpdateConstrutor := t_ParametrosUpdateConstrutor + Format(', %s %s', [t_AtributoDTO.Tipo, t_NomeSnkAtributo]);
+
+          if (t_CorpoUpdateConstrutor.Count = pEntidade.Atributos.Count) then
+            t_CorpoUpdateConstrutor.Add(Format('                    %s = %s', [t_AtributoDTO.NomeAtributo, t_NomeSnkAtributo]))
+          else
+            t_CorpoUpdateConstrutor.Add(Format('                    %s = %s,', [t_AtributoDTO.NomeAtributo, t_NomeSnkAtributo]));
+        end;
       end;
 
-      t_ParametrosConstrutor := t_ParametrosConstrutor + ', DateTime dataCadastro, DateTime dataUltimaAtualizacao, Guid usuarioId';
+      t_CorpoNewConstrutorAux := t_CorpoNewConstrutor.Text;
+      Delete(t_CorpoNewConstrutorAux, Length(t_CorpoNewConstrutorAux) - 1, 2);
 
-      t_CorpoConstrutor.Add('                    DataCadastro = dataCadastro,');
-      t_CorpoConstrutor.Add('                    DataUltimaAtualizacao = dataUltimaAtualizacao,');
-      t_CorpoConstrutor.Add('                    UsuarioId = usuarioId');
-
-      t_CorpoConstrutorAux := t_CorpoConstrutor.Text;
-      Delete(t_CorpoConstrutorAux, Length(t_CorpoConstrutorAux) - 1, 2);
+      t_CorpoUpdateConstrutorAux := t_CorpoUpdateConstrutor.Text;
+      Delete(t_CorpoUpdateConstrutorAux, Length(t_CorpoUpdateConstrutorAux) - 1, 2);
     finally
-      FreeAndNil(t_CorpoConstrutor);
+      FreeAndNil(t_CorpoNewConstrutor);
+      FreeAndNil(t_CorpoUpdateConstrutor);
     end;
 
-    t_Arquivo.Add(Format('            public static %s New%s(%s)', [pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular, t_ParametrosConstrutor]));
+    t_Arquivo.Add(Format('            public static %s New%s(%s)', [pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular, t_ParametrosNewConstrutor]));
     t_Arquivo.Add('            {');
     t_Arquivo.Add(Format('                var %s = new %s()', [t_NomeSnkEntidade, pEntidade.NomeClasseSingular]));
     t_Arquivo.Add('                {');
-    t_Arquivo.Add(Format('%s', [t_CorpoConstrutorAux]));
+    t_Arquivo.Add(Format('%s', [t_CorpoNewConstrutorAux]));
+    t_Arquivo.Add('                };');
+    t_Arquivo.Add('');
+    t_Arquivo.Add(Format('                return %s;', [t_NomeSnkEntidade]));
+    t_Arquivo.Add('            }');
+    t_Arquivo.Add('');
+    t_Arquivo.Add(Format('            public static %s Update%s(%s)', [pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular, t_ParametrosUpdateConstrutor]));
+    t_Arquivo.Add('            {');
+    t_Arquivo.Add(Format('                var %s = new %s()', [t_NomeSnkEntidade, pEntidade.NomeClasseSingular]));
+    t_Arquivo.Add('                {');
+    t_Arquivo.Add(Format('%s', [t_CorpoUpdateConstrutorAux]));
     t_Arquivo.Add('                };');
     t_Arquivo.Add('');
     t_Arquivo.Add(Format('                return %s;', [t_NomeSnkEntidade]));

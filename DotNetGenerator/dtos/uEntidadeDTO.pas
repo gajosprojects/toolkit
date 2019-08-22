@@ -3,7 +3,6 @@ unit uEntidadeDTO;
 interface
 
 uses
-//  System.Generics.Collections,
   System.Classes,
   System.Contnrs,
   uAtributoDTO;
@@ -21,7 +20,7 @@ type
     FAtributos: TObjectList;
 
   public
-    constructor Create(AOwner: TComponent);
+    constructor Create();
     destructor Destroy(); override;
 
   published
@@ -42,9 +41,8 @@ uses
 
 { TEntidadeDTO }
 
-constructor TEntidadeDTO.Create(AOwner: TComponent);
+constructor TEntidadeDTO.Create();
 begin
-//  FAtributos := TObjectList<TAtributoDTO>.Create();;
   FAtributos := TObjectList.Create();
 end;
 
