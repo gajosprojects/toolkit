@@ -25,6 +25,7 @@ type
     function getDeleteFileContent(const pEntidade: TEntidadeDTO): WideString;
 
     function getFileDirectory(const pEntidade: TEntidadeDTO): string;
+    function getFileHandlerDirectory(const pEntidade: TEntidadeDTO): string;
 
   public
     function generateBaseFile(const pEntidade: TEntidadeDTO): TArquivoDTO;
@@ -55,7 +56,7 @@ function TDomainEventsGenerator.generateHandlerFile(const pEntidade: TEntidadeDT
 begin
   Result := TArquivoDTO.Create();
 
-  Result.Diretorio := getFileDirectory(pEntidade);
+  Result.Diretorio := getFileHandlerDirectory(pEntidade);
   Result.Nome      := getHandlerFileName(pEntidade);
   Result.Conteudo  := getHandlerFileContent(pEntidade);
 end;
@@ -98,15 +99,13 @@ begin
   t_Arquivo := TStringList.Create();
 
   try
-    t_Arquivo.Add('using System;');
     t_Arquivo.Add('using ERP.Domain.Core.Events;');
+    t_Arquivo.Add('using System;');
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Events', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]));
+    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Events.%s', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao, pEntidade.NomeClassePlural]));
     t_Arquivo.Add('{');
     t_Arquivo.Add(Format('    public class Base%sEvent : Event', [pEntidade.NomeClasseSingular]));
     t_Arquivo.Add('    {');
-
-    t_Arquivo.Add('        public Guid Id { get; protected set; }');
 
     for t_Aux := 0 to pEntidade.Atributos.Count - 1 do
     begin
@@ -114,11 +113,12 @@ begin
       t_NomeAtributo := t_AtributoDTO.NomeAtributo;
       t_TipoAtributo := t_AtributoDTO.Tipo;
 
-      t_Arquivo.Add(Format('        public %s %s { get; protected set; }', [t_TipoAtributo, t_NomeAtributo]));
+      if (SameText(t_AtributoDTO.NomeCampo, 'usuario_id')) then
+        t_Arquivo.Add(Format('        public Guid %s { get; protected set; }', [t_NomeAtributo]))
+      else
+        t_Arquivo.Add(Format('        public %s %s { get; protected set; }', [t_TipoAtributo, t_NomeAtributo]));
     end;
 
-    t_Arquivo.Add('        public DateTime DataCadastro { get; protected set; }');
-    t_Arquivo.Add('        public DateTime DataUltimaAtualizacao { get; protected set; }');
     t_Arquivo.Add('    }');
     t_Arquivo.Add('}');
 
@@ -143,13 +143,14 @@ begin
   try
     t_Arquivo.Add('using System;');
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Events', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]));
+    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Events.%s', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao, pEntidade.NomeClassePlural]));
     t_Arquivo.Add('{');
     t_Arquivo.Add(Format('    public class Deleted%sEvent : Base%sEvent', [pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular]));
     t_Arquivo.Add('    {');
-    t_Arquivo.Add(Format('        public Deleted%sEvent(Guid id)', [pEntidade.NomeClasseSingular]));
+    t_Arquivo.Add(Format('        public Deleted%sEvent(Guid id, Guid usuarioId)', [pEntidade.NomeClasseSingular]));
     t_Arquivo.Add('        {');
     t_Arquivo.Add('            Id = id;');
+    t_Arquivo.Add('            UsuarioId = usuarioId;');
     t_Arquivo.Add('            AggregateId = Id;');
     t_Arquivo.Add('        }');
     t_Arquivo.Add('    }');
@@ -168,6 +169,11 @@ end;
 
 function TDomainEventsGenerator.getFileDirectory(const pEntidade: TEntidadeDTO): string;
 begin
+  Result := Format('\ERP.%s.Domain\%s\Events\%s\', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao, pEntidade.NomeClassePlural]);
+end;
+
+function TDomainEventsGenerator.getFileHandlerDirectory(const pEntidade: TEntidadeDTO): string;
+begin
   Result := Format('\ERP.%s.Domain\%s\Events\', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]);
 end;
 
@@ -183,9 +189,10 @@ begin
     t_NomeSingularClasse := pEntidade.nomeClasseSingular;
     t_NomePluralClasse := pEntidade.nomeClassePlural;
 
+    t_Arquivo.Add(Format('using ERP.%s.Domain.%s.Events.%s;', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao, pEntidade.NomeClassePlural]));
+    t_Arquivo.Add('using MediatR;');
     t_Arquivo.Add('using System.Threading;');
     t_Arquivo.Add('using System.Threading.Tasks;');
-    t_Arquivo.Add('using MediatR;');
     t_Arquivo.Add('');
     t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Events', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]));
     t_Arquivo.Add('{');
@@ -236,7 +243,7 @@ begin
   try
     t_Arquivo.Add('using System;');
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Events', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]));
+    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Events.%s', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao, pEntidade.NomeClassePlural]));
     t_Arquivo.Add('{');
     t_Arquivo.Add(Format('    public class Saved%sEvent : Base%sEvent', [pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular]));
     t_Arquivo.Add('    {');
@@ -245,9 +252,6 @@ begin
       t_ParametrosSaved_entidade_event := EmptyStr;
       t_CorpoSavedEntidadeEvent := TStringList.Create();
 
-      t_ParametrosSaved_entidade_event := 'Guid id';
-      t_CorpoSavedEntidadeEvent.Add('            Id = id;');
-
       for t_Aux := 0 to pEntidade.Atributos.Count - 1 do
       begin
         t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
@@ -255,15 +259,24 @@ begin
         t_NomeSnkAtributo := LowerCase(Copy(t_NomeAtributo, 1, 1)) + Copy(t_NomeAtributo, 2, Length(t_NomeAtributo));
         t_TipoAtributo := t_AtributoDTO.Tipo;
 
-        t_ParametrosSaved_entidade_event := t_ParametrosSaved_entidade_event + Format(', %s %s', [t_TipoAtributo, t_NomeSnkAtributo]);
+        if (SameText(t_ParametrosSaved_entidade_event, EmptyStr)) then
+        begin
+          if (SameText(t_AtributoDTO.NomeCampo, 'usuario_id')) then
+            t_ParametrosSaved_entidade_event := Format('Guid %s', [t_NomeSnkAtributo])
+          else
+            t_ParametrosSaved_entidade_event := Format('%s %s', [t_TipoAtributo, t_NomeSnkAtributo])
+        end
+        else
+        begin
+          if (SameText(t_AtributoDTO.NomeCampo, 'usuario_id')) then
+            t_ParametrosSaved_entidade_event := t_ParametrosSaved_entidade_event + Format(', Guid %s', [t_NomeSnkAtributo])
+          else
+            t_ParametrosSaved_entidade_event := t_ParametrosSaved_entidade_event + Format(', %s %s', [t_TipoAtributo, t_NomeSnkAtributo]);
+        end;
 
         t_CorpoSavedEntidadeEvent.Add(Format('            %s = %s;', [t_NomeAtributo, t_NomeSnkAtributo]));
       end;
 
-      t_ParametrosSaved_entidade_event := t_ParametrosSaved_entidade_event + ', DateTime dataCadastro, DateTime dataUltimaAtualizacao';
-
-      t_CorpoSavedEntidadeEvent.Add('            DataCadastro = dataCadastro;');
-      t_CorpoSavedEntidadeEvent.Add('            DataUltimaAtualizacao = dataUltimaAtualizacao;');
       t_CorpoSavedEntidadeEvent.Add('            AggregateId = Id;');
 
       t_CorpoSavedEntidadeEventAux := t_CorpoSavedEntidadeEvent.Text;
@@ -307,7 +320,7 @@ begin
   try
     t_Arquivo.Add('using System;');
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Events', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]));
+    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Events.%s', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao, pEntidade.NomeClassePlural]));
     t_Arquivo.Add('{');
     t_Arquivo.Add(Format('    public class Updated%sEvent : Base%sEvent', [pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular]));
     t_Arquivo.Add('    {');
@@ -316,9 +329,6 @@ begin
       t_ParametrosUpdatedEntidadeEvent := EmptyStr;
       t_CorpoUpdatedEntidadeEvent := TStringList.Create();
 
-      t_ParametrosUpdatedEntidadeEvent := 'Guid id';
-      t_CorpoUpdatedEntidadeEvent.Add('            Id = id;');
-
       for t_Aux := 0 to pEntidade.Atributos.Count - 1 do
       begin
         t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
@@ -326,14 +336,24 @@ begin
         t_NomeSnkAtributo := LowerCase(Copy(t_NomeAtributo, 1, 1)) + Copy(t_NomeAtributo, 2, Length(t_NomeAtributo));
         t_TipoAtributo := t_AtributoDTO.Tipo;
 
-        t_ParametrosUpdatedEntidadeEvent := t_ParametrosUpdatedEntidadeEvent + Format(', %s %s', [t_TipoAtributo, t_NomeSnkAtributo]);
+        if (SameText(t_ParametrosUpdatedEntidadeEvent, EmptyStr)) then
+        begin
+          if (SameText(t_AtributoDTO.NomeCampo, 'usuario_id')) then
+            t_ParametrosUpdatedEntidadeEvent := Format('Guid %s', [t_NomeSnkAtributo])
+          else
+            t_ParametrosUpdatedEntidadeEvent := Format('%s %s', [t_TipoAtributo, t_NomeSnkAtributo]);
+        end
+        else
+        begin
+          if (SameText(t_AtributoDTO.NomeCampo, 'usuario_id')) then
+            t_ParametrosUpdatedEntidadeEvent := t_ParametrosUpdatedEntidadeEvent + Format(', Guid %s', [t_NomeSnkAtributo])
+          else
+            t_ParametrosUpdatedEntidadeEvent := t_ParametrosUpdatedEntidadeEvent + Format(', %s %s', [t_TipoAtributo, t_NomeSnkAtributo]);
+        end;
 
         t_CorpoUpdatedEntidadeEvent.Add(Format('            %s = %s;', [t_NomeAtributo, t_NomeSnkAtributo]));
       end;
 
-      t_ParametrosUpdatedEntidadeEvent := t_ParametrosUpdatedEntidadeEvent + ', DateTime dataUltimaAtualizacao';
-
-      t_CorpoUpdatedEntidadeEvent.Add('            DataUltimaAtualizacao = dataUltimaAtualizacao;');
       t_CorpoUpdatedEntidadeEvent.Add('            AggregateId = Id;');
 
       t_CorpoUpdatedEntidadeEventAux := t_CorpoUpdatedEntidadeEvent.Text;
