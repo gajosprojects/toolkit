@@ -62,12 +62,6 @@ begin
     t_Arquivo.Add('        {');
     t_Arquivo.Add(Format('            builder.ToTable("%s");', [LowerCase(pEntidade.NomeTabela)]));
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('            builder.Property(%s => %s.Id)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular)]));
-    t_Arquivo.Add('                   .HasColumnName("id");');
-    t_Arquivo.Add('');
-    t_Arquivo.Add(Format('            builder.HasKey(%s => %s.Id)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular)]));
-    t_Arquivo.Add(Format('                   .HasName("pk_%s_id");', [LowerCase(pEntidade.NomeClasseSingular)]));
-    t_Arquivo.Add('');
 
     for t_Aux := 0 to pEntidade.Atributos.Count - 1 do
     begin
@@ -87,14 +81,19 @@ begin
 
         //if (False) then
         //begin
-        //  t_BuilderAtributo.Add('            builder.HasDefaultValue(false);');
+        //  t_BuilderAtributo.Add('            .HasDefaultValue(false);');
         //end;
 
         //validacao de tamanho de campo
         //if (False) then
         //begin
-        //  t_BuilderAtributo.Add('            builder.HasMaxLength(7);');');
+        //  t_BuilderAtributo.Add('            .HasMaxLength(7);');');
         //end;
+
+        if (SameText(t_AtributoDTO.NomeCampo, 'ativo')) then
+        begin
+          t_BuilderAtributo.Add('            .HasDefaultValue(true)');
+        end;
 
         if (t_BuilderAtributo.Count > 1) then
         begin
@@ -112,6 +111,22 @@ begin
           t_BuilderAtributo.Add(Format('                   .HasName("uk_%s_%s")', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(t_AtributoDTO.NomeCampo)]));
         end;
 
+        if (SameText(t_AtributoDTO.NomeCampo, 'id')) then
+        begin
+          t_BuilderAtributo.Add('');
+          t_BuilderAtributo.Add(Format('            builder.HasKey(%s => %s.Id)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular)]));
+          t_BuilderAtributo.Add(Format('                   .HasName("pk_%s_id")', [LowerCase(pEntidade.NomeClasseSingular)]));
+        end
+        else if (SameText(t_AtributoDTO.NomeCampo, 'usuario_id')) then
+        begin
+          t_BuilderAtributo.Add('');
+          t_BuilderAtributo.Add(Format('            builder.HasOne(%s => %s.Usuario)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular)]));
+          t_BuilderAtributo.Add(Format('                .WithMany(usuario => usuario.%s)', [pEntidade.NomeClassePlural]));
+          t_BuilderAtributo.Add(Format('                .HasForeignKey(%s => %s.UsuarioId)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular)]));
+          t_BuilderAtributo.Add(Format('                .HasConstraintName("fk_usuario_id_%s")', [LowerCase(pEntidade.NomeClasseSingular)]));
+          t_BuilderAtributo.Add('                .OnDelete(DeleteBehavior.Restrict)');
+        end;
+
         if (t_BuilderAtributo.Count > 1) then
         begin
           t_AtributoAux := t_BuilderAtributo.Text;
@@ -125,27 +140,6 @@ begin
       t_Arquivo.Add('');
     end;
 
-    t_Arquivo.Add(Format('            builder.Property(%s => %s.Ativo)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular)]));
-    t_Arquivo.Add('                   .HasColumnName("ativo")');
-    t_Arquivo.Add('                   .IsRequired()');
-    t_Arquivo.Add('                   .HasDefaultValue(false);');
-    t_Arquivo.Add('');
-    t_Arquivo.Add(Format('            builder.Property(%s => %s.DataCadastro)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular)]));
-    t_Arquivo.Add('                .HasColumnName("data_cadastro")');
-    t_Arquivo.Add('                .IsRequired();');
-    t_Arquivo.Add('');
-    t_Arquivo.Add(Format('            builder.Property(%s => %s.DataUltimaAtualizacao)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular)]));
-    t_Arquivo.Add('                .HasColumnName("data_ultima_atualizacao");');
-    t_Arquivo.Add('');
-    t_Arquivo.Add(Format('            builder.Property(%s => %s.UsuarioId)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular)]));
-    t_Arquivo.Add('                .HasColumnName("usuario_id");');
-    t_Arquivo.Add('');
-    t_Arquivo.Add(Format('            builder.HasOne(%s => %s.Usuario)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular)]));
-    t_Arquivo.Add(Format('                .WithMany(usuario => usuario.%s)', [pEntidade.NomeClassePlural]));
-    t_Arquivo.Add(Format('                .HasForeignKey(%s => %s.UsuarioId)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular)]));
-    t_Arquivo.Add(Format('                .HasConstraintName("fk_usuario_id_%s")', [LowerCase(pEntidade.NomeClasseSingular)]));
-    t_Arquivo.Add('                .OnDelete(DeleteBehavior.Restrict);');
-    t_Arquivo.Add('');
     t_Arquivo.Add(Format('            builder.Ignore(%s => %s.ValidationResult);', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular)]));
     t_Arquivo.Add(Format('            builder.Ignore(%s => %s.CascadeMode);', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular)]));
     t_Arquivo.Add('        }');
