@@ -56,22 +56,18 @@ begin
     t_Arquivo.Add(Format('    public class %sViewModel', [pEntidade.nomeClasseSingular]));
     t_Arquivo.Add('    {');
 
-    //atributo identificador
-    t_Arquivo.Add('        public Guid Id { get; set; }');
-
     //demais atributos
     for t_Aux := 0 to pEntidade.Atributos.Count - 1 do
     begin
       t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
+
       //se for chave estrangeira, incluir o objeto e nao o atributo, igual ao UsuarioViewModel abaixo
-      t_Arquivo.Add(Format('        public %s %s { get; set; }', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo]));
+      if (SameText(t_AtributoDTO.NomeCampo, 'usuario_id')) then
+        t_Arquivo.Add('        public UsuarioViewModel Usuario { get; set; }')
+      else
+        t_Arquivo.Add(Format('        public %s %s { get; set; }', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo]));
     end;
 
-    t_Arquivo.Add('        public DateTime DataCadastro { get; set; }');
-    t_Arquivo.Add('        public DateTime DataUltimaAtualizacao { get; set; }');
-    t_Arquivo.Add('        public bool Desativado { get; set; }');
-    //se for chave estrangeira, incluir o objeto e nao o atributo, igual ao UsuarioViewModel abaixo
-    t_Arquivo.Add('        public UsuarioViewModel Usuario { get; set; }');
     t_Arquivo.Add('');
     t_Arquivo.Add(Format('    public %sViewModel()', [pEntidade.nomeClasseSingular]));
     t_Arquivo.Add('        {');
@@ -118,10 +114,10 @@ begin
     t_Arquivo.Add('    {');
 
     //atributo identificador
-    t_Arquivo.Add('        [Required(ErrorMessage = "Campo obrigatório")]');
+    t_Arquivo.Add('        [Required(ErrorMessage = "Id: Campo obrigatório")]');
     t_Arquivo.Add('        public Guid Id { get; set; }');
     t_Arquivo.Add('');
-    t_Arquivo.Add('        [NotEmptyGuid(ErrorMessage = "Campo obrigatório")]');
+    t_Arquivo.Add('        [NotEmptyGuid(ErrorMessage = "UsuarioId: Campo obrigatório")]');
     t_Arquivo.Add('        public Guid UsuarioId { get; set; }');
     t_Arquivo.Add('    }');
     t_Arquivo.Add('}');
@@ -178,36 +174,28 @@ begin
     t_Arquivo.Add(Format('    public class Save%sViewModel', [pEntidade.nomeClasseSingular]));
     t_Arquivo.Add('    {');
 
-    //atributo identificador
-    t_Arquivo.Add('        [Key]');
-    t_Arquivo.Add('        public Guid Id { get; set; }');
-    t_Arquivo.Add('');
-
     //demais atributos
     for t_Aux := 0 to pEntidade.Atributos.Count - 1 do
     begin
       t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
 
-      t_Arquivo.Add(Format('        [Display(Name = "%s")]', [t_AtributoDTO.NomeExibicao]));
-
-      //requerimento de campo
-      if (t_AtributoDTO.Requerido) then
+      if (not t_AtributoDTO.EntidadeBase) then
       begin
-        //se for chave estrangeira utilizar o NotEmptyGuid ao inves do Required
-        t_Arquivo.Add('        [Required(ErrorMessage = "Campo obrigatório")]');
-      end;
+        t_Arquivo.Add(Format('        [Display(Name = "%s")]', [t_AtributoDTO.NomeExibicao]));
 
-      t_Arquivo.Add(Format('        public %s %s { get; set; }', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo]));
-      t_Arquivo.Add('');
+        //requerimento de campo
+        if (t_AtributoDTO.Requerido) then
+        begin
+          //se for chave estrangeira utilizar o NotEmptyGuid ao inves do Required
+          t_Arquivo.Add('        [Required(ErrorMessage = "Campo obrigatório")]');
+        end;
+
+        t_Arquivo.Add(Format('        public %s %s { get; set; }', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo]));
+        t_Arquivo.Add('');
+      end;
     end;
 
-    t_Arquivo.Add('        [Display(Name = "Data cadastro")]');
-    t_Arquivo.Add('        public DateTime DataCadastro { get; set; }');
-    t_Arquivo.Add('');
-    t_Arquivo.Add('        [Display(Name = "Data última atualização")]');
-    t_Arquivo.Add('        public DateTime DataUltimaAtualizacao { get; set; }');
-    t_Arquivo.Add('');
-    t_Arquivo.Add('        [NotEmptyGuid(ErrorMessage = "Campo obrigatório")]');
+    t_Arquivo.Add('        [NotEmptyGuid(ErrorMessage = "UsuarioId: Campo obrigatório")]');
     t_Arquivo.Add('        public Guid UsuarioId { get; set; }');
     t_Arquivo.Add('    }');
     t_Arquivo.Add('}');
@@ -260,23 +248,23 @@ begin
     begin
       t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
 
-      t_Arquivo.Add(Format('        [Display(Name = "%s")]', [t_AtributoDTO.NomeExibicao]));
-
-      //requerimento de campo
-      if (t_AtributoDTO.Requerido) then
+      if (not t_AtributoDTO.EntidadeBase) then
       begin
-        //se for chave estrangeira utilizar o NotEmptyGuid ao inves do Required
-        t_Arquivo.Add('        [Required(ErrorMessage = "Campo obrigatório")]');
-      end;
+        t_Arquivo.Add(Format('        [Display(Name = "%s")]', [t_AtributoDTO.NomeExibicao]));
 
-      t_Arquivo.Add(Format('        public %s %s { get; set; }', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo]));
-      t_Arquivo.Add('');
+        //requerimento de campo
+        if (t_AtributoDTO.Requerido) then
+        begin
+          //se for chave estrangeira utilizar o NotEmptyGuid ao inves do Required
+          t_Arquivo.Add('        [Required(ErrorMessage = "Campo obrigatório")]');
+        end;
+
+        t_Arquivo.Add(Format('        public %s %s { get; set; }', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo]));
+        t_Arquivo.Add('');
+      end;
     end;
 
-    t_Arquivo.Add('        [Display(Name = "Data última atualização")]');
-    t_Arquivo.Add('        public DateTime DataUltimaAtualizacao { get; set; }');
-    t_Arquivo.Add('');
-    t_Arquivo.Add('        [NotEmptyGuid(ErrorMessage = "Campo obrigatório")]');
+    t_Arquivo.Add('        [NotEmptyGuid(ErrorMessage = "UsuarioId: Campo obrigatório")]');
     t_Arquivo.Add('        public Guid UsuarioId { get; set; }');
     t_Arquivo.Add('    }');
     t_Arquivo.Add('}');
