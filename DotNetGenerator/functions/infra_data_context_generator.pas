@@ -59,6 +59,7 @@ begin
     t_Arquivo.Add(Format('        public %sContext(IHostingEnvironment hostingEnvironment)', [pEntidade.NomeClasseAgregacaoPlural]));
     t_Arquivo.Add('        {');
     t_Arquivo.Add('            _hostingEnvironment = hostingEnvironment;');
+    t_Arquivo.Add('            Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;');
     t_Arquivo.Add('        }');
     t_Arquivo.Add('');
     t_Arquivo.Add('        protected override void OnModelCreating(ModelBuilder modelBuilder)');
