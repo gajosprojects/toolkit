@@ -50,11 +50,11 @@ begin
 
     t_Arquivo := TStringList.Create();
 
-    t_Arquivo.Add('using System;');
-    t_Arquivo.Add('using System.Collections.Generic;');
     t_Arquivo.Add('using ERP.Domain.Core.Models;');
     t_Arquivo.Add('using ERP.Gerencial.Domain.Usuarios;');
     t_Arquivo.Add('using FluentValidation;');
+    t_Arquivo.Add('using System;');
+    t_Arquivo.Add('using System.Collections.Generic;');
     t_Arquivo.Add('');
     t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]));
     t_Arquivo.Add('{');
@@ -69,22 +69,7 @@ begin
       begin
         if (not t_AtributoDTO.EntidadeBase) then
         begin
-          if (not t_AtributoDTO.ChaveEstrangeira) then
-          begin
             t_Arquivo.Add(Format('        public %s %s { get; private set; }', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo]));
-          end
-          else
-          begin
-            if (not t_AtributoDTO.Lista) then
-            begin
-              t_Arquivo.Add(Format('        public virtual %s %s { get; private set; }', [t_AtributoDTO.Tipo, t_AtributoDTO.Tipo]));
-            end
-            else
-            begin
-              //tratar nome atributo no plural
-              t_Arquivo.Add(Format('        public virtual ICollection<%s> %s { get; private set; }', [t_AtributoDTO.Tipo, t_AtributoDTO.Tipo]));
-            end;
-          end;
         end
         else
         begin
@@ -96,14 +81,7 @@ begin
       end
       else
       begin
-        if (not t_AtributoDTO.Lista) then
-        begin
           t_Arquivo.Add(Format('        public virtual %s %s { get; private set; }', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo]));
-        end
-        else
-        begin
-          t_Arquivo.Add(Format('        public virtual ICollection<%s> %s { get; private set; }', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo]));
-        end;
       end;
     end;
 
@@ -144,6 +122,11 @@ begin
     t_Arquivo.Add('            return ValidationResult.IsValid;');
     t_Arquivo.Add('        }');
     t_Arquivo.Add('');
+    t_Arquivo.Add('        public void AtribuirUsuario(Usuario usuario)');
+    t_Arquivo.Add('        {');
+    t_Arquivo.Add('            Usuario = usuario;');
+    t_Arquivo.Add('        }');
+    t_Arquivo.Add('');
     t_Arquivo.Add(Format('        public static class %sFactory', [pEntidade.NomeClasseSingular]));
     t_Arquivo.Add('        {');
 
@@ -161,28 +144,67 @@ begin
         begin
           t_NomeSnkAtributo := LowerCase(Copy(t_AtributoDTO.NomeAtributo, 1, 1)) + Copy(t_AtributoDTO.NomeAtributo, 2, Length(t_AtributoDTO.NomeAtributo));
 
-          if (not SameText(t_AtributoDTO.NomeCampo, 'ativo')) then
+          if (SameText(t_AtributoDTO.NomeCampo, 'usuario_id')) then
+          begin
+            if (SameText(t_ParametrosNewConstrutor, EmptyStr)) then
+              t_ParametrosNewConstrutor := Format('Guid %s', [t_NomeSnkAtributo])
+            else
+              t_ParametrosNewConstrutor := t_ParametrosNewConstrutor + Format(', Guid %s', [t_NomeSnkAtributo]);
+
+            if (SameText(t_ParametrosUpdateConstrutor, EmptyStr)) then
+              t_ParametrosUpdateConstrutor := Format('Guid %s', [t_NomeSnkAtributo])
+            else
+              t_ParametrosUpdateConstrutor := t_ParametrosUpdateConstrutor + Format(', Guid %s', [t_NomeSnkAtributo]);
+
+            if (t_CorpoNewConstrutor.Count = pEntidade.Atributos.Count) then
+              t_CorpoNewConstrutor.Add(Format('                    %s = %s', [t_AtributoDTO.NomeAtributo, t_NomeSnkAtributo]))
+            else
+              t_CorpoNewConstrutor.Add(Format('                    %s = %s,', [t_AtributoDTO.NomeAtributo, t_NomeSnkAtributo]));
+
+            if (t_CorpoUpdateConstrutor.Count = pEntidade.Atributos.Count) then
+              t_CorpoUpdateConstrutor.Add(Format('                    %s = %s', [t_AtributoDTO.NomeAtributo, t_NomeSnkAtributo]))
+            else
+              t_CorpoUpdateConstrutor.Add(Format('                    %s = %s,', [t_AtributoDTO.NomeAtributo, t_NomeSnkAtributo]));
+          end
+          else if (SameText(t_AtributoDTO.NomeCampo, 'ativo')) then
+          begin
+            if (SameText(t_ParametrosUpdateConstrutor, EmptyStr)) then
+              t_ParametrosUpdateConstrutor := Format('%s %s', [t_AtributoDTO.Tipo, t_NomeSnkAtributo])
+            else
+              t_ParametrosUpdateConstrutor := t_ParametrosUpdateConstrutor + Format(', %s %s', [t_AtributoDTO.Tipo, t_NomeSnkAtributo]);
+
+            if (t_CorpoNewConstrutor.Count = pEntidade.Atributos.Count) then
+              t_CorpoNewConstrutor.Add(Format('                    %s = true', [t_AtributoDTO.NomeAtributo]))
+            else
+              t_CorpoNewConstrutor.Add(Format('                    %s = true,', [t_AtributoDTO.NomeAtributo]));
+
+            if (t_CorpoUpdateConstrutor.Count = pEntidade.Atributos.Count) then
+              t_CorpoUpdateConstrutor.Add(Format('                    %s = %s', [t_AtributoDTO.NomeAtributo, t_NomeSnkAtributo]))
+            else
+              t_CorpoUpdateConstrutor.Add(Format('                    %s = %s,', [t_AtributoDTO.NomeAtributo, t_NomeSnkAtributo]));
+          end
+          else
           begin
             if (SameText(t_ParametrosNewConstrutor, EmptyStr)) then
               t_ParametrosNewConstrutor := Format('%s %s', [t_AtributoDTO.Tipo, t_NomeSnkAtributo])
             else
               t_ParametrosNewConstrutor := t_ParametrosNewConstrutor + Format(', %s %s', [t_AtributoDTO.Tipo, t_NomeSnkAtributo]);
 
+            if (SameText(t_ParametrosUpdateConstrutor, EmptyStr)) then
+              t_ParametrosUpdateConstrutor := Format('%s %s', [t_AtributoDTO.Tipo, t_NomeSnkAtributo])
+            else
+              t_ParametrosUpdateConstrutor := t_ParametrosUpdateConstrutor + Format(', %s %s', [t_AtributoDTO.Tipo, t_NomeSnkAtributo]);
+
             if (t_CorpoNewConstrutor.Count = pEntidade.Atributos.Count) then
               t_CorpoNewConstrutor.Add(Format('                    %s = %s', [t_AtributoDTO.NomeAtributo, t_NomeSnkAtributo]))
             else
               t_CorpoNewConstrutor.Add(Format('                    %s = %s,', [t_AtributoDTO.NomeAtributo, t_NomeSnkAtributo]));
+
+            if (t_CorpoUpdateConstrutor.Count = pEntidade.Atributos.Count) then
+              t_CorpoUpdateConstrutor.Add(Format('                    %s = %s', [t_AtributoDTO.NomeAtributo, t_NomeSnkAtributo]))
+            else
+              t_CorpoUpdateConstrutor.Add(Format('                    %s = %s,', [t_AtributoDTO.NomeAtributo, t_NomeSnkAtributo]));
           end;
-
-          if (SameText(t_ParametrosUpdateConstrutor, EmptyStr)) then
-            t_ParametrosUpdateConstrutor := Format('%s %s', [t_AtributoDTO.Tipo, t_NomeSnkAtributo])
-          else
-            t_ParametrosUpdateConstrutor := t_ParametrosUpdateConstrutor + Format(', %s %s', [t_AtributoDTO.Tipo, t_NomeSnkAtributo]);
-
-          if (t_CorpoUpdateConstrutor.Count = pEntidade.Atributos.Count) then
-            t_CorpoUpdateConstrutor.Add(Format('                    %s = %s', [t_AtributoDTO.NomeAtributo, t_NomeSnkAtributo]))
-          else
-            t_CorpoUpdateConstrutor.Add(Format('                    %s = %s,', [t_AtributoDTO.NomeAtributo, t_NomeSnkAtributo]));
         end;
       end;
 

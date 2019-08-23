@@ -427,6 +427,7 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
               PropertiesClassName = 'TcxCheckBoxProperties'
               Properties.ValueChecked = 'S'
               Properties.ValueUnchecked = 'N'
+              Visible = False
               Caption.AlignHorz = taCenter
               Caption.MultiLine = True
               DataBinding.FieldName = 'Lista'
@@ -456,6 +457,7 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
               PropertiesClassName = 'TcxCheckBoxProperties'
               Properties.ValueChecked = 'S'
               Properties.ValueUnchecked = 'N'
+              Visible = False
               Caption.AlignHorz = taCenter
               Caption.MultiLine = True
               Caption.Text = 'FK'

@@ -15,8 +15,8 @@ type
     FNomeExibicao: string;
     FTipo: string;
     FChavePrimaria: Boolean;
-    FChaveEstrangeira: Boolean;
-    FLista: Boolean;
+//    FChaveEstrangeira: Boolean;
+//    FLista: Boolean;
     FChaveUnica: Boolean;
     FRequerido: Boolean;
     FEntidadeBase: Boolean;
@@ -28,8 +28,8 @@ type
     property NomeExibicao: string read FNomeExibicao write FNomeExibicao;
     property Tipo: string read FTipo write FTipo;
     property ChavePrimaria: Boolean read FChavePrimaria write FChavePrimaria;
-    property ChaveEstrangeira: Boolean read FChaveEstrangeira write FChaveEstrangeira;
-    property Lista: Boolean read FLista write FLista;
+//    property ChaveEstrangeira: Boolean read FChaveEstrangeira write FChaveEstrangeira;
+//    property Lista: Boolean read FLista write FLista;
     property ChaveUnica: Boolean read FChaveUnica write FChaveUnica;
     property Requerido: Boolean read FRequerido write FRequerido;
     property EntidadeBase: Boolean read FEntidadeBase write FEntidadeBase;

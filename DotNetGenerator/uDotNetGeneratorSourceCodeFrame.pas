@@ -1283,9 +1283,9 @@ begin
         t_Atributo.NomeAtributo         := FClientDataSetAtributos.FieldByName('NomeAtributo').AsString;
         t_Atributo.NomeExibicao         := FClientDataSetAtributos.FieldByName('NomeExibicao').AsString;
         t_Atributo.Tipo                 := FClientDataSetAtributos.FieldByName('Tipo').AsString;
-        t_Atributo.Lista                := SameText(FClientDataSetAtributos.FieldByName('Lista').AsString, cSim);
+//        t_Atributo.Lista                := SameText(FClientDataSetAtributos.FieldByName('Lista').AsString, cSim);
         t_Atributo.ChavePrimaria        := SameText(FClientDataSetAtributos.FieldByName('ChavePrimaria').AsString, cSim);
-        t_Atributo.ChaveEstrangeira     := SameText(FClientDataSetAtributos.FieldByName('ChaveEstrangeira').AsString, cSim);
+//        t_Atributo.ChaveEstrangeira     := SameText(FClientDataSetAtributos.FieldByName('ChaveEstrangeira').AsString, cSim);
         t_Atributo.ChaveUnica           := SameText(FClientDataSetAtributos.FieldByName('ChaveUnica').AsString, cSim);
         t_Atributo.Requerido            := SameText(FClientDataSetAtributos.FieldByName('Requerido').AsString, cSim);
         t_Atributo.EntidadeBase         := SameText(FClientDataSetAtributos.FieldByName('EntidadeBase').AsString, cSim);
@@ -1656,20 +1656,20 @@ begin
       FClientDataSetAtributos.FieldByName('NomeCampo').AsString := t_AtributoDTO.NomeCampo;
       FClientDataSetAtributos.FieldByName('Tipo').AsString := t_AtributoDTO.Tipo;
 
-      if (t_AtributoDTO.Lista) then
-        FClientDataSetAtributos.FieldByName('Lista').AsString := cSim
-      else
-        FClientDataSetAtributos.FieldByName('Lista').AsString := cNao;
+//      if (t_AtributoDTO.Lista) then
+//        FClientDataSetAtributos.FieldByName('Lista').AsString := cSim
+//      else
+//        FClientDataSetAtributos.FieldByName('Lista').AsString := cNao;
 
       if (t_AtributoDTO.ChavePrimaria) then
         FClientDataSetAtributos.FieldByName('ChavePrimaria').AsString := cSim
       else
         FClientDataSetAtributos.FieldByName('ChavePrimaria').AsString := cNao;
 
-      if (t_AtributoDTO.ChaveEstrangeira) then
-        FClientDataSetAtributos.FieldByName('ChaveEstrangeira').AsString := cSim
-      else
-        FClientDataSetAtributos.FieldByName('ChaveEstrangeira').AsString := cNao;
+//      if (t_AtributoDTO.ChaveEstrangeira) then
+//        FClientDataSetAtributos.FieldByName('ChaveEstrangeira').AsString := cSim
+//      else
+//        FClientDataSetAtributos.FieldByName('ChaveEstrangeira').AsString := cNao;
 
       if (t_AtributoDTO.ChaveUnica) then
         FClientDataSetAtributos.FieldByName('ChaveUnica').AsString := cSim
