@@ -50,7 +50,7 @@ begin
   try
     t_Arquivo.Add('');
 
-    t_Arquivo.Add(Format('using ERP.%s.Domain.%s;', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]));
+    t_Arquivo.Add(Format('using ERP.%s.Domain.%s;', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacaoPlural]));
     t_Arquivo.Add('using Microsoft.EntityFrameworkCore;');
     t_Arquivo.Add('using Microsoft.EntityFrameworkCore.Metadata.Builders;');
     t_Arquivo.Add('');

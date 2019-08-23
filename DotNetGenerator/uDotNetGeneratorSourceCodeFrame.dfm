@@ -167,13 +167,13 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
             AlignWithMargins = True
             Left = 3
             Top = 3
-            Width = 327
+            Width = 245
             Height = 66
             Align = alLeft
             Caption = 'Nome do M'#243'dulo'
             TabOrder = 0
             DesignSize = (
-              327
+              245
               66)
             object lblNomeModulo: TLabel
               Left = 8
@@ -185,24 +185,27 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
             object edtNomeModulo: TEdit
               Left = 8
               Top = 37
-              Width = 309
+              Width = 227
               Height = 21
               Anchors = [akLeft, akTop, akRight]
               TabOrder = 0
-              TextHint = 'Ex: Admin'
+              TextHint = 'Ex: Gerencial'
+              ExplicitWidth = 309
             end
           end
           object gbxNomeTabela: TGroupBox
             AlignWithMargins = True
-            Left = 670
+            Left = 752
             Top = 3
-            Width = 327
+            Width = 245
             Height = 66
             Align = alClient
             Caption = 'Nome da Tabela'
             TabOrder = 2
+            ExplicitLeft = 753
+            ExplicitWidth = 244
             DesignSize = (
-              327
+              245
               66)
             object lblNomeTabela: TLabel
               Left = 8
@@ -214,40 +217,57 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
             object edtNomeTabela: TEdit
               Left = 8
               Top = 37
-              Width = 309
+              Width = 227
               Height = 21
               Anchors = [akLeft, akTop, akRight]
               TabOrder = 0
-              TextHint = 'Ex: grupos_empresariais'
+              TextHint = 'Ex: empresa'
+              ExplicitWidth = 309
             end
           end
           object gbxNomeClasseAgregadora: TGroupBox
             AlignWithMargins = True
-            Left = 336
+            Left = 254
             Top = 3
-            Width = 328
+            Width = 492
             Height = 66
             Align = alLeft
             Caption = 'Nome da Entidade Agregadora'
             TabOrder = 1
             DesignSize = (
-              328
+              492
               66)
-            object lblNomeClasseAgregadora: TLabel
+            object lblNomeClasseAgregadoraPlural: TLabel
+              Left = 253
+              Top = 20
+              Width = 26
+              Height = 13
+              Caption = 'Plural'
+            end
+            object lbl1: TLabel
               Left = 8
               Top = 20
-              Width = 310
+              Width = 38
               Height = 13
-              Caption = 'Plural (deixar em branco se a pr'#243'pria entidade for a agregadora)'
+              Caption = 'Singular'
             end
-            object edtNomeClasseAgregadora: TEdit
-              Left = 8
+            object edtNomeClasseAgregadoraPlural: TEdit
+              Left = 253
               Top = 37
-              Width = 308
+              Width = 227
               Height = 21
               Anchors = [akLeft, akTop, akRight]
               TabOrder = 0
               TextHint = 'Ex: GruposEmpresariais'
+            end
+            object edtNomeClasseAgregadoraSingular: TEdit
+              Left = 8
+              Top = 37
+              Width = 227
+              Height = 21
+              Anchors = [akLeft, akTop, akRight]
+              TabOrder = 1
+              TextHint = 'Ex: GruposEmpresarial'
             end
           end
         end
@@ -626,13 +646,14 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
             AlignWithMargins = True
             Left = 3
             Top = 3
-            Width = 661
+            Width = 494
             Height = 66
             Align = alClient
             Caption = 'Nome da Entidade'
             TabOrder = 0
+            ExplicitWidth = 487
             DesignSize = (
-              661
+              494
               66)
             object lblNomeSingular: TLabel
               Left = 8
@@ -642,7 +663,7 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
               Caption = 'Singular'
             end
             object lblNomePlural: TLabel
-              Left = 341
+              Left = 254
               Top = 20
               Width = 26
               Height = 13
@@ -651,49 +672,65 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
             object edtNomeClasseSingular: TEdit
               Left = 8
               Top = 37
-              Width = 309
+              Width = 227
               Height = 21
               Anchors = [akLeft, akTop, akRight]
               TabOrder = 0
-              TextHint = 'Ex: GrupoEmpresarial'
+              TextHint = 'Ex: Empresa'
             end
             object edtNomeClassePlural: TEdit
-              Left = 341
+              Left = 254
               Top = 37
-              Width = 308
+              Width = 227
               Height = 21
               Anchors = [akLeft, akTop, akRight]
               TabOrder = 1
-              TextHint = 'Ex: GruposEmpresariais'
+              TextHint = 'Ex: Empresas'
             end
           end
           object gbxNomeClasseExibicao: TGroupBox
             AlignWithMargins = True
-            Left = 670
+            Left = 503
             Top = 3
-            Width = 327
+            Width = 494
             Height = 66
             Align = alRight
             Caption = 'Nome de Exibi'#231#227'o da Entidade'
             TabOrder = 1
             DesignSize = (
-              327
+              494
               66)
-            object lblNomeClasseExibicao: TLabel
+            object lblNomeClasseExibicaoSingular: TLabel
               Left = 8
               Top = 20
               Width = 38
               Height = 13
               Caption = 'Singular'
             end
-            object edtNomeClasseExibicao: TEdit
+            object lblNomeClasseExibicaoPlural: TLabel
+              Left = 252
+              Top = 20
+              Width = 26
+              Height = 13
+              Caption = 'Plural'
+            end
+            object edtNomeClasseExibicaoSingular: TEdit
               Left = 8
               Top = 37
-              Width = 309
+              Width = 227
               Height = 21
               Anchors = [akLeft, akTop, akRight]
               TabOrder = 0
-              TextHint = 'Ex: Grupo Empresarial'
+              TextHint = 'Ex: Empresa'
+            end
+            object edtNomeClasseExibicaoPlural: TEdit
+              Left = 252
+              Top = 37
+              Width = 227
+              Height = 21
+              Anchors = [akLeft, akTop, akRight]
+              TabOrder = 1
+              TextHint = 'Ex: Empresas'
             end
           end
         end
@@ -788,6 +825,7 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
         Align = alClient
         Caption = 'Origem'
         TabOrder = 0
+        ExplicitTop = -5
         object cmbOrigemClasse: TComboBox
           Left = 8
           Top = 20

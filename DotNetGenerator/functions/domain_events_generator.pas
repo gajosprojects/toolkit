@@ -102,7 +102,7 @@ begin
     t_Arquivo.Add('using ERP.Domain.Core.Events;');
     t_Arquivo.Add('using System;');
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Events.%s', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao, pEntidade.NomeClassePlural]));
+    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Events.%s', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacaoPlural, pEntidade.NomeClassePlural]));
     t_Arquivo.Add('{');
     t_Arquivo.Add(Format('    public class Base%sEvent : Event', [pEntidade.NomeClasseSingular]));
     t_Arquivo.Add('    {');
@@ -143,7 +143,7 @@ begin
   try
     t_Arquivo.Add('using System;');
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Events.%s', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao, pEntidade.NomeClassePlural]));
+    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Events.%s', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacaoPlural, pEntidade.NomeClassePlural]));
     t_Arquivo.Add('{');
     t_Arquivo.Add(Format('    public class Deleted%sEvent : Base%sEvent', [pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular]));
     t_Arquivo.Add('    {');
@@ -169,12 +169,12 @@ end;
 
 function TDomainEventsGenerator.getFileDirectory(const pEntidade: TEntidadeDTO): string;
 begin
-  Result := Format('\ERP.%s.Domain\%s\Events\%s\', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao, pEntidade.NomeClassePlural]);
+  Result := Format('\ERP.%s.Domain\%s\Events\%s\', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacaoPlural, pEntidade.NomeClassePlural]);
 end;
 
 function TDomainEventsGenerator.getFileHandlerDirectory(const pEntidade: TEntidadeDTO): string;
 begin
-  Result := Format('\ERP.%s.Domain\%s\Events\', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]);
+  Result := Format('\ERP.%s.Domain\%s\Events\', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacaoPlural]);
 end;
 
 function TDomainEventsGenerator.getHandlerFileContent(const pEntidade: TEntidadeDTO): WideString;
@@ -189,12 +189,12 @@ begin
     t_NomeSingularClasse := pEntidade.nomeClasseSingular;
     t_NomePluralClasse := pEntidade.nomeClassePlural;
 
-    t_Arquivo.Add(Format('using ERP.%s.Domain.%s.Events.%s;', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao, pEntidade.NomeClassePlural]));
+    t_Arquivo.Add(Format('using ERP.%s.Domain.%s.Events.%s;', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacaoPlural, pEntidade.NomeClassePlural]));
     t_Arquivo.Add('using MediatR;');
     t_Arquivo.Add('using System.Threading;');
     t_Arquivo.Add('using System.Threading.Tasks;');
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Events', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]));
+    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Events', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacaoPlural]));
     t_Arquivo.Add('{');
     t_Arquivo.Add(Format('    public class %sEventHandler : INotificationHandler<Saved%sEvent>, INotificationHandler<Updated%sEvent>, INotificationHandler<Deleted%sEvent>', [t_NomeSingularClasse, t_NomeSingularClasse, t_NomeSingularClasse, t_NomeSingularClasse]));
     t_Arquivo.Add('    {');
@@ -243,7 +243,7 @@ begin
   try
     t_Arquivo.Add('using System;');
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Events.%s', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao, pEntidade.NomeClassePlural]));
+    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Events.%s', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacaoPlural, pEntidade.NomeClassePlural]));
     t_Arquivo.Add('{');
     t_Arquivo.Add(Format('    public class Saved%sEvent : Base%sEvent', [pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular]));
     t_Arquivo.Add('    {');
@@ -320,7 +320,7 @@ begin
   try
     t_Arquivo.Add('using System;');
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Events.%s', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao, pEntidade.NomeClassePlural]));
+    t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Events.%s', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacaoPlural, pEntidade.NomeClassePlural]));
     t_Arquivo.Add('{');
     t_Arquivo.Add(Format('    public class Updated%sEvent : Base%sEvent', [pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular]));
     t_Arquivo.Add('    {');

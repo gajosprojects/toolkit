@@ -54,8 +54,8 @@ begin
     t_Arquivo.Add('using ERP.Domain.Core.Bus;');
     t_Arquivo.Add('using ERP.Domain.Core.Contracts;');
     t_Arquivo.Add('using ERP.Domain.Core.Notifications;');
-    t_Arquivo.Add(Format('using ERP.%s.Domain.%s.Commands;', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]));
-    t_Arquivo.Add(Format('using ERP.%s.Domain.%s.Repositories;', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]));
+    t_Arquivo.Add(Format('using ERP.%s.Domain.%s.Commands;', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacaoPlural]));
+    t_Arquivo.Add(Format('using ERP.%s.Domain.%s.Repositories;', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacaoPlural]));
     t_Arquivo.Add(Format('using ERP.Services.API.ViewModels.%s.%s;', [pEntidade.NomeModulo, t_NomeSingularClasse]));
     t_Arquivo.Add('using MediatR;');
     t_Arquivo.Add('using Microsoft.AspNetCore.Authorization;');

@@ -43,7 +43,7 @@ begin
   try
     t_Arquivo.Add('');
 
-    t_Arquivo.Add(Format('using ERP.%s.Domain.%s;', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacao]));
+    t_Arquivo.Add(Format('using ERP.%s.Domain.%s;', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacaoPlural]));
     t_Arquivo.Add(Format('using ERP.Infra.Data.Mappings.%s;', [pEntidade.NomeModulo]));
     t_Arquivo.Add('using Microsoft.AspNetCore.Hosting;');
     t_Arquivo.Add('using Microsoft.EntityFrameworkCore;');
@@ -51,12 +51,12 @@ begin
     t_Arquivo.Add('');
     t_Arquivo.Add(Format('namespace ERP.Infra.Data.Context.%s', [pEntidade.NomeModulo]));
     t_Arquivo.Add('{');
-    t_Arquivo.Add(Format('    public class %sContext : DbContext', [pEntidade.NomeClasseAgregacao]));
+    t_Arquivo.Add(Format('    public class %sContext : DbContext', [pEntidade.NomeClasseAgregacaoPlural]));
     t_Arquivo.Add('    {');
     t_Arquivo.Add(Format('        public DbSet<%s> %s { get; set; }', [pEntidade.NomeClasseSingular, pEntidade.NomeClassePlural]));
     t_Arquivo.Add('        private readonly IHostingEnvironment _hostingEnvironment;');
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('        public %sContext(IHostingEnvironment hostingEnvironment)', [pEntidade.NomeClasseAgregacao]));
+    t_Arquivo.Add(Format('        public %sContext(IHostingEnvironment hostingEnvironment)', [pEntidade.NomeClasseAgregacaoPlural]));
     t_Arquivo.Add('        {');
     t_Arquivo.Add('            _hostingEnvironment = hostingEnvironment;');
     t_Arquivo.Add('        }');
@@ -91,7 +91,7 @@ end;
 
 function TInfraDataContextGenerator.getFileName(const pEntidade: TEntidadeDTO): string;
 begin
-  Result := Format('%sContext.cs', [pEntidade.NomeClasseAgregacao]);
+  Result := Format('%sContext.cs', [pEntidade.NomeClasseAgregacaoPlural]);
 end;
 
 end.
