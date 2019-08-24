@@ -21,7 +21,7 @@ type
 implementation
 
 uses
-  System.Classes, System.Contnrs, System.SysUtils, uAtributoDTO;
+  System.Classes, System.Contnrs, System.SysUtils, uAtributoDTO, uStringHelper;
 
 { TInfraDataMappingGenerator }
 
@@ -60,7 +60,7 @@ begin
     t_Arquivo.Add('    {');
     t_Arquivo.Add(Format('        public void Configure(EntityTypeBuilder<%s> builder)', [pEntidade.NomeClasseSingular]));
     t_Arquivo.Add('        {');
-    t_Arquivo.Add(Format('            builder.ToTable("%s");', [LowerCase(pEntidade.NomeTabela)]));
+    t_Arquivo.Add(Format('            builder.ToTable("%s");', [pEntidade.NomeTabela.ToLowerCase()]));
     t_Arquivo.Add('');
 
     for t_Aux := 0 to pEntidade.Atributos.Count - 1 do
@@ -71,8 +71,8 @@ begin
       try
         t_BuilderAtributo := TStringList.Create();
 
-        t_BuilderAtributo.Add(Format('            builder.Property(%s => %s.%s)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular), t_NomeAtributo]));
-        t_BuilderAtributo.Add(Format('                   .HasColumnName("%s")', [LowerCase(t_AtributoDTO.NomeCampo)]));
+        t_BuilderAtributo.Add(Format('            builder.Property(%s => %s.%s)', [pEntidade.NomeClasseSingular.ToLowerCase(), pEntidade.NomeClasseSingular.ToLowerCase(), t_NomeAtributo]));
+        t_BuilderAtributo.Add(Format('                   .HasColumnName("%s")', [t_AtributoDTO.NomeCampo.ToLowerCase()]));
 
         if (t_AtributoDTO.Requerido) then
         begin
@@ -106,24 +106,24 @@ begin
         if (t_AtributoDTO.ChaveUnica) then
         begin
           t_BuilderAtributo.Add('');
-          t_BuilderAtributo.Add(Format('            builder.HasIndex(%s => %s.%s)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular), t_NomeAtributo]));
+          t_BuilderAtributo.Add(Format('            builder.HasIndex(%s => %s.%s)', [pEntidade.NomeClasseSingular.ToLowerCase(), pEntidade.NomeClasseSingular.ToLowerCase(), t_NomeAtributo]));
           t_BuilderAtributo.Add('                   .IsUnique()');
-          t_BuilderAtributo.Add(Format('                   .HasName("uk_%s_%s")', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(t_AtributoDTO.NomeCampo)]));
+          t_BuilderAtributo.Add(Format('                   .HasName("uk_%s_%s")', [pEntidade.NomeClasseSingular.ToLowerCase(), t_AtributoDTO.NomeCampo.ToLowerCase()]));
         end;
 
         if (SameText(t_AtributoDTO.NomeCampo, 'id')) then
         begin
           t_BuilderAtributo.Add('');
-          t_BuilderAtributo.Add(Format('            builder.HasKey(%s => %s.Id)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular)]));
-          t_BuilderAtributo.Add(Format('                   .HasName("pk_%s_id")', [LowerCase(pEntidade.NomeClasseSingular)]));
+          t_BuilderAtributo.Add(Format('            builder.HasKey(%s => %s.Id)', [pEntidade.NomeClasseSingular.ToLowerCase(), pEntidade.NomeClasseSingular.ToLowerCase()]));
+          t_BuilderAtributo.Add(Format('                   .HasName("pk_%s_id")', [pEntidade.NomeClasseSingular.ToLowerCase()]));
         end
         else if (SameText(t_AtributoDTO.NomeCampo, 'usuario_id')) then
         begin
           t_BuilderAtributo.Add('');
-          t_BuilderAtributo.Add(Format('            builder.HasOne(%s => %s.Usuario)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular)]));
+          t_BuilderAtributo.Add(Format('            builder.HasOne(%s => %s.Usuario)', [pEntidade.NomeClasseSingular.ToLowerCase(), pEntidade.NomeClasseSingular.ToLowerCase()]));
           t_BuilderAtributo.Add(Format('                .WithMany(usuario => usuario.%s)', [pEntidade.NomeClassePlural]));
-          t_BuilderAtributo.Add(Format('                .HasForeignKey(%s => %s.UsuarioId)', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular)]));
-          t_BuilderAtributo.Add(Format('                .HasConstraintName("fk_usuario_id_%s")', [LowerCase(pEntidade.NomeClasseSingular)]));
+          t_BuilderAtributo.Add(Format('                .HasForeignKey(%s => %s.UsuarioId)', [pEntidade.NomeClasseSingular.ToLowerCase(), pEntidade.NomeClasseSingular.ToLowerCase()]));
+          t_BuilderAtributo.Add(Format('                .HasConstraintName("fk_usuario_id_%s")', [pEntidade.NomeClasseSingular.ToLowerCase()]));
           t_BuilderAtributo.Add('                .OnDelete(DeleteBehavior.Restrict)');
         end;
 
@@ -140,8 +140,8 @@ begin
       t_Arquivo.Add('');
     end;
 
-    t_Arquivo.Add(Format('            builder.Ignore(%s => %s.ValidationResult);', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular)]));
-    t_Arquivo.Add(Format('            builder.Ignore(%s => %s.CascadeMode);', [LowerCase(pEntidade.NomeClasseSingular), LowerCase(pEntidade.NomeClasseSingular)]));
+    t_Arquivo.Add(Format('            builder.Ignore(%s => %s.ValidationResult);', [pEntidade.NomeClasseSingular.ToLowerCase(), pEntidade.NomeClasseSingular.ToLowerCase()]));
+    t_Arquivo.Add(Format('            builder.Ignore(%s => %s.CascadeMode);', [pEntidade.NomeClasseSingular.ToLowerCase(), pEntidade.NomeClasseSingular.ToLowerCase()]));
     t_Arquivo.Add('        }');
     t_Arquivo.Add('    }');
     t_Arquivo.Add('}');
@@ -154,7 +154,7 @@ end;
 
 function TInfraDataMappingGenerator.getFileDirectory(const pEntidade: TEntidadeDTO): string;
 begin
-  Result := Format('\ERP.Infra.Data\Mappings\%s\', [pEntidade.NomeModulo]);
+  Result := Format('\src\ERP.Infra.Data\Mappings\%s\', [pEntidade.NomeModulo]);
 end;
 
 function TInfraDataMappingGenerator.getFileName(const pEntidade: TEntidadeDTO): string;

@@ -87,7 +87,7 @@ end;
 
 function TInfraDataContextGenerator.getFileDirectory(const pEntidade: TEntidadeDTO): string;
 begin
-  Result := Format('ERP.Infra.Data\Context\%s\', [pEntidade.NomeModulo]);
+  Result := Format('\src\ERP.Infra.Data\Context\%s\', [pEntidade.NomeModulo]);
 end;
 
 function TInfraDataContextGenerator.getFileName(const pEntidade: TEntidadeDTO): string;

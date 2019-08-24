@@ -177,7 +177,6 @@ type
     function GetViewToEntidade(): TEntidadeDTO;
 
     //VALIDACOES
-    function IsColunaBoolean(pNomeColuna: string): Boolean;
     function IsValidacaoOk(): Boolean;
 
     //
@@ -202,7 +201,7 @@ uses
   infra_data_repository_generator, infra_data_mapping_generator, infra_data_context_generator,
   domain_entity_generator, domain_commands_generator, domain_events_generator, domain_repository_generator,
   System.UITypes, uMainDataModule, uConstantes, cxNavigator, System.IniFiles, uSerializadorXML,
-  System.Contnrs, Vcl.FileCtrl;
+  System.Contnrs, Vcl.FileCtrl, tests_integration_generator, uStringHelper, tests_integration_dto_generator;
 
 {$R *.dfm}
 
@@ -321,14 +320,14 @@ var
 begin
   t_resposta := True;
 
-  if (FClientDataSetAtributos.Active) then
-  begin
-    if (FClientDataSetAtributos.RecordCount > 0) then
-    begin
-      t_resposta := (MessageDlg(Format('Os atributos existentes serão perdidos.%sDeseja continuar?', [sLineBreak]),
-                                mtWarning, [mbYes,mbNo], 0, mbNo) = mrYes);
-    end;
-  end;
+//  if (FClientDataSetAtributos.Active) then
+//  begin
+//    if (FClientDataSetAtributos.RecordCount > 0) then
+//    begin
+//      t_resposta := (MessageDlg(Format('Os atributos existentes serão perdidos.%sDeseja continuar?', [sLineBreak]),
+//                                mtWarning, [mbYes,mbNo], 0, mbNo) = mrYes);
+//    end;
+//  end;
 
   if t_resposta then
   begin
@@ -412,7 +411,23 @@ begin
     begin
       GerarArquivos();
       SalvarArquivos();
-      ShowMessage('Arquivos gerados com sucesso!');
+
+      with TStringList.Create() do
+      begin
+        Add('Arquivos gerados com sucesso!');
+        Add('');
+        Add('Os seguintes arquivos devem ser mesclados:');
+        Add('');
+        Add('src/Domain/Repositories/IRepository.cs');
+        Add('src/Infra.Data/Context/Context.cs');
+        Add('src/Infra.Data/Repositories/Repository.cs');
+        Add('src/Services/API/Controllers/Controller.cs');
+        Add('tests/Tests.Integration/ControllerIntegrationTests');
+
+        Application.MessageBox(Pchar(Text), 'Gerar Arquivos' , MB_OK + MB_ICONINFORMATION);
+
+        Free;
+      end;
     end;
   end;
 end;
@@ -604,11 +619,6 @@ begin
 end;
 
 procedure TDotNetGeneratorSourceCodeFrame.CarregarComboTiposDotNet();
-var
-  t_SearchResult : TSearchRec;
-  t_Arquivo: TStringList;
-  t_Serializador: TSerializadorXML;
-  t_Entidade: TEntidadeDTO;
 begin
   TcxComboBoxProperties(tlAtributosTipo.Properties).Items.Clear();
 
@@ -1063,6 +1073,8 @@ var
   t_DomainCommandsGenerator: TDomainCommandsGenerator;
   t_DomainEventsGenerator: TDomainEventsGenerator;
   t_DomainRepositoryGenerator: TDomainRepositoryGenerator;
+  t_TestsIntegrationGenerator: TTestsIntegrationGenerator;
+  t_TestsIntegrationDTOGenerator: TTestsIntegrationDTOGenerator;
 begin
   t_ServiceApiViewModelsGenerator := TServiceApiViewModelsGenerator.Create();
   t_ServiceApiControllerGenerator := TServiceApiControllerGenerator.Create();
@@ -1073,9 +1085,11 @@ begin
   t_DomainCommandsGenerator := TDomainCommandsGenerator.Create();
   t_DomainEventsGenerator := TDomainEventsGenerator.Create();
   t_DomainRepositoryGenerator := TDomainRepositoryGenerator.Create();
+  t_TestsIntegrationGenerator := TTestsIntegrationGenerator.Create();
+  t_TestsIntegrationDTOGenerator := TTestsIntegrationDTOGenerator.Create();
 
   FProgressBar.Position := 0;
-  FProgressBar.Max      := 20;
+  FProgressBar.Max      := 22;
 
   FListaArquivos.Clear();
 
@@ -1154,6 +1168,14 @@ begin
       AtualizarStatusBar();
       FListaArquivos.Add(t_ServiceApiViewModelsGenerator.getDeleteFile(t_Entidade));
 
+      //tests_integration
+      AtualizarStatusBar();
+      FListaArquivos.Add(t_TestsIntegrationGenerator.getFile(t_Entidade));
+
+      //tests_integration_dto
+      AtualizarStatusBar();
+      FListaArquivos.Add(t_TestsIntegrationDTOGenerator.getFile(t_Entidade));
+
       FProgressBar.Position := FProgressBar.Min;
     except
       on E: Exception do
@@ -1186,71 +1208,77 @@ begin
 
     if Assigned(t_DomainRepositoryGenerator) then
       FreeAndNil(t_DomainRepositoryGenerator);
+
+    if Assigned(t_TestsIntegrationGenerator) then
+      FreeAndNil(t_TestsIntegrationGenerator);
+
+    if Assigned(t_TestsIntegrationDTOGenerator) then
+      FreeAndNil(t_TestsIntegrationDTOGenerator);
   end;
 end;
 
 function TDotNetGeneratorSourceCodeFrame.GetTipoAtributoDotNetFromSQLServer(pNomeTipo: string): string;
 begin
   //ref: https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/sql-server-data-type-mappings
-  if SameText(LowerCase(pNomeTipo), 'bigint') then
+  if SameText(pNomeTipo.ToLowerCase(), 'bigint') then
     Result := 'long'
-  else if SameText(LowerCase(pNomeTipo), 'binary') then
+  else if SameText(pNomeTipo.ToLowerCase(), 'binary') then
     Result := '	byte[]'
-  else if SameText(LowerCase(pNomeTipo), 'bit') then
+  else if SameText(pNomeTipo.ToLowerCase(), 'bit') then
     Result := 'bool'
-  else if SameText(LowerCase(pNomeTipo), 'char') then
+  else if SameText(pNomeTipo.ToLowerCase(), 'char') then
     Result := 'string'
-  else if SameText(LowerCase(pNomeTipo), 'date') then
+  else if SameText(pNomeTipo.ToLowerCase(), 'date') then
     Result := 'DateTime'
-  else if SameText(LowerCase(pNomeTipo), 'datetime') then
+  else if SameText(pNomeTipo.ToLowerCase(), 'datetime') then
     Result := 'DateTime'
-  else if SameText(LowerCase(pNomeTipo), 'datetime2') then
+  else if SameText(pNomeTipo.ToLowerCase(), 'datetime2') then
     Result := 'DateTime'
-  else if SameText(LowerCase(pNomeTipo), 'datetimeoffset') then
+  else if SameText(pNomeTipo.ToLowerCase(), 'datetimeoffset') then
     Result := 'DateTimeOffset'
-  else if SameText(LowerCase(pNomeTipo), 'decimal') then
+  else if SameText(pNomeTipo.ToLowerCase(), 'decimal') then
     Result := 'decimal'
-  else if SameText(LowerCase(pNomeTipo), 'float') then
+  else if SameText(pNomeTipo.ToLowerCase(), 'float') then
     Result := 'double'
-  else if SameText(LowerCase(pNomeTipo), 'image') then
+  else if SameText(pNomeTipo.ToLowerCase(), 'image') then
     Result := 'byte[]'
-  else if SameText(LowerCase(pNomeTipo), 'int') then
+  else if SameText(pNomeTipo.ToLowerCase(), 'int') then
     Result := 'int'
-  else if SameText(LowerCase(pNomeTipo), 'money') then
+  else if SameText(pNomeTipo.ToLowerCase(), 'money') then
     Result := 'decimal'
-  else if SameText(LowerCase(pNomeTipo), 'nchar') then
+  else if SameText(pNomeTipo.ToLowerCase(), 'nchar') then
     Result := 'string'
-  else if SameText(LowerCase(pNomeTipo), 'ntext') then
+  else if SameText(pNomeTipo.ToLowerCase(), 'ntext') then
     Result := 'string'
-  else if SameText(LowerCase(pNomeTipo), 'numeric') then
+  else if SameText(pNomeTipo.ToLowerCase(), 'numeric') then
     Result := 'decimal'
-  else if SameText(LowerCase(pNomeTipo), 'nvarchar') then
+  else if SameText(pNomeTipo.ToLowerCase(), 'nvarchar') then
     Result := 'string'
-  else if SameText(LowerCase(pNomeTipo), 'real') then
+  else if SameText(pNomeTipo.ToLowerCase(), 'real') then
     Result := 'Single'
-  else if SameText(LowerCase(pNomeTipo), 'smalldatetime') then
+  else if SameText(pNomeTipo.ToLowerCase(), 'smalldatetime') then
     Result := 'DateTime'
-  else if SameText(LowerCase(pNomeTipo), 'smallint') then
+  else if SameText(pNomeTipo.ToLowerCase(), 'smallint') then
     Result := 'short'
-  else if SameText(LowerCase(pNomeTipo), 'smallmoney') then
+  else if SameText(pNomeTipo.ToLowerCase(), 'smallmoney') then
     Result := 'decimal'
-  else if SameText(LowerCase(pNomeTipo), 'sql_variant') then
+  else if SameText(pNomeTipo.ToLowerCase(), 'sql_variant') then
     Result := 'Object'
-  else if SameText(LowerCase(pNomeTipo), 'text') then
+  else if SameText(pNomeTipo.ToLowerCase(), 'text') then
     Result := 'string'
-  else if SameText(LowerCase(pNomeTipo), 'time') then
+  else if SameText(pNomeTipo.ToLowerCase(), 'time') then
     Result := 'TimeSpan'
-  else if SameText(LowerCase(pNomeTipo), 'timestamp') then
+  else if SameText(pNomeTipo.ToLowerCase(), 'timestamp') then
     Result := 'byte[]'
-  else if SameText(LowerCase(pNomeTipo), 'tinyint') then
+  else if SameText(pNomeTipo.ToLowerCase(), 'tinyint') then
     Result := 'byte'
-  else if SameText(LowerCase(pNomeTipo), 'uniqueidentifier') then
+  else if SameText(pNomeTipo.ToLowerCase(), 'uniqueidentifier') then
     Result := 'Guid'
-  else if SameText(LowerCase(pNomeTipo), 'varbinary') then
+  else if SameText(pNomeTipo.ToLowerCase(), 'varbinary') then
     Result := 'byte[]'
-  else if SameText(LowerCase(pNomeTipo), 'varchar') then
+  else if SameText(pNomeTipo.ToLowerCase(), 'varchar') then
     Result := 'string'
-  else if SameText(LowerCase(pNomeTipo), 'xml') then
+  else if SameText(pNomeTipo.ToLowerCase(), 'xml') then
     Result := 'Xml'
   else
     Result := EmptyStr;
@@ -1439,21 +1467,6 @@ begin
     begin
       cmbTabelas.Enabled := False;
     end;
-  end;
-end;
-
-function TDotNetGeneratorSourceCodeFrame.IsColunaBoolean(pNomeColuna: string): Boolean;
-var
-  t_indice: Integer;
-begin
-  Result := False;
-
-  for t_Indice := Low(aColunasBoolean) to High(aColunasBoolean) do
-  begin
-    Result := SameText(AnsiUpperCase(pNomeColuna), AnsiUpperCase(aColunasBoolean[t_Indice]));
-
-    if (Result) then
-      Break;
   end;
 end;
 
@@ -1772,7 +1785,6 @@ end;
 procedure TDotNetGeneratorSourceCodeFrame.PopularClientDataSetAtributos(pXMLData: WideString);
 var
   t_cds: TClientDataSet;
-  t_NomeAtributo: string;
 begin
   try
     FNextIdAtributo := 1;
@@ -1791,15 +1803,13 @@ begin
     begin
       FClientDataSetAtributos.Append();
 
-      t_NomeAtributo := UpperCase(Copy(t_cds.FieldByName('Nome').AsString, 1, 1)) + LowerCase(Copy(t_cds.FieldByName('Nome').AsString, 2, Length(t_cds.FieldByName('Nome').AsString)));
-
       FClientDataSetAtributos.FieldByName('Id').AsInteger := FNextIdAtributo;
       FClientDataSetAtributos.FieldByName('Ordem').AsInteger := FNextIdAtributo;
       FClientDataSetAtributos.FieldByName('ParentId').AsInteger := 0;
       FClientDataSetAtributos.FieldByName('Selecionado').AsString := cSim;
       FClientDataSetAtributos.FieldByName('NomeCampo').AsString := t_cds.FieldByName('Nome').AsString;
-      FClientDataSetAtributos.FieldByName('NomeAtributo').AsString := t_NomeAtributo;
-      FClientDataSetAtributos.FieldByName('NomeExibicao').AsString := t_NomeAtributo;
+      FClientDataSetAtributos.FieldByName('NomeAtributo').AsString := t_cds.FieldByName('Nome').AsString.DecapitalizeFirstLetter();
+      FClientDataSetAtributos.FieldByName('NomeExibicao').AsString := t_cds.FieldByName('Nome').AsString.DecapitalizeFirstLetter();
       FClientDataSetAtributos.FieldByName('Tipo').AsString := GetTipoAtributoDotNetFromSQLServer(t_cds.FieldByName('Tipo').AsString);
       FClientDataSetAtributos.FieldByName('Lista').AsString := t_cds.FieldByName('Lista').AsString;
       FClientDataSetAtributos.FieldByName('ChavePrimaria').AsString := t_cds.FieldByName('ChavePrimaria').AsString;
@@ -1983,9 +1993,9 @@ begin
 
       t_Diretorio := Format('%s\%s', [FDiretorioArquivosDotNet, t_Arquivo.Diretorio]);
 
-      if (not DirectoryExists(t_Diretorio)) then
+      if (not System.SysUtils.DirectoryExists(t_Diretorio)) then
       begin
-        ForceDirectories(t_Diretorio);
+        System.SysUtils.ForceDirectories(t_Diretorio);
       end;
 
       t_SaveFile.SaveToFile(Format('%s%s', [t_Diretorio, t_Arquivo.Nome]));

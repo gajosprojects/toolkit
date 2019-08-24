@@ -39,7 +39,7 @@ type
 implementation
 
 uses
-  System.Classes, System.Contnrs, System.SysUtils, uAtributoDTO;
+  System.Classes, System.Contnrs, System.SysUtils, uAtributoDTO, uStringHelper;
 
 { TDomainCommandsGenerator }
 
@@ -92,8 +92,6 @@ function TDomainCommandsGenerator.getBaseFileContent(const pEntidade: TEntidadeD
 var
   t_Arquivo: TStringList;
   t_Aux: Integer;
-  t_NomeAtributo: string;
-  t_TipoAtributo: string;
   t_AtributoDTO: TAtributoDTO;
 begin
   t_Arquivo := TStringList.Create();
@@ -110,15 +108,13 @@ begin
     for t_Aux := 0 to pEntidade.Atributos.Count - 1 do
     begin
       t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
-      t_NomeAtributo := t_AtributoDTO.NomeAtributo;
-      t_TipoAtributo := t_AtributoDTO.Tipo;
 
       if (not SameText(t_AtributoDTO.NomeCampo, 'ativo'))then
       begin
         if (SameText(t_AtributoDTO.NomeCampo, 'usuario_id'))then
-          t_Arquivo.Add(Format('        public Guid %s { get; protected set; }', [t_NomeAtributo]))
+          t_Arquivo.Add(Format('        public Guid %s { get; protected set; }', [t_AtributoDTO.NomeAtributo]))
         else
-          t_Arquivo.Add(Format('        public %s %s { get; protected set; }', [t_TipoAtributo, t_NomeAtributo]));
+          t_Arquivo.Add(Format('        public %s %s { get; protected set; }', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo]));
       end;
     end;
 
@@ -172,24 +168,18 @@ end;
 
 function TDomainCommandsGenerator.getFileDirectory(const pEntidade: TEntidadeDTO): string;
 begin
-  Result := Format('\ERP.%s.Domain\%s\Commands\%s\', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacaoPlural, pEntidade.NomeClassePlural]);
+  Result := Format('\src\ERP.%s.Domain\%s\Commands\%s\', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacaoPlural, pEntidade.NomeClassePlural]);
 end;
 
 function TDomainCommandsGenerator.getFileHandlerDirectory(const pEntidade: TEntidadeDTO): string;
 begin
-  Result := Format('\ERP.%s.Domain\%s\Commands\', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacaoPlural]);
+  Result := Format('\src\ERP.%s.Domain\%s\Commands\', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacaoPlural]);
 end;
 
 function TDomainCommandsGenerator.getHandlerFileContent(const pEntidade: TEntidadeDTO): WideString;
 var
   t_Arquivo: TStringList;
   t_Aux: Integer;
-  t_NomeSingularClasse: string;
-  t_NomePluralClasse: string;
-  t_NomeSingularSnkClasse: string;
-  t_NomePluralSnkClasse: string;
-  t_NomeExibicaoClasse: string;
-  t_NomeAtributo: string;
   t_ParametrosNewEntidade: string;
   t_ParametrosUpdateEntidade: string;
   t_ParametrosSavedEntidadeEvent: string;
@@ -199,12 +189,6 @@ begin
   t_Arquivo := TStringList.Create();
 
   try
-    t_NomeSingularClasse := pEntidade.nomeClasseSingular;
-    t_NomePluralClasse := pEntidade.nomeClassePlural;
-    t_NomeSingularSnkClasse := LowerCase(Copy(t_NomeSingularClasse, 1, 1)) + Copy(t_NomeSingularClasse, 2, Length(t_NomeSingularClasse));
-    t_NomePluralSnkClasse := LowerCase(Copy(t_NomePluralClasse, 1, 1)) + Copy(t_NomePluralClasse, 2, Length(t_NomePluralClasse));
-    t_NomeExibicaoClasse := LowerCase(pEntidade.NomeClasseExibicaoSingular);
-
     t_ParametrosNewEntidade := EmptyStr;
     t_ParametrosUpdateEntidade := EmptyStr;
     t_ParametrosSavedEntidadeEvent := EmptyStr;
@@ -222,77 +206,76 @@ begin
     t_Arquivo.Add('');
     t_Arquivo.Add(Format('namespace ERP.%s.Domain.%s.Commands', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacaoPlural]));
     t_Arquivo.Add('{');
-    t_Arquivo.Add(Format('    public class %sCommandHandler : CommandHandler, IRequestHandler<Save%sCommand, bool>, IRequestHandler<Update%sCommand, bool>, IRequestHandler<Delete%sCommand, bool>', [t_NomeSingularClasse, t_NomeSingularClasse, t_NomeSingularClasse, t_NomeSingularClasse]));
+    t_Arquivo.Add(Format('    public class %sCommandHandler : CommandHandler, IRequestHandler<Save%sCommand, bool>, IRequestHandler<Update%sCommand, bool>, IRequestHandler<Delete%sCommand, bool>', [pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular]));
     t_Arquivo.Add('    {');
-    t_Arquivo.Add(Format('        private readonly I%sRepository _%sRepository;', [t_NomePluralClasse, t_NomeSingularSnkClasse]));
+    t_Arquivo.Add(Format('        private readonly I%sRepository _%sRepository;', [pEntidade.NomeClassePlural, pEntidade.NomeClasseSingular.DecapitalizeFirstLetter()]));
     t_Arquivo.Add('        private readonly IMediatorHandler _mediator;');
     t_Arquivo.Add('        private readonly IUser _user;');
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('        public %sCommandHandler(IUnitOfWork uow, IMediatorHandler mediator, INotificationHandler<DomainNotification> notifications, I%sRepository %sRepository, IUser user) : base(uow, mediator, notifications)', [t_NomeSingularClasse, t_NomePluralClasse, t_NomeSingularSnkClasse]));
+    t_Arquivo.Add(Format('        public %sCommandHandler(IUnitOfWork uow, IMediatorHandler mediator, INotificationHandler<DomainNotification> notifications, I%sRepository %sRepository, IUser user) : base(uow, mediator, notifications)', [pEntidade.NomeClasseSingular, pEntidade.NomeClassePlural, pEntidade.NomeClasseSingular.DecapitalizeFirstLetter()]));
     t_Arquivo.Add('        {');
-    t_Arquivo.Add(Format('            _%sRepository = %sRepository;', [t_NomeSingularSnkClasse, t_NomeSingularSnkClasse]));
+    t_Arquivo.Add(Format('            _%sRepository = %sRepository;', [pEntidade.NomeClasseSingular.DecapitalizeFirstLetter(), pEntidade.NomeClasseSingular.DecapitalizeFirstLetter()]));
     t_Arquivo.Add('            _mediator = mediator;');
     t_Arquivo.Add('            _user = user;');
     t_Arquivo.Add('        }');
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('        public Task<bool> Handle(Save%sCommand request, CancellationToken cancellationToken)', [t_NomeSingularClasse]));
+    t_Arquivo.Add(Format('        public Task<bool> Handle(Save%sCommand request, CancellationToken cancellationToken)', [pEntidade.NomeClasseSingular]));
     t_Arquivo.Add('        {');
 
     for t_Aux := 0 to pEntidade.Atributos.Count - 1 do
     begin
       t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
-      t_NomeAtributo := t_AtributoDTO.NomeAtributo;
 
       if (SameText(t_ParametrosNewEntidade, EmptyStr)) then
       begin
         if (not SameText(t_AtributoDTO.NomeCampo, 'ativo')) then
         begin
-          t_ParametrosNewEntidade := t_ParametrosNewEntidade + Format('request.%s', [t_NomeAtributo])
+          t_ParametrosNewEntidade := t_ParametrosNewEntidade + Format('request.%s', [t_AtributoDTO.NomeAtributo])
         end
       end
       else
       begin
         if (not SameText(t_AtributoDTO.NomeCampo, 'ativo')) then
         begin
-          t_ParametrosNewEntidade := t_ParametrosNewEntidade + Format(', request.%s', [t_NomeAtributo]);
+          t_ParametrosNewEntidade := t_ParametrosNewEntidade + Format(', request.%s', [t_AtributoDTO.NomeAtributo]);
         end;
       end;
 
       if (SameText(t_AtributoDTO.NomeCampo, 'id')) or (SameText(t_AtributoDTO.NomeCampo, 'data_cadastro')) then
       begin
         if (SameText(t_ParametrosUpdateEntidade, EmptyStr)) then
-          t_ParametrosUpdateEntidade := t_ParametrosUpdateEntidade + Format('%sExistente.%s', [t_NomeSingularSnkClasse, t_NomeAtributo])
+          t_ParametrosUpdateEntidade := t_ParametrosUpdateEntidade + Format('%sExistente.%s', [pEntidade.NomeClasseSingular.DecapitalizeFirstLetter(), t_AtributoDTO.NomeAtributo])
         else
-          t_ParametrosUpdateEntidade := t_ParametrosUpdateEntidade + Format(', %sExistente.%s', [t_NomeSingularSnkClasse, t_NomeAtributo]);
+          t_ParametrosUpdateEntidade := t_ParametrosUpdateEntidade + Format(', %sExistente.%s', [pEntidade.NomeClasseSingular.DecapitalizeFirstLetter(), t_AtributoDTO.NomeAtributo]);
       end
       else
       begin
         if (SameText(t_ParametrosUpdateEntidade, EmptyStr)) then
-          t_ParametrosUpdateEntidade := t_ParametrosUpdateEntidade + Format('request.%s', [t_NomeAtributo])
+          t_ParametrosUpdateEntidade := t_ParametrosUpdateEntidade + Format('request.%s', [t_AtributoDTO.NomeAtributo])
         else
-          t_ParametrosUpdateEntidade := t_ParametrosUpdateEntidade + Format(', request.%s', [t_NomeAtributo]);
+          t_ParametrosUpdateEntidade := t_ParametrosUpdateEntidade + Format(', request.%s', [t_AtributoDTO.NomeAtributo]);
       end;
 
       if (SameText(t_ParametrosSavedEntidadeEvent, EmptyStr)) then
-        t_ParametrosSavedEntidadeEvent := t_ParametrosSavedEntidadeEvent + Format('%s.%s', [t_NomeSingularSnkClasse, t_NomeAtributo])
+        t_ParametrosSavedEntidadeEvent := t_ParametrosSavedEntidadeEvent + Format('%s.%s', [pEntidade.NomeClasseSingular.DecapitalizeFirstLetter(), t_AtributoDTO.NomeAtributo])
       else
-        t_ParametrosSavedEntidadeEvent := t_ParametrosSavedEntidadeEvent + Format(', %s.%s', [t_NomeSingularSnkClasse, t_NomeAtributo]);
+        t_ParametrosSavedEntidadeEvent := t_ParametrosSavedEntidadeEvent + Format(', %s.%s', [pEntidade.NomeClasseSingular.DecapitalizeFirstLetter(), t_AtributoDTO.NomeAtributo]);
 
       if (SameText(t_ParametrosUpdatedEntidadeEvent, EmptyStr)) then
-        t_ParametrosUpdatedEntidadeEvent := t_ParametrosUpdatedEntidadeEvent + Format('%s.%s', [t_NomeSingularSnkClasse, t_NomeAtributo])
+        t_ParametrosUpdatedEntidadeEvent := t_ParametrosUpdatedEntidadeEvent + Format('%s.%s', [pEntidade.NomeClasseSingular.DecapitalizeFirstLetter(), t_AtributoDTO.NomeAtributo])
       else
-        t_ParametrosUpdatedEntidadeEvent := t_ParametrosUpdatedEntidadeEvent + Format(', %s.%s', [t_NomeSingularSnkClasse, t_NomeAtributo]);
+        t_ParametrosUpdatedEntidadeEvent := t_ParametrosUpdatedEntidadeEvent + Format(', %s.%s', [pEntidade.NomeClasseSingular.DecapitalizeFirstLetter(), t_AtributoDTO.NomeAtributo]);
     end;
 
-    t_Arquivo.Add(Format('            var %s = %s.%sFactory.New%s(%s);', [t_NomeSingularSnkClasse, t_NomeSingularClasse, t_NomeSingularClasse, t_NomeSingularClasse, t_ParametrosNewEntidade]));
+    t_Arquivo.Add(Format('            var %s = %s.%sFactory.New%s(%s);', [pEntidade.NomeClasseSingular.DecapitalizeFirstLetter(), pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular, t_ParametrosNewEntidade]));
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('            if (IsValid(%s))', [t_NomeSingularSnkClasse]));
+    t_Arquivo.Add(Format('            if (IsValid(%s))', [pEntidade.NomeClasseSingular.DecapitalizeFirstLetter()]));
     t_Arquivo.Add('            {');
-    t_Arquivo.Add(Format('                _%sRepository.Save(%s);', [t_NomeSingularSnkClasse, t_NomeSingularSnkClasse]));
+    t_Arquivo.Add(Format('                _%sRepository.Save(%s);', [pEntidade.NomeClasseSingular.DecapitalizeFirstLetter(), pEntidade.NomeClasseSingular.DecapitalizeFirstLetter()]));
     t_Arquivo.Add('');
     t_Arquivo.Add('                if (Commit())');
     t_Arquivo.Add('                {');
-    t_Arquivo.Add(Format('                    _mediator.RaiseEvent(new Saved%sEvent(%s));', [t_NomeSingularClasse, t_ParametrosSavedEntidadeEvent]));
+    t_Arquivo.Add(Format('                    _mediator.RaiseEvent(new Saved%sEvent(%s));', [pEntidade.NomeClasseSingular, t_ParametrosSavedEntidadeEvent]));
     t_Arquivo.Add('                }');
     t_Arquivo.Add('');
     t_Arquivo.Add('                return Task.FromResult(true);');
@@ -303,26 +286,26 @@ begin
     t_Arquivo.Add('            }');
     t_Arquivo.Add('        }');
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('        public Task<bool> Handle(Update%sCommand request, CancellationToken cancellationToken)', [t_NomeSingularClasse]));
+    t_Arquivo.Add(Format('        public Task<bool> Handle(Update%sCommand request, CancellationToken cancellationToken)', [pEntidade.NomeClasseSingular]));
     t_Arquivo.Add('        {');
-    t_Arquivo.Add(Format('            var %sExistente = _%sRepository.GetById(request.Id);', [t_NomeSingularSnkClasse, t_NomeSingularSnkClasse]));
+    t_Arquivo.Add(Format('            var %sExistente = _%sRepository.GetById(request.Id);', [pEntidade.NomeClasseSingular.DecapitalizeFirstLetter(), pEntidade.NomeClasseSingular.DecapitalizeFirstLetter()]));
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('            if (%sExistente == null)', [t_NomeSingularSnkClasse]));
+    t_Arquivo.Add(Format('            if (%sExistente == null)', [pEntidade.NomeClasseSingular.DecapitalizeFirstLetter()]));
     t_Arquivo.Add('            {');
-    t_Arquivo.Add(Format('                _mediator.RaiseEvent(new DomainNotification(request.MessageType, "Este %s não existe"));', [t_NomeExibicaoClasse]));
+    t_Arquivo.Add(Format('                _mediator.RaiseEvent(new DomainNotification(request.MessageType, "Este %s não existe"));', [pEntidade.NomeClasseExibicaoSingular.ToLowerCase()]));
     t_Arquivo.Add('                return Task.FromResult(false);');
     t_Arquivo.Add('            }');
     t_Arquivo.Add('            else');
     t_Arquivo.Add('            {');
-    t_Arquivo.Add(Format('                var %s = %s.%sFactory.Update%s(%s);', [t_NomeSingularSnkClasse, t_NomeSingularClasse, t_NomeSingularClasse, t_NomeSingularClasse, t_ParametrosUpdateEntidade]));
+    t_Arquivo.Add(Format('                var %s = %s.%sFactory.Update%s(%s);', [pEntidade.NomeClasseSingular.DecapitalizeFirstLetter(), pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular, t_ParametrosUpdateEntidade]));
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('                if (IsValid(%s))', [t_NomeSingularSnkClasse]));
+    t_Arquivo.Add(Format('                if (IsValid(%s))', [pEntidade.NomeClasseSingular.DecapitalizeFirstLetter()]));
     t_Arquivo.Add('                {');
-    t_Arquivo.Add(Format('                    _%sRepository.Update(%s);', [t_NomeSingularSnkClasse, t_NomeSingularSnkClasse]));
+    t_Arquivo.Add(Format('                    _%sRepository.Update(%s);', [pEntidade.NomeClasseSingular.DecapitalizeFirstLetter(), pEntidade.NomeClasseSingular.DecapitalizeFirstLetter()]));
     t_Arquivo.Add('');
     t_Arquivo.Add('                    if (Commit())');
     t_Arquivo.Add('                    {');
-    t_Arquivo.Add(Format('                        _mediator.RaiseEvent(new Updated%sEvent(%s));', [t_NomeSingularClasse, t_ParametrosUpdatedEntidadeEvent]));
+    t_Arquivo.Add(Format('                        _mediator.RaiseEvent(new Updated%sEvent(%s));', [pEntidade.NomeClasseSingular, t_ParametrosUpdatedEntidadeEvent]));
     t_Arquivo.Add('                    }');
     t_Arquivo.Add('');
     t_Arquivo.Add('                    return Task.FromResult(true);');
@@ -334,23 +317,23 @@ begin
     t_Arquivo.Add('            }');
     t_Arquivo.Add('        }');
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('        public Task<bool> Handle(Delete%sCommand request, CancellationToken cancellationToken)', [t_NomeSingularClasse]));
+    t_Arquivo.Add(Format('        public Task<bool> Handle(Delete%sCommand request, CancellationToken cancellationToken)', [pEntidade.NomeClasseSingular]));
     t_Arquivo.Add('        {');
-    t_Arquivo.Add(Format('            var %sExistente = _%sRepository.GetById(request.Id);', [t_NomeSingularSnkClasse, t_NomeSingularSnkClasse]));
+    t_Arquivo.Add(Format('            var %sExistente = _%sRepository.GetById(request.Id);', [pEntidade.NomeClasseSingular.DecapitalizeFirstLetter(), pEntidade.NomeClasseSingular.DecapitalizeFirstLetter()]));
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('            if (%sExistente == null)', [t_NomeSingularSnkClasse]));
+    t_Arquivo.Add(Format('            if (%sExistente == null)', [pEntidade.NomeClasseSingular.DecapitalizeFirstLetter()]));
     t_Arquivo.Add('            {');
-    t_Arquivo.Add(Format('                _mediator.RaiseEvent(new DomainNotification(request.MessageType, "Este %s não existe"));', [t_NomeExibicaoClasse]));
+    t_Arquivo.Add(Format('                _mediator.RaiseEvent(new DomainNotification(request.MessageType, "Este %s não existe"));', [pEntidade.NomeClasseExibicaoSingular.ToLowerCase()]));
     t_Arquivo.Add('                return Task.FromResult(false);');
     t_Arquivo.Add('            }');
     t_Arquivo.Add('            else');
     t_Arquivo.Add('            {');
-    t_Arquivo.Add(Format('                %sExistente.Desativar(request.UsuarioId);', [t_NomeSingularSnkClasse]));
-    t_Arquivo.Add(Format('                _%sRepository.Update(%sExistente);', [t_NomeSingularSnkClasse, t_NomeSingularSnkClasse]));
+    t_Arquivo.Add(Format('                %sExistente.Desativar(request.UsuarioId);', [pEntidade.NomeClasseSingular.DecapitalizeFirstLetter()]));
+    t_Arquivo.Add(Format('                _%sRepository.Update(%sExistente);', [pEntidade.NomeClasseSingular.DecapitalizeFirstLetter(), pEntidade.NomeClasseSingular.DecapitalizeFirstLetter()]));
     t_Arquivo.Add('');
     t_Arquivo.Add('                if (Commit())');
     t_Arquivo.Add('                {');
-    t_Arquivo.Add(Format('                    _mediator.RaiseEvent(new Deleted%sEvent(request.Id, request.UsuarioId));', [t_NomeSingularClasse]));
+    t_Arquivo.Add(Format('                    _mediator.RaiseEvent(new Deleted%sEvent(request.Id, request.UsuarioId));', [pEntidade.NomeClasseSingular]));
     t_Arquivo.Add('                }');
     t_Arquivo.Add('');
     t_Arquivo.Add('                return Task.FromResult(true);');
@@ -374,9 +357,6 @@ function TDomainCommandsGenerator.getSaveFileContent(const pEntidade: TEntidadeD
 var
   t_Arquivo: TStringList;
   t_Aux: Integer;
-  t_NomeAtributo: string;
-  t_NomeSnkAtributo: string;
-  t_TipoAtributo: string;
   t_ParametrosSaveEntidadeCommand: string;
   t_CorpoSaveEntidadeCommand: TStringList;
   t_CorpoSaveEntidadeCommandAux: string;
@@ -398,19 +378,16 @@ begin
       for t_Aux := 0 to pEntidade.Atributos.Count - 1 do
       begin
         t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
-        t_NomeAtributo := t_AtributoDTO.NomeAtributo;
-        t_NomeSnkAtributo := LowerCase(Copy(t_NomeAtributo, 1, 1)) + Copy(t_NomeAtributo, 2, Length(t_NomeAtributo));
-        t_TipoAtributo := t_AtributoDTO.Tipo;
 
         if (not t_AtributoDTO.EntidadeBase) then
         begin
           if SameText(t_ParametrosSaveEntidadeCommand, EmptyStr) then
           begin
-            t_ParametrosSaveEntidadeCommand := Format('%s %s', [t_TipoAtributo, t_NomeSnkAtributo])
+            t_ParametrosSaveEntidadeCommand := Format('%s %s', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()])
           end
           else
           begin
-            t_ParametrosSaveEntidadeCommand := t_ParametrosSaveEntidadeCommand + Format(', %s %s', [t_TipoAtributo, t_NomeSnkAtributo])
+            t_ParametrosSaveEntidadeCommand := t_ParametrosSaveEntidadeCommand + Format(', %s %s', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()])
           end;
         end;
 
@@ -418,15 +395,15 @@ begin
         begin
           if (SameText(t_AtributoDTO.NomeCampo, 'id')) then
           begin
-            t_CorpoSaveEntidadeCommand.Add(Format('            %s = Guid.NewGuid();', [t_NomeAtributo]));
+            t_CorpoSaveEntidadeCommand.Add(Format('            %s = Guid.NewGuid();', [t_AtributoDTO.NomeAtributo]));
           end
           else if (SameText(t_AtributoDTO.NomeCampo, 'data_cadastro')) or (SameText(t_AtributoDTO.NomeCampo, 'data_ultima_atualizacao')) then
           begin
-            t_CorpoSaveEntidadeCommand.Add(Format('            %s = DateTime.Now;', [t_NomeAtributo]));
+            t_CorpoSaveEntidadeCommand.Add(Format('            %s = DateTime.Now;', [t_AtributoDTO.NomeAtributo]));
           end
           else
           begin
-            t_CorpoSaveEntidadeCommand.Add(Format('            %s = %s;', [t_NomeAtributo, t_NomeSnkAtributo]));
+            t_CorpoSaveEntidadeCommand.Add(Format('            %s = %s;', [t_AtributoDTO.NomeAtributo, t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()]));
           end;
         end;
       end;
@@ -463,9 +440,6 @@ function TDomainCommandsGenerator.getUpdateFileContent(const pEntidade: TEntidad
 var
   t_Arquivo: TStringList;
   t_Aux: Integer;
-  t_NomeAtributo: string;
-  t_NomeSnkAtributo: string;
-  t_TipoAtributo: string;
   t_ParametrosUpdateEntidadeCommand: string;
   t_CorpoUpdateEntidadeCommand: TStringList;
   t_CorpoUpdateEntidadeCommandAux: string;
@@ -491,15 +465,12 @@ begin
       for t_Aux := 0 to pEntidade.Atributos.Count - 1 do
       begin
         t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
-	      t_NomeAtributo := t_AtributoDTO.NomeAtributo;
-        t_NomeSnkAtributo := LowerCase(Copy(t_NomeAtributo, 1, 1)) + Copy(t_NomeAtributo, 2, Length(t_NomeAtributo));
-        t_TipoAtributo := t_AtributoDTO.Tipo;
 
         if (not t_AtributoDTO.EntidadeBase) then
         begin
-          t_ParametrosUpdateEntidadeCommand := t_ParametrosUpdateEntidadeCommand + Format(', %s %s', [t_TipoAtributo, t_NomeSnkAtributo]);
+          t_ParametrosUpdateEntidadeCommand := t_ParametrosUpdateEntidadeCommand + Format(', %s %s', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()]);
 
-          t_CorpoUpdateEntidadeCommand.Add(Format('            %s = %s;', [t_NomeAtributo, t_NomeSnkAtributo]));
+          t_CorpoUpdateEntidadeCommand.Add(Format('            %s = %s;', [t_AtributoDTO.NomeAtributo, t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()]));
         end;
       end;
 

@@ -21,7 +21,7 @@ type
 implementation
 
 uses
-  System.Classes, System.Contnrs, System.SysUtils, uAtributoDTO;
+  System.Classes, System.Contnrs, System.SysUtils, uAtributoDTO, uStringHelper;
 
 { TDomainEntityGenerator }
 
@@ -29,8 +29,6 @@ function TDomainEntityGenerator.getFileContent(const pEntidade: TEntidadeDTO): W
 var
   t_Arquivo: TStringList;
   t_Aux: Integer;
-  t_NomeSnkAtributo: string;
-  t_NomeExibicaoAtributo: string;
   t_ValidacaoAtributo: TStringList;
   t_AtributoAux: string;
   t_ParametrosNewConstrutor: string;
@@ -40,13 +38,10 @@ var
   t_CorpoNewConstrutorAux: string;
   t_CorpoUpdateConstrutorAux: string;
   t_Diretorio: string;
-  t_NomeSnkEntidade: string;
   t_AtributoDTO: TAtributoDTO;
 begin
   try
     t_Diretorio := EmptyStr;
-
-    t_NomeSnkEntidade := LowerCase(Copy(pEntidade.NomeClasseSingular, 1, 1)) + Copy(pEntidade.NomeClasseSingular, 2, Length(pEntidade.NomeClasseSingular));
 
     t_Arquivo := TStringList.Create();
 
@@ -97,15 +92,13 @@ begin
 
       if (not t_AtributoDTO.EntidadeBase) then
       begin
-        t_NomeExibicaoAtributo := t_AtributoDTO.NomeExibicao;
-
         try
           if (t_AtributoDTO.Requerido) then
           begin
             t_ValidacaoAtributo := TStringList.Create();
 
-            t_ValidacaoAtributo.Add(Format('            RuleFor(%s => %s.%s)', [t_NomeSnkEntidade, t_NomeSnkEntidade, t_AtributoDTO.NomeAtributo]));
-            t_ValidacaoAtributo.Add(Format('                .NotEmpty().WithMessage("%s obrigatório(a)")', [t_NomeExibicaoAtributo]));
+            t_ValidacaoAtributo.Add(Format('            RuleFor(%s => %s.%s)', [pEntidade.NomeClasseSingular.DecapitalizeFirstLetter(), pEntidade.NomeClasseSingular.DecapitalizeFirstLetter(), t_AtributoDTO.NomeAtributo]));
+            t_ValidacaoAtributo.Add(Format('                .NotEmpty().WithMessage("%s obrigatório(a)")', [t_AtributoDTO.NomeExibicao]));
 
             t_AtributoAux := t_ValidacaoAtributo.Text;
             Delete(t_AtributoAux, Length(t_AtributoAux) - 1, 2);
@@ -142,36 +135,34 @@ begin
 
         if (not SameText(t_AtributoDTO.NomeCampo, EmptyStr)) then
         begin
-          t_NomeSnkAtributo := LowerCase(Copy(t_AtributoDTO.NomeAtributo, 1, 1)) + Copy(t_AtributoDTO.NomeAtributo, 2, Length(t_AtributoDTO.NomeAtributo));
-
           if (SameText(t_AtributoDTO.NomeCampo, 'usuario_id')) then
           begin
             if (SameText(t_ParametrosNewConstrutor, EmptyStr)) then
-              t_ParametrosNewConstrutor := Format('Guid %s', [t_NomeSnkAtributo])
+              t_ParametrosNewConstrutor := Format('Guid %s', [t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()])
             else
-              t_ParametrosNewConstrutor := t_ParametrosNewConstrutor + Format(', Guid %s', [t_NomeSnkAtributo]);
+              t_ParametrosNewConstrutor := t_ParametrosNewConstrutor + Format(', Guid %s', [t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()]);
 
             if (SameText(t_ParametrosUpdateConstrutor, EmptyStr)) then
-              t_ParametrosUpdateConstrutor := Format('Guid %s', [t_NomeSnkAtributo])
+              t_ParametrosUpdateConstrutor := Format('Guid %s', [t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()])
             else
-              t_ParametrosUpdateConstrutor := t_ParametrosUpdateConstrutor + Format(', Guid %s', [t_NomeSnkAtributo]);
+              t_ParametrosUpdateConstrutor := t_ParametrosUpdateConstrutor + Format(', Guid %s', [t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()]);
 
             if (t_CorpoNewConstrutor.Count = pEntidade.Atributos.Count) then
-              t_CorpoNewConstrutor.Add(Format('                    %s = %s', [t_AtributoDTO.NomeAtributo, t_NomeSnkAtributo]))
+              t_CorpoNewConstrutor.Add(Format('                    %s = %s', [t_AtributoDTO.NomeAtributo, t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()]))
             else
-              t_CorpoNewConstrutor.Add(Format('                    %s = %s,', [t_AtributoDTO.NomeAtributo, t_NomeSnkAtributo]));
+              t_CorpoNewConstrutor.Add(Format('                    %s = %s,', [t_AtributoDTO.NomeAtributo, t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()]));
 
             if (t_CorpoUpdateConstrutor.Count = pEntidade.Atributos.Count) then
-              t_CorpoUpdateConstrutor.Add(Format('                    %s = %s', [t_AtributoDTO.NomeAtributo, t_NomeSnkAtributo]))
+              t_CorpoUpdateConstrutor.Add(Format('                    %s = %s', [t_AtributoDTO.NomeAtributo, t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()]))
             else
-              t_CorpoUpdateConstrutor.Add(Format('                    %s = %s,', [t_AtributoDTO.NomeAtributo, t_NomeSnkAtributo]));
+              t_CorpoUpdateConstrutor.Add(Format('                    %s = %s,', [t_AtributoDTO.NomeAtributo, t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()]));
           end
           else if (SameText(t_AtributoDTO.NomeCampo, 'ativo')) then
           begin
             if (SameText(t_ParametrosUpdateConstrutor, EmptyStr)) then
-              t_ParametrosUpdateConstrutor := Format('%s %s', [t_AtributoDTO.Tipo, t_NomeSnkAtributo])
+              t_ParametrosUpdateConstrutor := Format('%s %s', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()])
             else
-              t_ParametrosUpdateConstrutor := t_ParametrosUpdateConstrutor + Format(', %s %s', [t_AtributoDTO.Tipo, t_NomeSnkAtributo]);
+              t_ParametrosUpdateConstrutor := t_ParametrosUpdateConstrutor + Format(', %s %s', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()]);
 
             if (t_CorpoNewConstrutor.Count = pEntidade.Atributos.Count) then
               t_CorpoNewConstrutor.Add(Format('                    %s = true', [t_AtributoDTO.NomeAtributo]))
@@ -179,31 +170,31 @@ begin
               t_CorpoNewConstrutor.Add(Format('                    %s = true,', [t_AtributoDTO.NomeAtributo]));
 
             if (t_CorpoUpdateConstrutor.Count = pEntidade.Atributos.Count) then
-              t_CorpoUpdateConstrutor.Add(Format('                    %s = %s', [t_AtributoDTO.NomeAtributo, t_NomeSnkAtributo]))
+              t_CorpoUpdateConstrutor.Add(Format('                    %s = %s', [t_AtributoDTO.NomeAtributo, t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()]))
             else
-              t_CorpoUpdateConstrutor.Add(Format('                    %s = %s,', [t_AtributoDTO.NomeAtributo, t_NomeSnkAtributo]));
+              t_CorpoUpdateConstrutor.Add(Format('                    %s = %s,', [t_AtributoDTO.NomeAtributo, t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()]));
           end
           else
           begin
             if (SameText(t_ParametrosNewConstrutor, EmptyStr)) then
-              t_ParametrosNewConstrutor := Format('%s %s', [t_AtributoDTO.Tipo, t_NomeSnkAtributo])
+              t_ParametrosNewConstrutor := Format('%s %s', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()])
             else
-              t_ParametrosNewConstrutor := t_ParametrosNewConstrutor + Format(', %s %s', [t_AtributoDTO.Tipo, t_NomeSnkAtributo]);
+              t_ParametrosNewConstrutor := t_ParametrosNewConstrutor + Format(', %s %s', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()]);
 
             if (SameText(t_ParametrosUpdateConstrutor, EmptyStr)) then
-              t_ParametrosUpdateConstrutor := Format('%s %s', [t_AtributoDTO.Tipo, t_NomeSnkAtributo])
+              t_ParametrosUpdateConstrutor := Format('%s %s', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()])
             else
-              t_ParametrosUpdateConstrutor := t_ParametrosUpdateConstrutor + Format(', %s %s', [t_AtributoDTO.Tipo, t_NomeSnkAtributo]);
+              t_ParametrosUpdateConstrutor := t_ParametrosUpdateConstrutor + Format(', %s %s', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()]);
 
             if (t_CorpoNewConstrutor.Count = pEntidade.Atributos.Count) then
-              t_CorpoNewConstrutor.Add(Format('                    %s = %s', [t_AtributoDTO.NomeAtributo, t_NomeSnkAtributo]))
+              t_CorpoNewConstrutor.Add(Format('                    %s = %s', [t_AtributoDTO.NomeAtributo, t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()]))
             else
-              t_CorpoNewConstrutor.Add(Format('                    %s = %s,', [t_AtributoDTO.NomeAtributo, t_NomeSnkAtributo]));
+              t_CorpoNewConstrutor.Add(Format('                    %s = %s,', [t_AtributoDTO.NomeAtributo, t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()]));
 
             if (t_CorpoUpdateConstrutor.Count = pEntidade.Atributos.Count) then
-              t_CorpoUpdateConstrutor.Add(Format('                    %s = %s', [t_AtributoDTO.NomeAtributo, t_NomeSnkAtributo]))
+              t_CorpoUpdateConstrutor.Add(Format('                    %s = %s', [t_AtributoDTO.NomeAtributo, t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()]))
             else
-              t_CorpoUpdateConstrutor.Add(Format('                    %s = %s,', [t_AtributoDTO.NomeAtributo, t_NomeSnkAtributo]));
+              t_CorpoUpdateConstrutor.Add(Format('                    %s = %s,', [t_AtributoDTO.NomeAtributo, t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()]));
           end;
         end;
       end;
@@ -220,22 +211,22 @@ begin
 
     t_Arquivo.Add(Format('            public static %s New%s(%s)', [pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular, t_ParametrosNewConstrutor]));
     t_Arquivo.Add('            {');
-    t_Arquivo.Add(Format('                var %s = new %s()', [t_NomeSnkEntidade, pEntidade.NomeClasseSingular]));
+    t_Arquivo.Add(Format('                var %s = new %s()', [pEntidade.NomeClasseSingular.DecapitalizeFirstLetter(), pEntidade.NomeClasseSingular]));
     t_Arquivo.Add('                {');
     t_Arquivo.Add(Format('%s', [t_CorpoNewConstrutorAux]));
     t_Arquivo.Add('                };');
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('                return %s;', [t_NomeSnkEntidade]));
+    t_Arquivo.Add(Format('                return %s;', [pEntidade.NomeClasseSingular.DecapitalizeFirstLetter()]));
     t_Arquivo.Add('            }');
     t_Arquivo.Add('');
     t_Arquivo.Add(Format('            public static %s Update%s(%s)', [pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular, t_ParametrosUpdateConstrutor]));
     t_Arquivo.Add('            {');
-    t_Arquivo.Add(Format('                var %s = new %s()', [t_NomeSnkEntidade, pEntidade.NomeClasseSingular]));
+    t_Arquivo.Add(Format('                var %s = new %s()', [pEntidade.NomeClasseSingular.DecapitalizeFirstLetter(), pEntidade.NomeClasseSingular]));
     t_Arquivo.Add('                {');
     t_Arquivo.Add(Format('%s', [t_CorpoUpdateConstrutorAux]));
     t_Arquivo.Add('                };');
     t_Arquivo.Add('');
-    t_Arquivo.Add(Format('                return %s;', [t_NomeSnkEntidade]));
+    t_Arquivo.Add(Format('                return %s;', [pEntidade.NomeClasseSingular.DecapitalizeFirstLetter()]));
     t_Arquivo.Add('            }');
     t_Arquivo.Add('        }');
     t_Arquivo.Add('    }');
@@ -249,7 +240,7 @@ end;
 
 function TDomainEntityGenerator.getFileDirectory(const pEntidade: TEntidadeDTO): string;
 begin
-  Result := Format('ERP.%s.Domain\%s\', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacaoPlural]);
+  Result := Format('\src\ERP.%s.Domain\%s\', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacaoPlural]);
 end;
 
 function TDomainEntityGenerator.getFileName(const pEntidade: TEntidadeDTO): string;

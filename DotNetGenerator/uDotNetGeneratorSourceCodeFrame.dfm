@@ -24,6 +24,10 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
       object tsConexao: TTabSheet
         Caption = 'Conex'#227'o'
         ImageIndex = 1
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object gbxDadosConexaoSQLServer: TGroupBox
           Left = 0
           Top = 0
@@ -151,6 +155,10 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
       object tsInstrucaoSQL: TTabSheet
         Caption = 'Instru'#231#227'o SQL'
         ImageIndex = 2
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
       end
       object tsDadosClasse: TTabSheet
         Caption = 'Dados da classe a ser gerada'
@@ -190,7 +198,6 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
               Anchors = [akLeft, akTop, akRight]
               TabOrder = 0
               TextHint = 'Ex: Gerencial'
-              ExplicitWidth = 309
             end
           end
           object gbxNomeTabela: TGroupBox
@@ -202,8 +209,6 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
             Align = alClient
             Caption = 'Nome da Tabela'
             TabOrder = 2
-            ExplicitLeft = 753
-            ExplicitWidth = 244
             DesignSize = (
               245
               66)
@@ -222,7 +227,6 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
               Anchors = [akLeft, akTop, akRight]
               TabOrder = 0
               TextHint = 'Ex: empresa'
-              ExplicitWidth = 309
             end
           end
           object gbxNomeClasseAgregadora: TGroupBox
@@ -651,7 +655,6 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
             Align = alClient
             Caption = 'Nome da Entidade'
             TabOrder = 0
-            ExplicitWidth = 487
             DesignSize = (
               494
               66)
@@ -738,6 +741,10 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
       object tsPreview: TTabSheet
         Caption = 'Preview'
         ImageIndex = 3
+        ExplicitLeft = 0
+        ExplicitTop = 0
+        ExplicitWidth = 0
+        ExplicitHeight = 0
         object Splitter: TSplitter
           Left = 230
           Top = 29
@@ -825,7 +832,6 @@ object DotNetGeneratorSourceCodeFrame: TDotNetGeneratorSourceCodeFrame
         Align = alClient
         Caption = 'Origem'
         TabOrder = 0
-        ExplicitTop = -5
         object cmbOrigemClasse: TComboBox
           Left = 8
           Top = 20

@@ -21,7 +21,7 @@ type
 implementation
 
 uses
-  System.Classes, System.SysUtils;
+  System.Classes, System.SysUtils, uStringHelper;
 
 { TDomainRepositoryGenerator }
 
@@ -37,11 +37,8 @@ end;
 function TDomainRepositoryGenerator.getFileContent(const pEntidade: TEntidadeDTO): WideString;
 var
   t_Arquivo: TStringList;
-  t_NomeSnkEntidade: string;
 begin
   t_Arquivo := TStringList.Create();
-
-  t_NomeSnkEntidade := LowerCase(Copy(pEntidade.NomeClasseSingular, 1, 1)) + Copy(pEntidade.NomeClasseSingular, 2, Length(pEntidade.NomeClasseSingular));
 
   try
     t_Arquivo.Add('using ERP.Domain.Core.Contracts;');
@@ -54,9 +51,9 @@ begin
 
     if (not SameText(pEntidade.NomeClassePlural, pEntidade.NomeClasseAgregacaoPlural)) then
     begin
-      t_Arquivo.Add(Format('        void Save(%s %s);', [pEntidade.NomeClasseSingular, t_NomeSnkEntidade]));
+      t_Arquivo.Add(Format('        void Save(%s %s);', [pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular.DecapitalizeFirstLetter()]));
       t_Arquivo.Add('');
-      t_Arquivo.Add(Format('        void Update(%s %s);', [pEntidade.NomeClasseSingular, t_NomeSnkEntidade]));
+      t_Arquivo.Add(Format('        void Update(%s %s);', [pEntidade.NomeClasseSingular, pEntidade.NomeClasseSingular.DecapitalizeFirstLetter()]));
       t_Arquivo.Add('');
       t_Arquivo.Add(Format('        IEnumerable<%s> GetAll%s();', [pEntidade.NomeClasseSingular, pEntidade.NomeClassePlural]));
       t_Arquivo.Add('');
@@ -77,7 +74,7 @@ end;
 
 function TDomainRepositoryGenerator.getFileDirectory(const pEntidade: TEntidadeDTO): string;
 begin
-  Result := Format('ERP.%s.Domain\%s\Repositories\', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacaoPlural]);
+  Result := Format('\src\ERP.%s.Domain\%s\Repositories\', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacaoPlural]);
 end;
 
 function TDomainRepositoryGenerator.getFileName(const pEntidade: TEntidadeDTO): string;

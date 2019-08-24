@@ -21,9 +21,7 @@ type
 implementation
 
 uses
-  System.Classes, System.SysUtils;
-
-{ TInfraDataRepositoryGenerator }
+  System.Classes, System.SysUtils, uStringHelper;
 
 { TInfraDataRepositoryGenerator }
 
@@ -39,17 +37,10 @@ end;
 function TInfraDataRepositoryGenerator.getFileContent(const pEntidade: TEntidadeDTO): WideString;
 var
   t_Arquivo: TStringList;
-  t_NomeSingularClasseAgregadora: string;
-  t_NomePluralClasseAgregadora: string;
-  t_NomeSingularSnkClasseAgregadora: string;
 begin
   t_Arquivo := TStringList.Create();
 
   try
-    t_NomeSingularClasseAgregadora := pEntidade.NomeClasseAgregacaoSingular;
-    t_NomePluralClasseAgregadora := pEntidade.NomeClasseAgregacaoPlural;
-    t_NomeSingularSnkClasseAgregadora := LowerCase(Copy(t_NomeSingularClasseAgregadora, 1, 1)) + Copy(t_NomeSingularClasseAgregadora, 2, Length(t_NomeSingularClasseAgregadora));
-
     t_Arquivo.Add('using Dapper;');
     t_Arquivo.Add(Format('using ERP.%s.Domain.%s;', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacaoPlural]));
     t_Arquivo.Add(Format('using ERP.%s.Domain.%s.Repositories;', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacaoPlural]));
@@ -61,18 +52,11 @@ begin
     t_Arquivo.Add('');
     t_Arquivo.Add(Format('namespace ERP.Infra.Data.Repositories.%s', [pEntidade.NomeModulo]));
     t_Arquivo.Add('{');
-    t_Arquivo.Add(Format('    public class %sRepository : Repository<%s>, I%sRepository', [t_NomePluralClasseAgregadora, t_NomeSingularClasseAgregadora, t_NomePluralClasseAgregadora]));
+    t_Arquivo.Add(Format('    public class %sRepository : Repository<%s>, I%sRepository', [pEntidade.NomeClasseAgregacaoPlural, pEntidade.NomeClasseAgregacaoSingular, pEntidade.NomeClasseAgregacaoPlural]));
     t_Arquivo.Add('    {');
-    t_Arquivo.Add(Format('        public %sRepository(%sContext db) : base(db)', [t_NomePluralClasseAgregadora, pEntidade.NomeClasseAgregacaoPlural]));
+    t_Arquivo.Add(Format('        public %sRepository(%sContext db) : base(db)', [pEntidade.NomeClasseAgregacaoPlural, pEntidade.NomeClasseAgregacaoPlural]));
     t_Arquivo.Add('        {');
     t_Arquivo.Add('        }');
-//    t_Arquivo.Add('');
-//    t_Arquivo.Add(Format('        public override void Delete(%s obj)', [t_NomeSingularClasse]));
-//    t_Arquivo.Add('        {');
-//    t_Arquivo.Add(Format('            var %s = GetById(obj.Id);', [t_NomeSingularSnkClasse]));
-//    t_Arquivo.Add(Format('            %s.Desativar();', [t_NomeSingularSnkClasse]));
-//    t_Arquivo.Add(Format('            Update(%s);', [t_NomeSingularSnkClasse]));
-//    t_Arquivo.Add('        }');
     t_Arquivo.Add('    }');
     t_Arquivo.Add('}');
 
@@ -84,7 +68,7 @@ end;
 
 function TInfraDataRepositoryGenerator.getFileDirectory(const pEntidade: TEntidadeDTO): string;
 begin
-  Result := Format('\ERP.Infra.Data\Repositories\%s\', [pEntidade.NomeModulo]);
+  Result := Format('\src\ERP.Infra.Data\Repositories\%s\', [pEntidade.NomeModulo]);
 end;
 
 function TInfraDataRepositoryGenerator.getFileName(const pEntidade: TEntidadeDTO): string;
