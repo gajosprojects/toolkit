@@ -34,7 +34,7 @@ type
 implementation
 
 uses
-  System.Classes, System.Contnrs, System.SysUtils, uAtributoDTO;
+  System.Classes, System.Contnrs, System.SysUtils, uAtributoDTO, uConstantes;
 
 { clAdminDomainClassCommands }
 
@@ -62,7 +62,7 @@ begin
       t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
 
       //se for chave estrangeira, incluir o objeto e nao o atributo, igual ao UsuarioViewModel abaixo
-      if (SameText(t_AtributoDTO.NomeCampo, 'usuario_id')) then
+      if (SameText(t_AtributoDTO.NomeCampo, cCampoUsuarioId)) then
         t_Arquivo.Add('        public UsuarioViewModel Usuario { get; set; }')
       else
         t_Arquivo.Add(Format('        public %s %s { get; set; }', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo]));
@@ -187,7 +187,7 @@ begin
         if (t_AtributoDTO.Requerido) then
         begin
           //se for chave estrangeira utilizar o NotEmptyGuid ao inves do Required
-          t_Arquivo.Add('        [Required(ErrorMessage = "Campo obrigatório")]');
+          t_Arquivo.Add(Format('        [Required(ErrorMessage = "%s: Campo obrigatório")]', [t_AtributoDTO.NomeExibicao]));
         end;
 
         t_Arquivo.Add(Format('        public %s %s { get; set; }', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo]));
@@ -256,7 +256,7 @@ begin
         if (t_AtributoDTO.Requerido) then
         begin
           //se for chave estrangeira utilizar o NotEmptyGuid ao inves do Required
-          t_Arquivo.Add('        [Required(ErrorMessage = "Campo obrigatório")]');
+          t_Arquivo.Add(Format('        [Required(ErrorMessage = "%s: Campo obrigatório")]', [t_AtributoDTO.NomeExibicao]));
         end;
 
         t_Arquivo.Add(Format('        public %s %s { get; set; }', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo]));

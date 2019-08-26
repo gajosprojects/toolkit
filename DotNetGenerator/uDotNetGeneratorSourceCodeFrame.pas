@@ -226,7 +226,7 @@ end;
 procedure TDotNetGeneratorSourceCodeFrame.CriarEstruturaDataSetAtributos();
 begin
   FClientDataSetAtributos.FieldDefs.Clear();
-  FClientDataSetAtributos.FieldDefs.Add('Id', ftInteger);
+  FClientDataSetAtributos.FieldDefs.Add(cCampoId, ftInteger);
   FClientDataSetAtributos.FieldDefs.Add('ParentId', ftInteger);
   FClientDataSetAtributos.FieldDefs.Add('Ordem', ftInteger);
   FClientDataSetAtributos.FieldDefs.Add('Selecionado', ftWideString, 1);
@@ -251,7 +251,7 @@ begin
   cmbOrigemClasse.ItemIndex := cOrigemManual;
 
   tlAtributos.DataController.DataSource := FDataSourceAtributos;
-  tlAtributos.DataController.KeyField := 'Id';
+  tlAtributos.DataController.KeyField := cCampoId;
   tlAtributos.DataController.ParentField := 'ParentId';
 
   FNextIdAtributo := 1;
@@ -449,14 +449,14 @@ begin
       begin
         t_Id_New := tlAtributos.LastNode.Values[tlAtributosId.ItemIndex];
 
-        if (FClientDataSetAtributos.Locate('Id', t_Id_Old, [])) then
+        if (FClientDataSetAtributos.Locate(cCampoId, t_Id_Old, [])) then
         begin
           FClientDataSetAtributos.Edit();
           FClientDataSetAtributos.FieldByName('Ordem').AsInteger := FClientDataSetAtributos.FieldByName('Ordem').AsInteger + 1;
           FClientDataSetAtributos.Post();
         end;
 
-        if (FClientDataSetAtributos.Locate('Id', t_Id_New, [])) then
+        if (FClientDataSetAtributos.Locate(cCampoId, t_Id_New, [])) then
         begin
           FClientDataSetAtributos.Edit();
           FClientDataSetAtributos.FieldByName('Ordem').AsInteger := FClientDataSetAtributos.FieldByName('Ordem').AsInteger - 1;
@@ -469,14 +469,14 @@ begin
       begin
         t_Id_New := tlAtributos.FocusedNode.GetNext.Values[tlAtributosId.ItemIndex];
 
-        if (FClientDataSetAtributos.Locate('Id', t_Id_Old, [])) then
+        if (FClientDataSetAtributos.Locate(cCampoId, t_Id_Old, [])) then
         begin
           FClientDataSetAtributos.Edit();
           FClientDataSetAtributos.FieldByName('Ordem').AsInteger := FClientDataSetAtributos.FieldByName('Ordem').AsInteger + 1;
           FClientDataSetAtributos.Post();
         end;
 
-        if (FClientDataSetAtributos.Locate('Id', t_Id_New, [])) then
+        if (FClientDataSetAtributos.Locate(cCampoId, t_Id_New, [])) then
         begin
           FClientDataSetAtributos.Edit();
           FClientDataSetAtributos.FieldByName('Ordem').AsInteger := FClientDataSetAtributos.FieldByName('Ordem').AsInteger - 1;
@@ -487,7 +487,7 @@ begin
       end;
 
     finally
-      FClientDataSetAtributos.Locate('Id', t_Id_Old, []);
+      FClientDataSetAtributos.Locate(cCampoId, t_Id_Old, []);
       tlAtributos.EndUpdate();
       FClientDataSetAtributos.EnableControls();
     end;
@@ -508,14 +508,14 @@ begin
       FClientDataSetAtributos.DisableControls();
       tlAtributos.BeginUpdate();
 
-      if (FClientDataSetAtributos.Locate('Id', t_Id_Old, [])) then
+      if (FClientDataSetAtributos.Locate(cCampoId, t_Id_Old, [])) then
       begin
         FClientDataSetAtributos.Edit();
         FClientDataSetAtributos.FieldByName('Ordem').AsInteger := FClientDataSetAtributos.FieldByName('Ordem').AsInteger - 1;
         FClientDataSetAtributos.Post();
       end;
 
-      if (FClientDataSetAtributos.Locate('Id', t_Id_New, [])) then
+      if (FClientDataSetAtributos.Locate(cCampoId, t_Id_New, [])) then
       begin
         FClientDataSetAtributos.Edit();
         FClientDataSetAtributos.FieldByName('Ordem').AsInteger := FClientDataSetAtributos.FieldByName('Ordem').AsInteger + 1;
@@ -525,7 +525,7 @@ begin
       tlAtributos.FocusedNode.MoveTo(tlAtributos.FocusedNode.getPrev, tlamInsert);
 
     finally
-      FClientDataSetAtributos.Locate('Id', t_Id_Old, []);
+      FClientDataSetAtributos.Locate(cCampoId, t_Id_Old, []);
       tlAtributos.EndUpdate();
       FClientDataSetAtributos.EnableControls();
     end;
@@ -1682,7 +1682,7 @@ begin
 
       FClientDataSetAtributos.Append();
 
-      FClientDataSetAtributos.FieldByName('Id').AsInteger := FNextIdAtributo;
+      FClientDataSetAtributos.FieldByName(cCampoId).AsInteger := FNextIdAtributo;
       FClientDataSetAtributos.FieldByName('Ordem').AsInteger := t_AtributoDTO.Ordem;
       FClientDataSetAtributos.FieldByName('ParentId').AsInteger := 0;
       FClientDataSetAtributos.FieldByName('Selecionado').AsString := cSim;
@@ -1803,7 +1803,7 @@ begin
     begin
       FClientDataSetAtributos.Append();
 
-      FClientDataSetAtributos.FieldByName('Id').AsInteger := FNextIdAtributo;
+      FClientDataSetAtributos.FieldByName(cCampoId).AsInteger := FNextIdAtributo;
       FClientDataSetAtributos.FieldByName('Ordem').AsInteger := FNextIdAtributo;
       FClientDataSetAtributos.FieldByName('ParentId').AsInteger := 0;
       FClientDataSetAtributos.FieldByName('Selecionado').AsString := cSim;
@@ -1818,11 +1818,11 @@ begin
       FClientDataSetAtributos.FieldByName('ChaveUnica').AsString := t_cds.FieldByName('ChaveUnica').AsString;
       FClientDataSetAtributos.FieldByName('Requerido').AsString := t_cds.FieldByName('Requerido').AsString;
 
-      if (SameText(t_cds.FieldByName('Nome').AsString, 'id')) or
-         (SameText(t_cds.FieldByName('Nome').AsString, 'data_cadastro')) or
+      if (SameText(t_cds.FieldByName('Nome').AsString, cCampoId)) or
+         (SameText(t_cds.FieldByName('Nome').AsString, cCampoDataCadastro)) or
          (SameText(t_cds.FieldByName('Nome').AsString, 'data_ultima_atualizacao')) or
-         (SameText(t_cds.FieldByName('Nome').AsString, 'ativo')) or
-         (SameText(t_cds.FieldByName('Nome').AsString, 'usuario_id')) then
+         (SameText(t_cds.FieldByName('Nome').AsString, cCampoExcluido)) or
+         (SameText(t_cds.FieldByName('Nome').AsString, cCampoUsuarioId)) then
         FClientDataSetAtributos.FieldByName('EntidadeBase').AsString := cSim
       else
         FClientDataSetAtributos.FieldByName('EntidadeBase').AsString := cNao;
@@ -2036,7 +2036,7 @@ begin
   if (AButtonIndex = NBDI_APPEND) then
   begin
     FClientDataSetAtributos.Append();
-    FClientDataSetAtributos.FieldByName('Id').AsInteger := FNextIdAtributo;
+    FClientDataSetAtributos.FieldByName(cCampoId).AsInteger := FNextIdAtributo;
     FClientDataSetAtributos.FieldByName('Ordem').AsInteger := FNextIdAtributo;
     FClientDataSetAtributos.FieldByName('ParentId').AsInteger := 0;
     FClientDataSetAtributos.FieldByName('Selecionado').AsString := cSim;

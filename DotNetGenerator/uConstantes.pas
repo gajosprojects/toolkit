@@ -17,7 +17,9 @@ const
   cOrigemInstrucaoSQL = 2;
 
   cToolkitConfig = 'toolkit_config';
+
   cModuloDotNetGenerator = 'DOTNETGENERATOR';
+
   cParametroOrigem = 'Origem';
   cParametroInstancia = 'Instancia';
   cParametroUsuario = 'Usuario';
@@ -28,6 +30,12 @@ const
   cParametroUltimoXMLCarregado = 'UltimoXMLCarregado';
   cParametroDiretorioXML = 'DiretorioXML';
   cParametroDiretorioArquivosDotNet = 'DiretorioArquivosDotNet';
+
+  cCampoId = 'id';
+  cCampoDataCadastro = 'data_cadastro';
+  cCampoDataUltimaModificacao = 'data_ultima_modificacao';
+  cCampoExcluido = 'excluido';
+  cCampoUsuarioId = 'usuario_id';
 
 implementation
 

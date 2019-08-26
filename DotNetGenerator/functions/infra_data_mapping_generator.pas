@@ -21,7 +21,7 @@ type
 implementation
 
 uses
-  System.Classes, System.Contnrs, System.SysUtils, uAtributoDTO, uStringHelper;
+  System.Classes, System.Contnrs, System.SysUtils, uAtributoDTO, uStringHelper, uConstantes;
 
 { TInfraDataMappingGenerator }
 
@@ -90,9 +90,9 @@ begin
         //  t_BuilderAtributo.Add('            .HasMaxLength(7);');');
         //end;
 
-        if (SameText(t_AtributoDTO.NomeCampo, 'ativo')) then
+        if (SameText(t_AtributoDTO.NomeCampo, cCampoExcluido)) then
         begin
-          t_BuilderAtributo.Add('            .HasDefaultValue(true)');
+          t_BuilderAtributo.Add('            .HasDefaultValue(false)');
         end;
 
         if (t_BuilderAtributo.Count > 1) then
@@ -111,13 +111,13 @@ begin
           t_BuilderAtributo.Add(Format('                   .HasName("uk_%s_%s")', [pEntidade.NomeClasseSingular.ToLowerCase(), t_AtributoDTO.NomeCampo.ToLowerCase()]));
         end;
 
-        if (SameText(t_AtributoDTO.NomeCampo, 'id')) then
+        if (SameText(t_AtributoDTO.NomeCampo, cCampoId)) then
         begin
           t_BuilderAtributo.Add('');
           t_BuilderAtributo.Add(Format('            builder.HasKey(%s => %s.Id)', [pEntidade.NomeClasseSingular.ToLowerCase(), pEntidade.NomeClasseSingular.ToLowerCase()]));
           t_BuilderAtributo.Add(Format('                   .HasName("pk_%s_id")', [pEntidade.NomeClasseSingular.ToLowerCase()]));
         end
-        else if (SameText(t_AtributoDTO.NomeCampo, 'usuario_id')) then
+        else if (SameText(t_AtributoDTO.NomeCampo, cCampoUsuarioId)) then
         begin
           t_BuilderAtributo.Add('');
           t_BuilderAtributo.Add(Format('            builder.HasOne(%s => %s.Usuario)', [pEntidade.NomeClasseSingular.ToLowerCase(), pEntidade.NomeClasseSingular.ToLowerCase()]));

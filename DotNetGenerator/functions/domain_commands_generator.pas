@@ -39,7 +39,7 @@ type
 implementation
 
 uses
-  System.Classes, System.Contnrs, System.SysUtils, uAtributoDTO, uStringHelper;
+  System.Classes, System.Contnrs, System.SysUtils, uAtributoDTO, uStringHelper, uConstantes;
 
 { TDomainCommandsGenerator }
 
@@ -109,9 +109,9 @@ begin
     begin
       t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
 
-      if (not SameText(t_AtributoDTO.NomeCampo, 'ativo'))then
+      if (not SameText(t_AtributoDTO.NomeCampo, cCampoExcluido))then
       begin
-        if (SameText(t_AtributoDTO.NomeCampo, 'usuario_id'))then
+        if (SameText(t_AtributoDTO.NomeCampo, cCampoUsuarioId))then
           t_Arquivo.Add(Format('        public Guid %s { get; protected set; }', [t_AtributoDTO.NomeAtributo]))
         else
           t_Arquivo.Add(Format('        public %s %s { get; protected set; }', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo]));
@@ -198,6 +198,7 @@ begin
     t_Arquivo.Add('using ERP.Domain.Core.Commands;');
     t_Arquivo.Add('using ERP.Domain.Core.Contracts;');
     t_Arquivo.Add('using ERP.Domain.Core.Notifications;');
+    t_Arquivo.Add(Format('using ERP.%s.Domain.%s.Commands.%s', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacaoPlural, pEntidade.NomeClassePlural]));
     t_Arquivo.Add(Format('using ERP.%s.Domain.%s.Events.%s;', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacaoPlural, pEntidade.NomeClassePlural]));
     t_Arquivo.Add(Format('using ERP.%s.Domain.%s.Repositories;', [pEntidade.NomeModulo, pEntidade.NomeClasseAgregacaoPlural]));
     t_Arquivo.Add('using MediatR;');
@@ -228,20 +229,22 @@ begin
 
       if (SameText(t_ParametrosNewEntidade, EmptyStr)) then
       begin
-        if (not SameText(t_AtributoDTO.NomeCampo, 'ativo')) then
+        if (not SameText(t_AtributoDTO.NomeCampo, cCampoExcluido)) then
         begin
           t_ParametrosNewEntidade := t_ParametrosNewEntidade + Format('request.%s', [t_AtributoDTO.NomeAtributo])
         end
       end
       else
       begin
-        if (not SameText(t_AtributoDTO.NomeCampo, 'ativo')) then
+        if (not SameText(t_AtributoDTO.NomeCampo, cCampoExcluido)) then
         begin
           t_ParametrosNewEntidade := t_ParametrosNewEntidade + Format(', request.%s', [t_AtributoDTO.NomeAtributo]);
         end;
       end;
 
-      if (SameText(t_AtributoDTO.NomeCampo, 'id')) or (SameText(t_AtributoDTO.NomeCampo, 'data_cadastro')) then
+      if (SameText(t_AtributoDTO.NomeCampo, cCampoId)) or
+         (SameText(t_AtributoDTO.NomeCampo, cCampoDataCadastro)) or
+         (SameText(t_AtributoDTO.NomeCampo, cCampoExcluido)) then
       begin
         if (SameText(t_ParametrosUpdateEntidade, EmptyStr)) then
           t_ParametrosUpdateEntidade := t_ParametrosUpdateEntidade + Format('%sExistente.%s', [pEntidade.NomeClasseSingular.DecapitalizeFirstLetter(), t_AtributoDTO.NomeAtributo])
@@ -328,7 +331,7 @@ begin
     t_Arquivo.Add('            }');
     t_Arquivo.Add('            else');
     t_Arquivo.Add('            {');
-    t_Arquivo.Add(Format('                %sExistente.Desativar(request.UsuarioId);', [pEntidade.NomeClasseSingular.DecapitalizeFirstLetter()]));
+    t_Arquivo.Add(Format('                %sExistente.Excluir(request.UsuarioId);', [pEntidade.NomeClasseSingular.DecapitalizeFirstLetter()]));
     t_Arquivo.Add(Format('                _%sRepository.Update(%sExistente);', [pEntidade.NomeClasseSingular.DecapitalizeFirstLetter(), pEntidade.NomeClasseSingular.DecapitalizeFirstLetter()]));
     t_Arquivo.Add('');
     t_Arquivo.Add('                if (Commit())');
@@ -391,13 +394,13 @@ begin
           end;
         end;
 
-        if (not SameText(t_AtributoDTO.NomeCampo, 'ativo')) then
+        if (not SameText(t_AtributoDTO.NomeCampo, cCampoExcluido)) then
         begin
-          if (SameText(t_AtributoDTO.NomeCampo, 'id')) then
+          if (SameText(t_AtributoDTO.NomeCampo, cCampoId)) then
           begin
             t_CorpoSaveEntidadeCommand.Add(Format('            %s = Guid.NewGuid();', [t_AtributoDTO.NomeAtributo]));
           end
-          else if (SameText(t_AtributoDTO.NomeCampo, 'data_cadastro')) or (SameText(t_AtributoDTO.NomeCampo, 'data_ultima_atualizacao')) then
+          else if (SameText(t_AtributoDTO.NomeCampo, cCampoDataCadastro)) or (SameText(t_AtributoDTO.NomeCampo, 'data_ultima_atualizacao')) then
           begin
             t_CorpoSaveEntidadeCommand.Add(Format('            %s = DateTime.Now;', [t_AtributoDTO.NomeAtributo]));
           end

@@ -39,7 +39,7 @@ type
 implementation
 
 uses
-  System.Classes, System.Contnrs, System.SysUtils, uAtributoDTO, uStringHelper;
+  System.Classes, System.Contnrs, System.SysUtils, uAtributoDTO, uStringHelper, uConstantes;
 
 { TDomainEventsGenerator }
 
@@ -109,7 +109,7 @@ begin
     begin
       t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
 
-      if (SameText(t_AtributoDTO.NomeCampo, 'usuario_id')) then
+      if (SameText(t_AtributoDTO.NomeCampo, cCampoUsuarioId)) then
         t_Arquivo.Add(Format('        public Guid %s { get; protected set; }', [t_AtributoDTO.NomeAtributo]))
       else
         t_Arquivo.Add(Format('        public %s %s { get; protected set; }', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo]));
@@ -246,14 +246,14 @@ begin
 
         if (SameText(t_ParametrosSaved_entidade_event, EmptyStr)) then
         begin
-          if (SameText(t_AtributoDTO.NomeCampo, 'usuario_id')) then
+          if (SameText(t_AtributoDTO.NomeCampo, cCampoUsuarioId)) then
             t_ParametrosSaved_entidade_event := Format('Guid %s', [t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()])
           else
             t_ParametrosSaved_entidade_event := Format('%s %s', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()])
         end
         else
         begin
-          if (SameText(t_AtributoDTO.NomeCampo, 'usuario_id')) then
+          if (SameText(t_AtributoDTO.NomeCampo, cCampoUsuarioId)) then
             t_ParametrosSaved_entidade_event := t_ParametrosSaved_entidade_event + Format(', Guid %s', [t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()])
           else
             t_ParametrosSaved_entidade_event := t_ParametrosSaved_entidade_event + Format(', %s %s', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()]);
@@ -317,14 +317,14 @@ begin
 
         if (SameText(t_ParametrosUpdatedEntidadeEvent, EmptyStr)) then
         begin
-          if (SameText(t_AtributoDTO.NomeCampo, 'usuario_id')) then
+          if (SameText(t_AtributoDTO.NomeCampo, cCampoUsuarioId)) then
             t_ParametrosUpdatedEntidadeEvent := Format('Guid %s', [t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()])
           else
             t_ParametrosUpdatedEntidadeEvent := Format('%s %s', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()]);
         end
         else
         begin
-          if (SameText(t_AtributoDTO.NomeCampo, 'usuario_id')) then
+          if (SameText(t_AtributoDTO.NomeCampo, cCampoUsuarioId)) then
             t_ParametrosUpdatedEntidadeEvent := t_ParametrosUpdatedEntidadeEvent + Format(', Guid %s', [t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()])
           else
             t_ParametrosUpdatedEntidadeEvent := t_ParametrosUpdatedEntidadeEvent + Format(', %s %s', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()]);

@@ -21,7 +21,7 @@ type
 implementation
 
 uses
-  System.Classes, System.Contnrs, System.SysUtils, uAtributoDTO, uStringHelper;
+  System.Classes, System.Contnrs, System.SysUtils, uAtributoDTO, uStringHelper, uConstantes;
 
 { TDomainEntityGenerator }
 
@@ -68,7 +68,7 @@ begin
         end
         else
         begin
-          if (SameText(t_AtributoDTO.NomeCampo, 'usuario_id')) then
+          if (SameText(t_AtributoDTO.NomeCampo, cCampoUsuarioId)) then
           begin
             t_Arquivo.Add(Format('        public virtual %s %s { get; private set; }', [t_AtributoDTO.Tipo, t_AtributoDTO.Tipo]));
           end;
@@ -135,7 +135,7 @@ begin
 
         if (not SameText(t_AtributoDTO.NomeCampo, EmptyStr)) then
         begin
-          if (SameText(t_AtributoDTO.NomeCampo, 'usuario_id')) then
+          if (SameText(t_AtributoDTO.NomeCampo, cCampoUsuarioId)) then
           begin
             if (SameText(t_ParametrosNewConstrutor, EmptyStr)) then
               t_ParametrosNewConstrutor := Format('Guid %s', [t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()])
@@ -157,7 +157,7 @@ begin
             else
               t_CorpoUpdateConstrutor.Add(Format('                    %s = %s,', [t_AtributoDTO.NomeAtributo, t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()]));
           end
-          else if (SameText(t_AtributoDTO.NomeCampo, 'ativo')) then
+          else if (SameText(t_AtributoDTO.NomeCampo, cCampoExcluido)) then
           begin
             if (SameText(t_ParametrosUpdateConstrutor, EmptyStr)) then
               t_ParametrosUpdateConstrutor := Format('%s %s', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()])
@@ -165,9 +165,9 @@ begin
               t_ParametrosUpdateConstrutor := t_ParametrosUpdateConstrutor + Format(', %s %s', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()]);
 
             if (t_CorpoNewConstrutor.Count = pEntidade.Atributos.Count) then
-              t_CorpoNewConstrutor.Add(Format('                    %s = true', [t_AtributoDTO.NomeAtributo]))
+              t_CorpoNewConstrutor.Add(Format('                    %s = false', [t_AtributoDTO.NomeAtributo]))
             else
-              t_CorpoNewConstrutor.Add(Format('                    %s = true,', [t_AtributoDTO.NomeAtributo]));
+              t_CorpoNewConstrutor.Add(Format('                    %s = false,', [t_AtributoDTO.NomeAtributo]));
 
             if (t_CorpoUpdateConstrutor.Count = pEntidade.Atributos.Count) then
               t_CorpoUpdateConstrutor.Add(Format('                    %s = %s', [t_AtributoDTO.NomeAtributo, t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()]))

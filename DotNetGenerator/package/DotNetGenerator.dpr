@@ -22,7 +22,8 @@ uses
   MSXML2_TLB in '..\MSXML2_TLB.pas',
   tests_integration_generator in '..\functions\tests_integration_generator.pas',
   uStringHelper in '..\helper\uStringHelper.pas',
-  tests_integration_dto_generator in '..\functions\tests_integration_dto_generator.pas';
+  tests_integration_dto_generator in '..\functions\tests_integration_dto_generator.pas',
+  tests_unit_api_generator in '..\functions\tests_unit_api_generator.pas';
 
 {$R *.res}
 

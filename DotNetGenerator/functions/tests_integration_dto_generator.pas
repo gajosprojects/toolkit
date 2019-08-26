@@ -21,7 +21,7 @@ type
 implementation
 
 uses
-  System.Classes, System.SysUtils, uStringHelper, uAtributoDTO;
+  System.Classes, System.SysUtils, uStringHelper, uAtributoDTO, uConstantes;
 
 { TTestsIntegrationDTOGenerator }
 
@@ -56,7 +56,7 @@ begin
     begin
       t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
 
-      if (SameText(t_AtributoDTO.NomeCampo, 'usuario_id')) then
+      if (SameText(t_AtributoDTO.NomeCampo, cCampoUsuarioId)) then
       begin
         t_Arquivo.Add(Format('        public Get%sDTO %s { get; set; }', [t_AtributoDTO.Tipo, t_AtributoDTO.Tipo.DecapitalizeFirstLetter()]));
       end
@@ -84,7 +84,7 @@ begin
     begin
       t_AtributoDTO := TAtributoDTO(pEntidade.Atributos.Items[t_Aux]);
 
-      if (SameText(t_AtributoDTO.NomeCampo, 'usuario_id')) or (SameText(t_AtributoDTO.Tipo, 'Guid')) then
+      if (SameText(t_AtributoDTO.NomeCampo, cCampoUsuarioId)) or (SameText(t_AtributoDTO.Tipo, 'Guid')) then
           t_Arquivo.Add(Format('        public string %s { get; set; }', [t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()]))
       else
         t_Arquivo.Add(Format('        public %s %s { get; set; }', [t_AtributoDTO.Tipo, t_AtributoDTO.NomeAtributo.DecapitalizeFirstLetter()]));
